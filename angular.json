@@ -38,7 +38,7 @@
           },
           "configurations": {
             "production": {
-              "baseHref": "/paola-store/",
+              "baseHref": "/ImportadoraPaola/",
               "budgets": [
                 {
                   "type": "initial",
