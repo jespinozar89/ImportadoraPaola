@@ -34,4 +34,10 @@
   }
 }
 
+.offcanvas-movil {
+  @media (max-width: 576px) {
+    width: 280px; // o el valor que prefieras
+  }
+}
+
 

@@ -1,13 +1,17 @@
 <nav class="navbar navbar-expand-lg shadow-sm px-4 py-2">
   <div class="container-fluid">
     <!-- Botón hamburguesa que activa el offcanvas -->
-    <button class="btn btn-outline-secondary me-3" type="button" data-bs-toggle="offcanvas"
+    <button class="btn btn-outline-secondary me-2" type="button" data-bs-toggle="offcanvas"
       data-bs-target="#offcanvasMenu" aria-controls="offcanvasMenu">
       <i class="bi bi-list fs-4"></i>
     </button>
 
     <!-- Logo -->
-    <a class="navbar-brand fw-bold me-3" href="#">Importadora Paola</a>
+    <a class="navbar-brand fw-bold me-3" href="#">
+  <span class="d-none d-sm-inline">Importadora</span>
+  <span class="d-inline d-sm-none">Import.</span> Paola
+</a>
+
 
     <!-- Íconos para móviles -->
     <div class="d-flex flex-column gap-3 d-md-none">
@@ -39,7 +43,7 @@
 </nav>
 
 <!-- Offcanvas Menu -->
-<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
+<div class="offcanvas offcanvas-start offcanvas-movil" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
   <div class="offcanvas-header">
     <h5 class="offcanvas-title" id="offcanvasMenuLabel">Categories</h5>
     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
