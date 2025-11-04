@@ -38,6 +38,7 @@
           },
           "configurations": {
             "production": {
+              "baseHref": "/paola-store/",
               "budgets": [
                 {
                   "type": "initial",
