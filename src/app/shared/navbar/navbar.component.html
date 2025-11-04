@@ -1,0 +1,68 @@
+<nav class="navbar navbar-expand-lg shadow-sm px-4 py-2">
+  <div class="container-fluid">
+    <!-- Botón hamburguesa que activa el offcanvas -->
+    <button class="btn btn-outline-secondary me-3" type="button" data-bs-toggle="offcanvas"
+      data-bs-target="#offcanvasMenu" aria-controls="offcanvasMenu">
+      <i class="bi bi-list fs-4"></i>
+    </button>
+
+    <!-- Logo -->
+    <a class="navbar-brand fw-bold me-3" href="#">Importadora Paola</a>
+
+    <!-- Íconos para móviles -->
+    <div class="d-flex flex-column gap-3 d-md-none">
+      <div class="d-flex justify-content-around">
+        <i class="bi bi-heart-fill fs-5 me-3"></i>
+        <i class="bi bi-cart-fill fs-5"></i>
+      </div>
+    </div>
+
+
+    <!-- Buscador -->
+    <form class="d-none d-md-flex flex-grow-1 me-3">
+      <div class="input-group">
+        <input type="text" class="form-control border-start-0" placeholder="Buscar productos..." />
+        <span class="input-group-text bg-white border-end-0">
+          <i class="bi bi-search"></i>
+        </span>
+      </div>
+    </form>
+
+    <!-- Íconos y botones -->
+    <div class="d-none d-md-flex align-items-center gap-3">
+      <i class="bi bi-heart-fill fs-5"></i>
+      <i class="bi bi-cart-fill fs-5"></i>
+      <a class="text-decoration-none" href="#">Sign In</a>
+      <button class="btn btn-primary">Sign Up</button>
+    </div>
+  </div>
+</nav>
+
+<!-- Offcanvas Menu -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="offcanvasMenuLabel">Categories</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item"><a href="#" class="text-decoration-none">All</a></li>
+      <li class="list-group-item"><a href="#" class="text-decoration-none">Electronics</a></li>
+      <li class="list-group-item"><a href="#" class="text-decoration-none">Clothing</a></li>
+      <li class="list-group-item"><a href="#" class="text-decoration-none">Accessories</a></li>
+      <li class="list-group-item"><a href="#" class="text-decoration-none">Home</a></li>
+    </ul>
+    <div class="d-flex flex-column gap-3 d-md-none">
+      <form class="mt-3">
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="Buscar productos..." />
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+        </div>
+      </form>
+      <div class="d-flex justify-content-around">
+        <a href="#" class="text-decoration-none">Sign In</a>
+        <button class="btn btn-primary">Sign Up</button>
+      </div>
+    </div>
+  </div>
+</div>
