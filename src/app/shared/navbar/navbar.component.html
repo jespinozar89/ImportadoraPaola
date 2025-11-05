@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg shadow-sm px-4 py-2">
+<nav class="navbar navbar-expand-lg fixed-top shadow-sm px-4 py-2 ">
   <div class="container-fluid">
     <!-- Botón hamburguesa que activa el offcanvas -->
     <button class="btn btn-outline-secondary me-2" type="button" data-bs-toggle="offcanvas"
@@ -8,16 +8,28 @@
 
     <!-- Logo -->
     <a class="navbar-brand fw-bold me-3" href="#">
-  <span class="d-none d-sm-inline">Importadora</span>
-  <span class="d-inline d-sm-none">Import.</span> Paola
-</a>
+      <span class="d-none d-sm-inline">Importadora</span>
+      <span class="d-inline d-sm-none">Import.</span> Paola
+    </a>
 
 
     <!-- Íconos para móviles -->
     <div class="d-flex flex-column gap-3 d-md-none">
       <div class="d-flex justify-content-around">
-        <i class="bi bi-heart-fill fs-5 me-3"></i>
+        <button class="btn position-relative p-0 me-3">
+          <i class="bi bi-heart-fill fs-5"></i>
+          <span *ngIf="favoritesCount > 0" class="position-absolute top-0 start-100 translate-middle badge bg-danger"
+            style="font-size: 0.75rem; padding: 0.25em 0.4em;">
+            {{ favoritesCount }}
+          </span>
+        </button>
+        <button class="btn position-relative p-0">
         <i class="bi bi-cart-fill fs-5"></i>
+        <span *ngIf="cartCount > 0" class="position-absolute top-0 start-100 translate-middle badge bg-danger"
+          style="font-size: 0.75rem; padding: 0.25em 0.4em;">
+          {{ cartCount }}
+        </span>
+      </button>
       </div>
     </div>
 
@@ -25,17 +37,29 @@
     <!-- Buscador -->
     <form class="d-none d-md-flex flex-grow-1 me-3">
       <div class="input-group">
-        <input type="text" class="form-control border-start-0" placeholder="Buscar productos..." />
+        <input type="text" class="form-control search-input border-start-0" placeholder="Buscar productos..." />
         <span class="input-group-text bg-white border-end-0">
           <i class="bi bi-search"></i>
         </span>
       </div>
     </form>
 
-    <!-- Íconos y botones -->
+    <!-- Íconos y botones Escritorio-->
     <div class="d-none d-md-flex align-items-center gap-3">
-      <i class="bi bi-heart-fill fs-5"></i>
-      <i class="bi bi-cart-fill fs-5"></i>
+      <button class="btn position-relative p-0">
+        <i class="bi bi-heart-fill fs-5"></i>
+        <span *ngIf="favoritesCount > 0" class="position-absolute top-0 start-100 translate-middle badge bg-danger"
+          style="font-size: 0.75rem; padding: 0.25em 0.4em;">
+          {{ favoritesCount }}
+        </span>
+      </button>
+      <button class="btn position-relative p-0">
+        <i class="bi bi-cart-fill fs-5"></i>
+        <span *ngIf="cartCount > 0" class="position-absolute top-0 start-100 translate-middle badge bg-danger"
+          style="font-size: 0.75rem; padding: 0.25em 0.4em;">
+          {{ cartCount }}
+        </span>
+      </button>
       <a class="text-decoration-none" href="#">Acceder</a>
       <button class="btn btn-primary">Regístrate</button>
     </div>
@@ -43,7 +67,8 @@
 </nav>
 
 <!-- Offcanvas Menu -->
-<div class="offcanvas offcanvas-start offcanvas-movil" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
+<div class="offcanvas offcanvas-start offcanvas-movil" tabindex="-1" id="offcanvasMenu"
+  aria-labelledby="offcanvasMenuLabel">
   <div class="offcanvas-header">
     <h5 class="offcanvas-title" id="offcanvasMenuLabel">Categorias</h5>
     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>

@@ -20,9 +20,12 @@
     <p class="text-success">{{ product.availability }}</p>
     <div class="d-flex justify-content-between align-items-center mt-3">
       <span class="fw-bold fs-5 text-primary"> ${{ product.price | number:'1.0-0':'es-CL' }}</span>
-      <button class="btn btn-sm btn-primary d-flex align-items-center gap-2 fw-bold">
+      <button
+        class="btn btn-sm btn-primary d-flex align-items-center gap-2 fw-bold"
+        (click)="addToCart()"
+      >
         <i class="bi bi-cart-fill"></i>
-        Add to Cart
+        Añadir al carrito
       </button>
   </div>
 </div>

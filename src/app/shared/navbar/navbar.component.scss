@@ -40,4 +40,13 @@
   }
 }
 
+.search-input {
+  @media (min-width: 768px) and (max-width: 991px) {
+  // estilos solo para tablets
+    width: 80px;
+  }
+}
+
+
+
 
