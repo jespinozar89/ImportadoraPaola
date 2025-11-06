@@ -16,20 +16,20 @@
     <!-- Íconos para móviles -->
     <div class="d-flex flex-column gap-3 d-md-none">
       <div class="d-flex justify-content-around">
-        <button class="btn position-relative p-0 me-3">
+        <a routerLink="/wishlist" class="btn position-relative p-0 me-3">
           <i class="bi bi-heart-fill fs-5"></i>
           <span *ngIf="favoritesCount > 0" class="position-absolute top-0 start-100 translate-middle badge bg-danger"
             style="font-size: 0.75rem; padding: 0.25em 0.4em;">
             {{ favoritesCount }}
           </span>
-        </button>
+        </a>
         <button class="btn position-relative p-0">
-        <i class="bi bi-cart-fill fs-5"></i>
-        <span *ngIf="cartCount > 0" class="position-absolute top-0 start-100 translate-middle badge bg-danger"
-          style="font-size: 0.75rem; padding: 0.25em 0.4em;">
-          {{ cartCount }}
-        </span>
-      </button>
+          <i class="bi bi-cart-fill fs-5"></i>
+          <span *ngIf="cartCount > 0" class="position-absolute top-0 start-100 translate-middle badge bg-danger"
+            style="font-size: 0.75rem; padding: 0.25em 0.4em;">
+            {{ cartCount }}
+          </span>
+        </button>
       </div>
     </div>
 
@@ -46,13 +46,14 @@
 
     <!-- Íconos y botones Escritorio-->
     <div class="d-none d-md-flex align-items-center gap-3">
-      <button class="btn position-relative p-0">
+      <a routerLink="/wishlist" class="btn position-relative p-0 text-decoration-none">
         <i class="bi bi-heart-fill fs-5"></i>
         <span *ngIf="favoritesCount > 0" class="position-absolute top-0 start-100 translate-middle badge bg-danger"
           style="font-size: 0.75rem; padding: 0.25em 0.4em;">
           {{ favoritesCount }}
         </span>
-      </button>
+      </a>
+
       <button class="btn position-relative p-0">
         <i class="bi bi-cart-fill fs-5"></i>
         <span *ngIf="cartCount > 0" class="position-absolute top-0 start-100 translate-middle badge bg-danger"

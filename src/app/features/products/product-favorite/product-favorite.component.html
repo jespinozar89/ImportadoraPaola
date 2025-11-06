@@ -1,0 +1,34 @@
+<div class="container">
+  <a href="#" class="back-link d-inline-flex align-items-center fw-semibold px-3 py-2 rounded">
+    <i class="bi bi-arrow-left me-2"></i>
+    Continuar comprando
+  </a>
+</div>
+
+<div *ngIf="totalFavorites > 0; else emptyState">
+  <div class="container mt-4">
+    <div class="mb-3">
+      <h6 class="fw-bold text-dark mb-1">Lista de Deseos</h6>
+      <p class="text-secondary small mb-0">2 productos</p>
+    </div>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+      <div class="col" *ngFor="let product of products">
+        <app-product-card [product]="product"></app-product-card>
+      </div>
+    </div>
+  </div>
+  <div class="text-center mt-3 mb-3">
+    <a href="#" class="text-danger fw-semibold">Limpiar lista de deseos</a>
+  </div>
+</div>
+
+<ng-template #emptyState>
+  <div class="container py-4">
+    <div class="d-flex flex-column align-items-center justify-content-center">
+      <i class="bi bi-heart fs-3 bg-light p-3 rounded-circle"></i>
+      <h4 class="fw-bold mb-2 mt-3">Tu lista de favoritos está vacía</h4>
+      <p class="text-muted mb-4">¡Guarda los productos que te gustan para más tarde!</p>
+      <a href="#" class="btn btn-primary px-4 py-2">Comenzar a comprar</a>
+    </div>
+  </div>
+</ng-template>
