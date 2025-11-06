@@ -6,7 +6,7 @@ import { ProductListComponent } from "./features/products/product-list/product-l
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, NavbarComponent, ProductListComponent],
+  imports: [RouterOutlet, NavbarComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
