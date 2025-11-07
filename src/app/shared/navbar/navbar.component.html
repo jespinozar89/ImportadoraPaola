@@ -23,13 +23,13 @@
             {{ favoritesCount }}
           </span>
         </a>
-        <button class="btn position-relative p-0">
+        <a routerLink="/shop" class="btn position-relative p-0">
           <i class="bi bi-cart-fill fs-5"></i>
           <span *ngIf="cartCount > 0" class="position-absolute top-0 start-100 translate-middle badge bg-danger"
             style="font-size: 0.75rem; padding: 0.25em 0.4em;">
             {{ cartCount }}
           </span>
-        </button>
+        </a>
       </div>
     </div>
 
@@ -54,13 +54,13 @@
         </span>
       </a>
 
-      <button class="btn position-relative p-0">
+      <a routerLink="/shop" class="btn position-relative p-0">
         <i class="bi bi-cart-fill fs-5"></i>
         <span *ngIf="cartCount > 0" class="position-absolute top-0 start-100 translate-middle badge bg-danger"
           style="font-size: 0.75rem; padding: 0.25em 0.4em;">
           {{ cartCount }}
         </span>
-      </button>
+      </a>
       <a class="text-decoration-none" href="#">Acceder</a>
       <button class="btn btn-primary">Regístrate</button>
     </div>

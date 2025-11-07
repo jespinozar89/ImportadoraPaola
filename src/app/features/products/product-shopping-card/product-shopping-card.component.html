@@ -1,0 +1,123 @@
+<div class="shopping-cart-container">
+  <!-- Header -->
+  <div class="cart-header mb-4">
+    <a href="#" class="back-link d-inline-flex align-items-center fw-semibold px-3 py-2 rounded">
+      <i class="bi bi-arrow-left me-2"></i>
+      Continuar comprando
+    </a>
+  </div>
+
+  <h6 class="fw-bold text-dark mb-4">Carrito de compras</h6>
+
+  <!-- Wishlist Section -->
+  <div class="wishlist-banner card mb-4">
+    <div class="card-body d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center">
+        <i class="bi bi-heart text-danger fs-3 me-3"></i>
+        <div>
+          <h6 class="mb-0">Lista de Deseos</h6>
+          <p class="text-muted mb-0 small">Tienes {{ wishlistCount }} artículos guardados para más tarde</p>
+        </div>
+      </div>
+      <div>
+        <button class="btn btn-link text-primary text-decoration-none me-2" (click)="viewWishlist()">
+          Ver Todo
+        </button>
+        <button class="btn btn-primary" (click)="addAllToCart()">
+          <i class="bi bi-cart-fill"></i> Agregar Todo al Carrito
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Grid -->
+  <div class="row g-4">
+    <!-- Cart Items Column -->
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-body">
+          <h6 class="mb-4">Artículos en el Carrito ({{ cartItems.length }})</h6>
+
+          <!-- Cart Item -->
+          <div class="cart-item" *ngFor="let item of cartItems; let last = last" [class.border-bottom]="!last">
+            <div class="row align-items-center">
+              <!-- Product Image -->
+              <div class="col-md-2 col-3">
+                <img [src]="item.image" class="img-fluid h-100 rounded" [style.object-fit]="'cover'"
+                  alt="{{ item.name }}">
+              </div>
+
+              <!-- Product Details -->
+              <div class="col-md-4 col-9">
+                <h6 class="product-name mb-1">{{ item.name }}</h6>
+                <p class="product-price mb-0">${{ item.price | number:'1.0-0':'es-CL' }}</p>
+              </div>
+
+              <!-- Quantity Controls -->
+              <div class="col-md-3 col-6">
+                <div class="quantity-controls d-flex align-items-center justify-content-center">
+                  <button class="btn btn-outline-secondary btn-sm" (click)="decreaseQuantity(item)"
+                    [disabled]="item.quantity <= 1">
+                    <i class="bi bi-dash"></i>
+                  </button>
+                  <span class="quantity-value mx-3">{{ item.quantity }}</span>
+                  <button class="btn btn-outline-secondary btn-sm" (click)="increaseQuantity(item)">
+                    <i class="bi bi-plus"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Total & Actions -->
+              <div class="col-md-3 col-6">
+                <div class="text-end">
+                  <h5 class="item-total mb-3">${{ item.total | number:'1.0-0':'es-CL' }}</h5>
+                  <div class="item-actions">
+                    <button class="btn btn-link text-secondary p-1" (click)="addToWishlist(item)"
+                      title="Agregar a lista de deseos">
+                      <i class="bi bi-heart"></i>
+                    </button>
+                    <button class="btn btn-link text-danger p-1" (click)="removeItem(item)" title="Eliminar artículo">
+                      <i class="bi bi-trash-fill"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Summary Column -->
+    <div class="col-lg-4">
+      <div class="card order-summary-card sticky-top">
+        <div class="card-body">
+          <h4 class="mb-4">Resumen del Pedido</h4>
+
+          <!-- Summary Details -->
+          <div class="summary-row d-flex justify-content-between mb-3">
+            <span class="text-muted">Subtotal</span>
+            <span class="fw-bold">${{ subtotal | number:'1.0-0':'es-CL'}}</span>
+          </div>
+
+          <div class="summary-row d-flex justify-content-between mb-3">
+            <span class="text-muted">Impuestos</span>
+            <span class="fw-bold">${{ tax | number:'1.0-0':'es-CL' }}</span>
+          </div>
+
+          <hr>
+
+          <div class="summary-row d-flex justify-content-between mb-4">
+            <span class="fs-5 fw-bold">Total</span>
+            <span class="fs-5 fw-bold">${{ total | number:'1.0-0':'es-CL' }}</span>
+          </div>
+
+          <!-- Checkout Button -->
+          <button class="btn btn-primary w-100 btn-lg" (click)="proceedToCheckout()">
+            Proceder al Pago
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
