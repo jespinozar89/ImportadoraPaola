@@ -1,9 +1,10 @@
 <div class="product-form-container">
   <!-- Header -->
   <div class="form-header mb-4">
-    <a href="javascript:void(0)" class="back-link" (click)="goBack()">
-      <i class="bi bi-arrow-left"></i> Volver a Productos
-    </a>
+   <a href="#" class="back-link d-inline-flex align-items-center fw-semibold px-3 py-2 rounded">
+    <i class="bi bi-arrow-left me-2"></i>
+    Volver a Productos
+  </a>
   </div>
 
   <h1 class="form-title">Crear Nuevo Producto</h1>
@@ -14,37 +15,27 @@
       <div class="col-lg-5">
         <div class="card h-100">
           <div class="card-body">
-            <h5 class="mb-3">Imagen del Producto</h5>
+            <h5 class="mb-4">Imagen del Producto</h5>
 
             <!-- Image Upload Area -->
-            <div class="image-upload-area"
-                 [class.has-image]="hasImage()"
-                 (dragover)="onDragOver($event)"
-                 (drop)="onDrop($event)"
-                 (click)="triggerFileInput(fileInput)">
+            <div class="image-upload-area" [class.has-image]="hasImage()" (dragover)="onDragOver($event)"
+              (drop)="onDrop($event)" (click)="triggerFileInput(fileInput)">
 
-              <input
-                #fileInput
-                type="file"
-                accept="image/*"
-                (change)="onFileSelected($event)"
-                style="display: none;">
+              <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)" style="display: none;">
 
               <div class="upload-placeholder" *ngIf="!hasImage()">
                 <i class="bi bi-cloud-upload upload-icon"></i>
                 <p class="upload-text">Arrastra y suelta una imagen aquí</p>
                 <p class="upload-subtext">o</p>
-                <button type="button" class="btn btn-outline-primary" (click)="fileInput.click(); $event.stopPropagation()">
+                <button type="button" class="btn btn-outline-primary"
+                  (click)="fileInput.click(); $event.stopPropagation()">
                   Seleccionar Imagen
                 </button>
               </div>
 
               <div class="image-preview-container" [class.active]="hasImage()">
                 <img [src]="imagePreview()" alt="Preview" class="image-preview">
-                <button
-                  type="button"
-                  class="btn btn-danger btn-sm remove-image-btn"
-                  (click)="removeImage($event)">
+                <button type="button" class="btn btn-danger btn-sm remove-image-btn" (click)="removeImage($event)">
                   <i class="bi bi-trash"></i> Eliminar
                 </button>
               </div>
@@ -66,11 +57,7 @@
             <!-- Category -->
             <div class="mb-3">
               <label for="category" class="form-label">Categoría *</label>
-              <select class="form-select"
-                      id="category"
-                      name="category"
-                      [(ngModel)]="product.category"
-                      required>
+              <select class="form-select" id="category" name="category" [(ngModel)]="product.category" required>
                 <option value="">Selecciona una categoría</option>
                 <option *ngFor="let cat of categories" [value]="cat.value">
                   {{ cat.label }}
@@ -81,14 +68,15 @@
             <!-- Product Name -->
             <div class="mb-3">
               <label for="productName" class="form-label">Nombre del Producto *</label>
-              <input
-                type="text"
-                class="form-control"
-                id="productName"
-                name="productName"
-                [(ngModel)]="product.name"
-                placeholder="Ej: Audífonos Inalámbricos con Cancelación de Ruido"
-                required>
+              <input type="text" class="form-control" id="productName" name="productName" [(ngModel)]="product.name"
+                placeholder="Ej: Audífonos Inalámbricos con Cancelación de Ruido" required>
+            </div>
+
+             <!-- Product Code -->
+            <div class="mb-3">
+              <label for="productCode" class="form-label">Codigo del Producto *</label>
+              <input type="text" class="form-control" id="productCode" name="productCode" [(ngModel)]="product.name"
+                placeholder="Ej: 4009900484039" required>
             </div>
 
             <!-- Price and Stock -->
@@ -97,42 +85,27 @@
                 <label for="price" class="form-label">Precio *</label>
                 <div class="input-group">
                   <span class="input-group-text">$</span>
-                  <input
-                    type="number"
-                    class="form-control"
-                    id="price"
-                    name="price"
-                    [(ngModel)]="product.price"
-                    step="0.01"
-                    min="0"
-                    placeholder="299.99"
-                    required>
+                  <input type="number" class="form-control" id="price" name="price" [(ngModel)]="product.price"
+                    step="0.01" min="0" placeholder="299.99" required>
                 </div>
               </div>
 
               <div class="col-md-6 mb-3">
                 <label for="stock" class="form-label">Stock Disponible</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  id="stock"
-                  name="stock"
-                  [(ngModel)]="product.stock"
-                  min="0"
-                  placeholder="100">
+                <select class="form-select" id="stock" name="stock" [(ngModel)]="product.stock" required>
+                  <option value="">Seleccione stock</option>
+                  <option *ngFor="let cat of stock" [value]="cat.value">
+                    {{ cat.label }}
+                  </option>
+                </select>
               </div>
             </div>
 
             <!-- Description -->
             <div class="mb-4">
               <label for="description" class="form-label">Descripción</label>
-              <textarea
-                class="form-control"
-                id="description"
-                name="description"
-                [(ngModel)]="product.description"
-                rows="4"
-                placeholder="Describe las características principales del producto..."></textarea>
+              <textarea class="form-control" id="description" name="description" [(ngModel)]="product.description"
+                rows="4" placeholder="Describe las características principales del producto..."></textarea>
             </div>
 
             <!-- Action Buttons -->
@@ -150,4 +123,3 @@
     </div>
   </form>
 </div>
-

@@ -6,7 +6,7 @@ interface Product {
   category: string;
   name: string;
   price: number;
-  stock: number;
+  stock: string;
   description: string;
   imageUrl: string;
 }
@@ -27,20 +27,25 @@ export class ProductFormComponent {
     category: '',
     name: '',
     price: 0,
-    stock: 0,
+    stock: '',
     description: '',
     imageUrl: ''
   };
 
   categories = [
-    { value: 'electronics', label: 'Electrónica' },
-    { value: 'clothing', label: 'Ropa y Accesorios' },
-    { value: 'home', label: 'Hogar y Jardín' },
-    { value: 'sports', label: 'Deportes' },
-    { value: 'books', label: 'Libros' },
-    { value: 'toys', label: 'Juguetes' },
-    { value: 'food', label: 'Alimentos y Bebidas' },
-    { value: 'beauty', label: 'Salud y Belleza' }
+    { value: 'notebooks', label: 'Cuadernos y Libretas' },
+    { value: 'pens', label: 'Lápices y Bolígrafos' },
+    { value: 'folders', label: 'Carpetas y Archivadores' },
+    { value: 'office', label: 'Artículos de Oficina' },
+    { value: 'school', label: 'Útiles Escolares' },
+    { value: 'art', label: 'Material de Arte y Dibujo' },
+    { value: 'books', label: 'Libros y Manuales' },
+    { value: 'accessories', label: 'Accesorios de Librería' }
+  ];
+
+  stock = [
+    { value: 'available', label: 'Disponible' },
+    { value: 'outOfStock', label: 'Agotado' },
   ];
 
   onFileSelected(event: Event): void {
@@ -118,10 +123,11 @@ export class ProductFormComponent {
       category: '',
       name: '',
       price: 0,
-      stock: 0,
+      stock: '',
       description: '',
       imageUrl: ''
     };
+
     this.imagePreview.set('');
     this.hasImage.set(false);
   }
