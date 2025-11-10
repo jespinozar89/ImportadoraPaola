@@ -4,6 +4,7 @@ import { ProductViewComponent } from './features/products/product-view/product-v
 import { ProductFavoriteComponent } from './features/products/product-favorite/product-favorite.component';
 import { ProductShoppingCardComponent } from './features/products/product-shopping-card/product-shopping-card.component';
 import { ProductFormComponent } from './features/admin/product-form/product-form.component';
+import { ProductInventoryComponent } from './features/admin/product-inventory/product-inventory.component';
 
 export const routes: Routes = [
   { path: '', component: ProductListComponent },
@@ -11,5 +12,6 @@ export const routes: Routes = [
   { path: 'wishlist', component: ProductFavoriteComponent },
   { path: 'shop', component: ProductShoppingCardComponent },
   { path: 'form', component: ProductFormComponent },
+  { path: 'inventory', component: ProductInventoryComponent },
   { path: '**', redirectTo: '' }
 ];

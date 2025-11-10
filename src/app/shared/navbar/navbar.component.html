@@ -71,16 +71,44 @@
 <div class="offcanvas offcanvas-start offcanvas-movil" tabindex="-1" id="offcanvasMenu"
   aria-labelledby="offcanvasMenuLabel">
   <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="offcanvasMenuLabel">Categorias</h5>
     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
-  <div class="offcanvas-body">
+  <div class="offcanvas-body p-3">
+    <!-- Perfil de Usuario -->
+    <div class="user-profile d-flex align-items-center mb-4">
+      <div class="user-icon rounded-circle text-white d-flex justify-content-center align-items-center me-3"
+        style="background-color: #e5e5e5;">
+        <i class="bi bi-person fs-1"></i>
+      </div>
+      <div>
+        <h6 class="mb-0 fw-bold">Mauricio Riquelme</h6>
+        <small class="text-muted">Administrador</small>
+      </div>
+    </div>
+    <hr>
+    <!-- Administrador -->
+    <h6 class="text-uppercase fw-bold text-muted mb-3 mt-4">Administración</h6>
     <ul class="list-group list-group-flush">
-      <li class="list-group-item"><a href="#" class="text-decoration-none">Todo</a></li>
-      <li class="list-group-item"><a href="#" class="text-decoration-none">Lapices</a></li>
-      <li class="list-group-item"><a href="#" class="text-decoration-none">Marcadores</a></li>
-      <li class="list-group-item"><a href="#" class="text-decoration-none">Block de Dibujo</a></li>
-      <li class="list-group-item"><a href="#" class="text-decoration-none">Temperas</a></li>
+      <li routerLink="/inventory"
+          (click)="selectItem('inventario'); closeOffcanvas()"
+          [class.active-item]="selected === 'inventario'"
+          class="list-group-item px-0 py-2 ps-2 border-bottom">Inventario de Productos</li>
+      <li routerLink="/form"
+          (click)="selectItem('Nuevo'); closeOffcanvas()"
+          [class.active-item]="selected === 'Nuevo'"
+          class="list-group-item px-0 py-2 ps-2 border-bottom">Nuevo Producto</li>
+      <li class="list-group-item px-0 py-2 ps-2 border-bottom">Pedidos Recibidos</li>
+      <li class="list-group-item px-0 py-2 ps-2 border-bottom">Administrar Categorías</li>
+    </ul>
+    <!-- Categorías -->
+    <h6 class="text-uppercase fw-bold text-muted mb-3 mt-4">Categorías</h6>
+    <ul class="list-group list-group-flush">
+      <li routerLink="/"
+          (click)="selectItem('Todo'); closeOffcanvas()"
+          [class.active-item]="selected === 'Todo'"
+          class="list-group-item px-0 py-2 ps-2 border-bottom">Todo</li>
+      <li class="list-group-item px-0 py-2 ps-2 border-bottom">Lápices</li>
+      <li class="list-group-item px-0 py-2 ps-2 border-bottom">Marcadores</li>
     </ul>
     <div class="d-flex flex-column gap-3 d-md-none">
       <form class="mt-3">

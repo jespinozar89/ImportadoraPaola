@@ -12,6 +12,7 @@ import { Router } from '@angular/router';
 })
 export class ProductCardComponent {
   @Input() product: any;
+  @Input() mode: 'cliente' | 'admin' = 'cliente';
   isFavorite = false;
 
   constructor(
@@ -35,8 +36,15 @@ export class ProductCardComponent {
     this.isFavorite = !this.isFavorite;
   }
 
-  viewDetails() {
-    this.router.navigate(['/producto', this.product.id]);
+  viewDetails(mode: string = 'cliente') {
+
+    if(mode === 'admin') {
+      this.router.navigate(['/form']);
+    }
+    else{
+      this.router.navigate(['/producto', this.product.id]);
+    }
+
   }
 
 }
