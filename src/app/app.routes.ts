@@ -5,6 +5,7 @@ import { ProductFavoriteComponent } from './features/products/product-favorite/p
 import { ProductShoppingCardComponent } from './features/products/product-shopping-card/product-shopping-card.component';
 import { ProductFormComponent } from './features/admin/product-form/product-form.component';
 import { ProductInventoryComponent } from './features/admin/product-inventory/product-inventory.component';
+import { OrderManagementComponent } from './features/admin/order-management/order-management.component';
 
 export const routes: Routes = [
   { path: '', component: ProductListComponent },
@@ -13,5 +14,6 @@ export const routes: Routes = [
   { path: 'shop', component: ProductShoppingCardComponent },
   { path: 'form', component: ProductFormComponent },
   { path: 'inventory', component: ProductInventoryComponent },
+  { path: 'orders', component: OrderManagementComponent },
   { path: '**', redirectTo: '' }
 ];

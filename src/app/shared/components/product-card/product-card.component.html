@@ -23,7 +23,7 @@
         <i class="bi bi-cart-fill"></i>
         Añadir al carrito
       </button>
-      <button *ngIf="mode === 'admin'" class="btn btn-sm btn-danger d-flex align-items-center gap-2 fw-bold" (click)="addToCart($event)">
+      <button *ngIf="mode === 'admin'" class="btn btn-sm btn-danger d-flex align-items-center gap-2 fw-bold" (click)="$event.stopPropagation()">
         <i class="bi bi-trash-fill"></i>
         Eliminar
       </button>
