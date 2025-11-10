@@ -1,382 +1,389 @@
 <div class="orders-container">
-  <!-- Encabezado -->
-  <div class="page-header">
-    <h1 class="page-title">
-      <i class="bi bi-cart-check"></i>
-      Gestión de Pedidos
-    </h1>
+  <div class="form-header mb-4">
+    <div class="back-link-container mb-3">
+    <a href="#" class="back-link d-inline-flex align-items-center fw-semibold px-3 py-2 rounded">
+      <i class="bi bi-arrow-left me-2"></i>
+      Volver a Productos
+    </a>
+    </div>
+    <!-- Encabezado -->
+    <div class="page-header">
+      <h1 class="page-title">
+        <i class="bi bi-cart-check"></i>
+        Gestión de Pedidos
+      </h1>
 
-    <!-- Tarjetas resumen -->
-    <div class="stats-cards">
-      <div class="stat-card">
-        <div class="stat-label">Total Pedidos</div>
-        <div class="stat-value">156</div>
+      <!-- Tarjetas resumen -->
+      <div class="stats-cards">
+        <div class="stat-card">
+          <div class="stat-label">Total Pedidos</div>
+          <div class="stat-value">156</div>
+        </div>
+        <div class="stat-card success">
+          <div class="stat-label">Entregados</div>
+          <div class="stat-value">89</div>
+        </div>
+        <div class="stat-card warning">
+          <div class="stat-label">Pendientes</div>
+          <div class="stat-value">42</div>
+        </div>
+        <div class="stat-card info">
+          <div class="stat-label">En Proceso</div>
+          <div class="stat-value">25</div>
+        </div>
       </div>
-      <div class="stat-card success">
-        <div class="stat-label">Entregados</div>
-        <div class="stat-value">89</div>
+    </div>
+
+    <!-- Tabla de pedidos -->
+    <div class="table-card">
+      <div class="table-header">
+        <h5 class="mb-0">Lista de Pedidos Recientes</h5>
+        <div class="search-box">
+          <input type="text" class="form-control" placeholder="Buscar por nombre o ID...">
+          <button class="btn btn-primary">
+            <i class="bi bi-search"></i>
+          </button>
+        </div>
+        <!-- Select para ordenar por estado -->
+        <div class="d-flex align-items-center gap-2">
+          <label for="estadoSelect" class="form-label mb-0">Ordenar por Estado:</label>
+          <select id="estadoSelect" class="form-select form-select-sm"
+            (change)="estadoSeleccionado = $any($event.target)?.value; filtrarPorEstado()">
+            <option value="">Todos</option>
+            <option value="pendiente">Pendiente</option>
+            <option value="preparando">Preparando</option>
+            <option value="entregado">Entregado</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+        </div>
       </div>
-      <div class="stat-card warning">
-        <div class="stat-label">Pendientes</div>
-        <div class="stat-value">42</div>
+
+      <!-- Table -->
+      <div class="table-responsive">
+        <table class="table orders-table">
+          <thead>
+            <tr>
+              <th>ID Pedido</th>
+              <th>Cliente</th>
+              <th>Fecha</th>
+              <th>Total</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Pedido 1 -->
+            <tr>
+              <td><span class="order-id">#ORD-001</span></td>
+              <td>
+                <div class="customer-info">
+                  <div class="customer-avatar">MP</div>
+                  <div class="customer-details">
+                    <span class="customer-name">María Pérez</span>
+                    <span class="customer-phone">
+                      <i class="bi bi-telephone"></i> +56 9 1234 5678
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td class="order-date">10 Nov 2025</td>
+              <td><span class="order-price">$45.990</span></td>
+              <td>
+                <span class="status-badge entregado">
+                  <i class="bi bi-check-circle-fill"></i>
+                  Entregado
+                </span>
+              </td>
+              <td>
+                <button class="btn btn-view btn-action">
+                  <i class="bi bi-eye"></i> Ver Detalle
+                </button>
+              </td>
+            </tr>
+
+            <!-- Pedido 2 -->
+            <tr>
+              <td><span class="order-id">#ORD-002</span></td>
+              <td>
+                <div class="customer-info">
+                  <div class="customer-avatar">JG</div>
+                  <div class="customer-details">
+                    <span class="customer-name">Juan González</span>
+                    <span class="customer-phone">
+                      <i class="bi bi-telephone"></i> +56 9 8765 4321
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td class="order-date">10 Nov 2025</td>
+              <td><span class="order-price">$78.500</span></td>
+              <td>
+                <span class="status-badge cancelado">
+                  <i class="bi bi-x-circle-fill"></i>
+                  Cancelado
+                </span>
+              </td>
+              <td>
+                <button class="btn btn-view btn-action">
+                  <i class="bi bi-eye"></i> Ver Detalle
+                </button>
+              </td>
+            </tr>
+
+            <!-- Pedido 3 -->
+            <tr>
+              <td><span class="order-id">#ORD-003</span></td>
+              <td>
+                <div class="customer-info">
+                  <div class="customer-avatar">AR</div>
+                  <div class="customer-details">
+                    <span class="customer-name">Ana Rodríguez</span>
+                    <span class="customer-phone">
+                      <i class="bi bi-telephone"></i> +56 9 2345 6789
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td class="order-date">09 Nov 2025</td>
+              <td><span class="order-price">$32.990</span></td>
+              <td>
+                <span class="status-badge preparando">
+                  <i class="bi bi-hourglass-split"></i>
+                  Preparando
+                </span>
+              </td>
+              <td>
+                <button class="btn btn-view btn-action">
+                  <i class="bi bi-eye"></i> Ver Detalle
+                </button>
+              </td>
+            </tr>
+
+            <!-- Pedido 4 -->
+            <tr>
+              <td><span class="order-id">#ORD-004</span></td>
+              <td>
+                <div class="customer-info">
+                  <div class="customer-avatar">CM</div>
+                  <div class="customer-details">
+                    <span class="customer-name">Carlos Martínez</span>
+                    <span class="customer-phone">
+                      <i class="bi bi-telephone"></i> +56 9 3456 7890
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td class="order-date">09 Nov 2025</td>
+              <td><span class="order-price">$125.000</span></td>
+              <td>
+                <span class="status-badge pendiente">
+                  <i class="bi bi-clock"></i>
+                  Pendiente
+                </span>
+              </td>
+              <td>
+                <button class="btn btn-view btn-action">
+                  <i class="bi bi-eye"></i> Ver Detalle
+                </button>
+              </td>
+            </tr>
+
+            <!-- Pedido 5 -->
+            <tr>
+              <td><span class="order-id">#ORD-005</span></td>
+              <td>
+                <div class="customer-info">
+                  <div class="customer-avatar">LS</div>
+                  <div class="customer-details">
+                    <span class="customer-name">Laura Silva</span>
+                    <span class="customer-phone">
+                      <i class="bi bi-telephone"></i> +56 9 4567 8901
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td class="order-date">08 Nov 2025</td>
+              <td><span class="order-price">$89.990</span></td>
+              <td>
+                <span class="status-badge entregado">
+                  <i class="bi bi-check-circle-fill"></i>
+                  Entregado
+                </span>
+              </td>
+              <td>
+                <button class="btn btn-view btn-action">
+                  <i class="bi bi-eye"></i> Ver Detalle
+                </button>
+              </td>
+            </tr>
+
+            <!-- Pedido 6 -->
+            <tr>
+              <td><span class="order-id">#ORD-006</span></td>
+              <td>
+                <div class="customer-info">
+                  <div class="customer-avatar">PT</div>
+                  <div class="customer-details">
+                    <span class="customer-name">Pedro Torres</span>
+                    <span class="customer-phone">
+                      <i class="bi bi-telephone"></i> +56 9 5678 9012
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td class="order-date">08 Nov 2025</td>
+              <td><span class="order-price">$54.500</span></td>
+              <td>
+                <span class="status-badge cancelado">
+                  <i class="bi bi-x-circle-fill"></i>
+                  Cancelado
+                </span>
+              </td>
+              <td>
+                <button class="btn btn-view btn-action">
+                  <i class="bi bi-eye"></i> Ver Detalle
+                </button>
+              </td>
+            </tr>
+
+            <!-- Pedido 7 -->
+            <tr>
+              <td><span class="order-id">#ORD-007</span></td>
+              <td>
+                <div class="customer-info">
+                  <div class="customer-avatar">SC</div>
+                  <div class="customer-details">
+                    <span class="customer-name">Sofía Castro</span>
+                    <span class="customer-phone">
+                      <i class="bi bi-telephone"></i> +56 9 6789 0123
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td class="order-date">07 Nov 2025</td>
+              <td><span class="order-price">$67.800</span></td>
+              <td>
+                <span class="status-badge preparando">
+                  <i class="bi bi-hourglass-split"></i>
+                  Preparando
+                </span>
+              </td>
+              <td>
+                <button class="btn btn-view btn-action">
+                  <i class="bi bi-eye"></i> Ver Detalle
+                </button>
+              </td>
+            </tr>
+
+            <!-- Pedido 8 -->
+            <tr>
+              <td><span class="order-id">#ORD-008</span></td>
+              <td>
+                <div class="customer-info">
+                  <div class="customer-avatar">DR</div>
+                  <div class="customer-details">
+                    <span class="customer-name">Diego Ramírez</span>
+                    <span class="customer-phone">
+                      <i class="bi bi-telephone"></i> +56 9 7890 1234
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td class="order-date">07 Nov 2025</td>
+              <td><span class="order-price">$156.990</span></td>
+              <td>
+                <span class="status-badge preparando">
+                  <i class="bi bi-hourglass-split"></i>
+                  Preparando
+                </span>
+              </td>
+              <td>
+                <button class="btn btn-view btn-action">
+                  <i class="bi bi-eye"></i> Ver Detalle
+                </button>
+              </td>
+            </tr>
+
+            <!-- Pedido 9 -->
+            <tr>
+              <td><span class="order-id">#ORD-009</span></td>
+              <td>
+                <div class="customer-info">
+                  <div class="customer-avatar">VH</div>
+                  <div class="customer-details">
+                    <span class="customer-name">Valentina Herrera</span>
+                    <span class="customer-phone">
+                      <i class="bi bi-telephone"></i> +56 9 8901 2345
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td class="order-date">06 Nov 2025</td>
+              <td><span class="order-price">$98.500</span></td>
+              <td>
+                <span class="status-badge entregado">
+                  <i class="bi bi-check-circle-fill"></i>
+                  Entregado
+                </span>
+              </td>
+              <td>
+                <button class="btn btn-view btn-action">
+                  <i class="bi bi-eye"></i> Ver Detalle
+                </button>
+              </td>
+            </tr>
+
+            <!-- Pedido 10 -->
+            <tr>
+              <td><span class="order-id">#ORD-010</span></td>
+              <td>
+                <div class="customer-info">
+                  <div class="customer-avatar">FM</div>
+                  <div class="customer-details">
+                    <span class="customer-name">Fernando Morales</span>
+                    <span class="customer-phone">
+                      <i class="bi bi-telephone"></i> +56 9 9012 3456
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td class="order-date">06 Nov 2025</td>
+              <td><span class="order-price">$42.990</span></td>
+              <td>
+                <span class="status-badge pendiente">
+                  <i class="bi bi-clock"></i>
+                  Pendiente
+                </span>
+              </td>
+              <td>
+                <button class="btn btn-view btn-action">
+                  <i class="bi bi-eye"></i> Ver Detalle
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <div class="stat-card info">
-        <div class="stat-label">En Proceso</div>
-        <div class="stat-value">25</div>
+
+      <!-- Table Footer with Pagination -->
+      <div class="table-footer">
+        <span class="showing-info">Mostrando 1-10 de 156 pedidos</span>
+        <nav>
+          <ul class="pagination">
+            <li class="page-item disabled">
+              <a class="page-link" href="#"><i class="bi bi-chevron-left"></i></a>
+            </li>
+            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item"><a class="page-link" href="#">4</a></li>
+            <li class="page-item"><a class="page-link" href="#">5</a></li>
+            <li class="page-item">
+              <a class="page-link" href="#"><i class="bi bi-chevron-right"></i></a>
+            </li>
+          </ul>
+        </nav>
       </div>
+
     </div>
   </div>
-
-  <!-- Tabla de pedidos -->
-  <div class="table-card">
-    <div class="table-header">
-      <h5 class="mb-0">Lista de Pedidos Recientes</h5>
-      <div class="search-box">
-        <input type="text" class="form-control" placeholder="Buscar por nombre o ID...">
-        <button class="btn btn-primary">
-          <i class="bi bi-search"></i>
-        </button>
-      </div>
-      <!-- Select para ordenar por estado -->
-      <div class="d-flex align-items-center gap-2">
-        <label for="estadoSelect" class="form-label mb-0">Ordenar por Estado:</label>
-        <select id="estadoSelect" class="form-select form-select-sm"
-          (change)="estadoSeleccionado = $any($event.target)?.value; filtrarPorEstado()">
-          <option value="">Todos</option>
-          <option value="pendiente">Pendiente</option>
-          <option value="preparando">Preparando</option>
-          <option value="entregado">Entregado</option>
-          <option value="cancelado">Cancelado</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Table -->
-    <div class="table-responsive">
-      <table class="table orders-table">
-        <thead>
-          <tr>
-            <th>ID Pedido</th>
-            <th>Cliente</th>
-            <th>Fecha</th>
-            <th>Total</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Pedido 1 -->
-          <tr>
-            <td><span class="order-id">#ORD-001</span></td>
-            <td>
-              <div class="customer-info">
-                <div class="customer-avatar">MP</div>
-                <div class="customer-details">
-                  <span class="customer-name">María Pérez</span>
-                  <span class="customer-phone">
-                    <i class="bi bi-telephone"></i> +56 9 1234 5678
-                  </span>
-                </div>
-              </div>
-            </td>
-            <td class="order-date">10 Nov 2025</td>
-            <td><span class="order-price">$45.990</span></td>
-            <td>
-              <span class="status-badge entregado">
-                <i class="bi bi-check-circle-fill"></i>
-                Entregado
-              </span>
-            </td>
-            <td>
-              <button class="btn btn-view btn-action">
-                <i class="bi bi-eye"></i> Ver Detalle
-              </button>
-            </td>
-          </tr>
-
-          <!-- Pedido 2 -->
-          <tr>
-            <td><span class="order-id">#ORD-002</span></td>
-            <td>
-              <div class="customer-info">
-                <div class="customer-avatar">JG</div>
-                <div class="customer-details">
-                  <span class="customer-name">Juan González</span>
-                  <span class="customer-phone">
-                    <i class="bi bi-telephone"></i> +56 9 8765 4321
-                  </span>
-                </div>
-              </div>
-            </td>
-            <td class="order-date">10 Nov 2025</td>
-            <td><span class="order-price">$78.500</span></td>
-            <td>
-              <span class="status-badge cancelado">
-                <i class="bi bi-x-circle-fill"></i>
-                Cancelado
-              </span>
-            </td>
-            <td>
-              <button class="btn btn-view btn-action">
-                <i class="bi bi-eye"></i> Ver Detalle
-              </button>
-            </td>
-          </tr>
-
-          <!-- Pedido 3 -->
-          <tr>
-            <td><span class="order-id">#ORD-003</span></td>
-            <td>
-              <div class="customer-info">
-                <div class="customer-avatar">AR</div>
-                <div class="customer-details">
-                  <span class="customer-name">Ana Rodríguez</span>
-                  <span class="customer-phone">
-                    <i class="bi bi-telephone"></i> +56 9 2345 6789
-                  </span>
-                </div>
-              </div>
-            </td>
-            <td class="order-date">09 Nov 2025</td>
-            <td><span class="order-price">$32.990</span></td>
-            <td>
-              <span class="status-badge preparando">
-                <i class="bi bi-hourglass-split"></i>
-                Preparando
-              </span>
-            </td>
-            <td>
-              <button class="btn btn-view btn-action">
-                <i class="bi bi-eye"></i> Ver Detalle
-              </button>
-            </td>
-          </tr>
-
-          <!-- Pedido 4 -->
-          <tr>
-            <td><span class="order-id">#ORD-004</span></td>
-            <td>
-              <div class="customer-info">
-                <div class="customer-avatar">CM</div>
-                <div class="customer-details">
-                  <span class="customer-name">Carlos Martínez</span>
-                  <span class="customer-phone">
-                    <i class="bi bi-telephone"></i> +56 9 3456 7890
-                  </span>
-                </div>
-              </div>
-            </td>
-            <td class="order-date">09 Nov 2025</td>
-            <td><span class="order-price">$125.000</span></td>
-            <td>
-              <span class="status-badge pendiente">
-                <i class="bi bi-clock"></i>
-                Pendiente
-              </span>
-            </td>
-            <td>
-              <button class="btn btn-view btn-action">
-                <i class="bi bi-eye"></i> Ver Detalle
-              </button>
-            </td>
-          </tr>
-
-          <!-- Pedido 5 -->
-          <tr>
-            <td><span class="order-id">#ORD-005</span></td>
-            <td>
-              <div class="customer-info">
-                <div class="customer-avatar">LS</div>
-                <div class="customer-details">
-                  <span class="customer-name">Laura Silva</span>
-                  <span class="customer-phone">
-                    <i class="bi bi-telephone"></i> +56 9 4567 8901
-                  </span>
-                </div>
-              </div>
-            </td>
-            <td class="order-date">08 Nov 2025</td>
-            <td><span class="order-price">$89.990</span></td>
-            <td>
-              <span class="status-badge entregado">
-                <i class="bi bi-check-circle-fill"></i>
-                Entregado
-              </span>
-            </td>
-            <td>
-              <button class="btn btn-view btn-action">
-                <i class="bi bi-eye"></i> Ver Detalle
-              </button>
-            </td>
-          </tr>
-
-          <!-- Pedido 6 -->
-          <tr>
-            <td><span class="order-id">#ORD-006</span></td>
-            <td>
-              <div class="customer-info">
-                <div class="customer-avatar">PT</div>
-                <div class="customer-details">
-                  <span class="customer-name">Pedro Torres</span>
-                  <span class="customer-phone">
-                    <i class="bi bi-telephone"></i> +56 9 5678 9012
-                  </span>
-                </div>
-              </div>
-            </td>
-            <td class="order-date">08 Nov 2025</td>
-            <td><span class="order-price">$54.500</span></td>
-            <td>
-              <span class="status-badge cancelado">
-                <i class="bi bi-x-circle-fill"></i>
-                Cancelado
-              </span>
-            </td>
-            <td>
-              <button class="btn btn-view btn-action">
-                <i class="bi bi-eye"></i> Ver Detalle
-              </button>
-            </td>
-          </tr>
-
-          <!-- Pedido 7 -->
-          <tr>
-            <td><span class="order-id">#ORD-007</span></td>
-            <td>
-              <div class="customer-info">
-                <div class="customer-avatar">SC</div>
-                <div class="customer-details">
-                  <span class="customer-name">Sofía Castro</span>
-                  <span class="customer-phone">
-                    <i class="bi bi-telephone"></i> +56 9 6789 0123
-                  </span>
-                </div>
-              </div>
-            </td>
-            <td class="order-date">07 Nov 2025</td>
-            <td><span class="order-price">$67.800</span></td>
-            <td>
-              <span class="status-badge preparando">
-                <i class="bi bi-hourglass-split"></i>
-                Preparando
-              </span>
-            </td>
-            <td>
-              <button class="btn btn-view btn-action">
-                <i class="bi bi-eye"></i> Ver Detalle
-              </button>
-            </td>
-          </tr>
-
-          <!-- Pedido 8 -->
-          <tr>
-            <td><span class="order-id">#ORD-008</span></td>
-            <td>
-              <div class="customer-info">
-                <div class="customer-avatar">DR</div>
-                <div class="customer-details">
-                  <span class="customer-name">Diego Ramírez</span>
-                  <span class="customer-phone">
-                    <i class="bi bi-telephone"></i> +56 9 7890 1234
-                  </span>
-                </div>
-              </div>
-            </td>
-            <td class="order-date">07 Nov 2025</td>
-            <td><span class="order-price">$156.990</span></td>
-            <td>
-              <span class="status-badge preparando">
-                <i class="bi bi-hourglass-split"></i>
-                Preparando
-              </span>
-            </td>
-            <td>
-              <button class="btn btn-view btn-action">
-                <i class="bi bi-eye"></i> Ver Detalle
-              </button>
-            </td>
-          </tr>
-
-          <!-- Pedido 9 -->
-          <tr>
-            <td><span class="order-id">#ORD-009</span></td>
-            <td>
-              <div class="customer-info">
-                <div class="customer-avatar">VH</div>
-                <div class="customer-details">
-                  <span class="customer-name">Valentina Herrera</span>
-                  <span class="customer-phone">
-                    <i class="bi bi-telephone"></i> +56 9 8901 2345
-                  </span>
-                </div>
-              </div>
-            </td>
-            <td class="order-date">06 Nov 2025</td>
-            <td><span class="order-price">$98.500</span></td>
-            <td>
-              <span class="status-badge entregado">
-                <i class="bi bi-check-circle-fill"></i>
-                Entregado
-              </span>
-            </td>
-            <td>
-              <button class="btn btn-view btn-action">
-                <i class="bi bi-eye"></i> Ver Detalle
-              </button>
-            </td>
-          </tr>
-
-          <!-- Pedido 10 -->
-          <tr>
-            <td><span class="order-id">#ORD-010</span></td>
-            <td>
-              <div class="customer-info">
-                <div class="customer-avatar">FM</div>
-                <div class="customer-details">
-                  <span class="customer-name">Fernando Morales</span>
-                  <span class="customer-phone">
-                    <i class="bi bi-telephone"></i> +56 9 9012 3456
-                  </span>
-                </div>
-              </div>
-            </td>
-            <td class="order-date">06 Nov 2025</td>
-            <td><span class="order-price">$42.990</span></td>
-            <td>
-              <span class="status-badge pendiente">
-                <i class="bi bi-clock"></i>
-                Pendiente
-              </span>
-            </td>
-            <td>
-              <button class="btn btn-view btn-action">
-                <i class="bi bi-eye"></i> Ver Detalle
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Table Footer with Pagination -->
-    <div class="table-footer">
-      <span class="showing-info">Mostrando 1-10 de 156 pedidos</span>
-      <nav>
-        <ul class="pagination">
-          <li class="page-item disabled">
-            <a class="page-link" href="#"><i class="bi bi-chevron-left"></i></a>
-          </li>
-          <li class="page-item active"><a class="page-link" href="#">1</a></li>
-          <li class="page-item"><a class="page-link" href="#">2</a></li>
-          <li class="page-item"><a class="page-link" href="#">3</a></li>
-          <li class="page-item"><a class="page-link" href="#">4</a></li>
-          <li class="page-item"><a class="page-link" href="#">5</a></li>
-          <li class="page-item">
-            <a class="page-link" href="#"><i class="bi bi-chevron-right"></i></a>
-          </li>
-        </ul>
-      </nav>
-    </div>
-
-  </div>
-</div>
