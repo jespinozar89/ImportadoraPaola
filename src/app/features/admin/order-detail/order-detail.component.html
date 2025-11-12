@@ -1,0 +1,135 @@
+
+<div class="order-detail-container">
+    <div class="back-link-container mb-3">
+    <a href="#" class="back-link d-inline-flex align-items-center fw-semibold px-3 py-2 rounded">
+      <i class="bi bi-arrow-left me-2"></i>
+      Volver a la lista de pedidos
+    </a>
+  </div>
+  <div class="order-header">
+    <div class="order-header-top">
+      <div class="order-id-section">
+        <h1>Pedido {{ pedido.id }}</h1>
+        <div class="order-date">
+          <i class="bi bi-calendar3"></i>
+          Realizado el {{ pedido.fecha }} a las {{ pedido.hora }}
+        </div>
+      </div>
+      <span class="status-badge-large" [ngClass]="pedido.estado">
+        <i [ngClass]="estadoIcono[pedido.estado]"></i>
+        {{ pedido.estado | titlecase }}
+      </span>
+    </div>
+
+    <div class="order-stats">
+      <div class="stat-item">
+        <div class="stat-label">Total</div>
+        <div class="stat-value">{{ pedido.total | currency:'CLP' }}</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Productos</div>
+        <div class="stat-value">{{ pedido.productos.length }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-grid">
+    <!-- Productos -->
+    <div>
+      <div class="card mb-4">
+        <div class="card-header-custom">
+          <i class="bi bi-box-seam"></i>
+          <h5>Productos del Pedido</h5>
+        </div>
+        <div class="card-body-custom">
+          <table class="products-table">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Precio</th>
+                <th>Cantidad</th>
+                <th>Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let p of pedido.productos">
+                <td>
+                  <div class="product-info">
+                    <img [src]="p.imagen" alt="Producto" class="product-image" />
+                    <div class="product-details">
+                      <h6>{{ p.nombre }}</h6>
+                      <span class="product-sku">SKU: {{ p.sku }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td>{{ p.precio | currency:'CLP' }}</td>
+                <td><span class="quantity-badge">x{{ p.cantidad }}</span></td>
+                <td><strong>{{ p.precio * p.cantidad | currency:'CLP' }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cliente + resumen -->
+    <div>
+      <div class="card mb-4">
+        <div class="card-header-custom">
+          <i class="bi bi-person"></i>
+          <h5>Información del Cliente</h5>
+        </div>
+        <div class="card-body-custom">
+          <div class="customer-card">
+            <div class="customer-avatar-large">{{ pedido.cliente.iniciales }}</div>
+            <div class="customer-details">
+              <h4>{{ pedido.cliente.nombre }}</h4>
+              <div class="customer-contact">
+                <span class="contact-item">
+                  <i class="bi bi-envelope"></i> {{ pedido.cliente.email }}
+                </span>
+                <span class="contact-item">
+                  <i class="bi bi-telephone"></i> {{ pedido.cliente.telefono }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header-custom">
+          <i class="bi bi-receipt"></i>
+          <h5>Resumen del Pedido</h5>
+        </div>
+        <div class="card-body-custom">
+          <div class="summary-item">
+            <span class="summary-label">Subtotal</span>
+            <span class="summary-value">{{ pedido.resumen.subtotal | currency:'CLP' }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Envío</span>
+            <span class="summary-value">Gratis</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Descuento</span>
+            <span class="summary-value text-danger">-{{ pedido.resumen.descuento | currency:'CLP' }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">IVA (19%)</span>
+            <span class="summary-value">{{ pedido.resumen.iva | currency:'CLP' }}</span>
+          </div>
+          <div class="summary-item summary-total">
+            <span class="summary-label">Total</span>
+            <span class="summary-value">{{ pedido.resumen.total | currency:'CLP' }}</span>
+          </div>
+          <div class="action-buttons">
+            <button class="btn btn-success btn-complete">
+              <i class="bi bi-check-circle me-2 mb-3"></i> Completar Pedido
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

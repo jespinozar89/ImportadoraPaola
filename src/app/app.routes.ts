@@ -6,6 +6,8 @@ import { ProductShoppingCardComponent } from './features/products/product-shoppi
 import { ProductFormComponent } from './features/admin/product-form/product-form.component';
 import { ProductInventoryComponent } from './features/admin/product-inventory/product-inventory.component';
 import { OrderManagementComponent } from './features/admin/order-management/order-management.component';
+import { OrderDetailComponent } from './features/admin/order-detail/order-detail.component';
+import { CategoriesComponent } from './features/admin/categories/categories.component';
 
 export const routes: Routes = [
   { path: '', component: ProductListComponent },
@@ -15,5 +17,7 @@ export const routes: Routes = [
   { path: 'form', component: ProductFormComponent },
   { path: 'inventory', component: ProductInventoryComponent },
   { path: 'orders', component: OrderManagementComponent },
+  { path: 'orderDetail', component: OrderDetailComponent },
+  { path: 'categories', component: CategoriesComponent },
   { path: '**', redirectTo: '' }
 ];

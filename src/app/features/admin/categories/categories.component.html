@@ -1,0 +1,114 @@
+<div class="categories-container">
+  <!-- Back Link -->
+   <div class="back-link-container mb-3">
+    <a href="#" class="back-link d-inline-flex align-items-center fw-semibold px-3 py-2 rounded">
+      <i class="bi bi-arrow-left me-2"></i>
+      Volver a Productos
+    </a>
+    </div>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-title">
+      <i class="bi bi-folder-fill"></i>
+      <h1>Gestión de Categorías</h1>
+    </div>
+    <div class="total-badge">
+      Total: {{ totalCategories }} categorías
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="content-grid">
+    <!-- Categories List Card -->
+    <div class="card">
+      <div class="card-header-custom">
+        <h5>
+          <i class="bi bi-list-ul"></i>
+          Categorías Registradas
+        </h5>
+      </div>
+      <div class="card-body-custom">
+        <!-- Search and Create Section -->
+        <div class="search-create-section">
+          <div class="search-box position-relative">
+            <i class="bi bi-search search-icon"></i>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Buscar categorías..."
+              (input)="onSearch($event)"
+              [value]="searchTerm()">
+          </div>
+          <button class="btn btn-primary" (click)="onCreateCategory()">
+            <i class="bi bi-plus-circle me-2"></i>
+            Crear Categoría
+          </button>
+        </div>
+
+        <!-- Categories Table -->
+        <div class="table-responsive">
+          <table class="categories-table">
+            <thead>
+              <tr>
+                <th>Categoría</th>
+                <th>Productos</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let category of filteredCategories">
+                <td>
+                  <div class="category-item">
+                    <div class="category-icon" [style.background]="category.color">
+                      <i class="bi bi-tags-fill"></i>
+                    </div>
+                    <div class="category-info">
+                      <div class="category-name">{{ category.name }}</div>
+                      <div class="category-slug">{{ category.slug }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="category-stats">{{ category.productCount }} productos</span>
+                </td>
+                <td>
+                  <span class="category-status"
+                        [class.active]="category.status === 'active'"
+                        [class.inactive]="category.status === 'inactive'">
+                    {{ category.status === 'active' ? 'Activa' : 'Inactiva' }}
+                  </span>
+                </td>
+                <td>
+                  <div class="table-actions">
+                    <button class="btn btn-edit btn-action"
+                            (click)="onEditCategory(category)"
+                            title="Editar">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-delete btn-action"
+                            (click)="onDeleteCategory(category)"
+                            title="Eliminar">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Empty State -->
+              <tr *ngIf="filteredCategories.length === 0">
+                <td colspan="4">
+                  <div class="empty-state">
+                    <i class="bi bi-inbox"></i>
+                    <p>No se encontraron categorías</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

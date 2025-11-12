@@ -7,7 +7,13 @@
   </a>
   </div>
 
-  <h1 class="form-title">Crear Nuevo Producto</h1>
+    <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-title">
+      <i class="bi bi-box-seam"></i>
+      <h1>Crear un Productos</h1>
+    </div>
+  </div>
 
   <form #productForm="ngForm" (ngSubmit)="onSubmit()">
     <div class="row g-4">
@@ -69,7 +75,7 @@
             <div class="mb-3">
               <label for="productName" class="form-label">Nombre del Producto *</label>
               <input type="text" class="form-control" id="productName" name="productName" [(ngModel)]="product.name"
-                placeholder="Ej: Audífonos Inalámbricos con Cancelación de Ruido" required>
+                placeholder="Ej: Lápiz Grafito HB Faber-Castell" required>
             </div>
 
              <!-- Product Code -->

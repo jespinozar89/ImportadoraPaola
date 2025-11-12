@@ -101,7 +101,10 @@
           (click)="selectItem('orders'); closeOffcanvas()"
           [class.active-item]="selected === 'orders'"
           class="list-group-item px-0 py-2 ps-2 border-bottom">Pedidos Recibidos</li>
-      <li class="list-group-item px-0 py-2 ps-2 border-bottom">Administrar Categorías</li>
+      <li routerLink="/categories"
+          (click)="selectItem('categories'); closeOffcanvas()"
+          [class.active-item]="selected === 'categories'"
+          class="list-group-item px-0 py-2 ps-2 border-bottom">Administrar Categorías</li>
     </ul>
     <!-- Categorías -->
     <h6 class="text-uppercase fw-bold text-muted mb-3 mt-4">Categorías</h6>
