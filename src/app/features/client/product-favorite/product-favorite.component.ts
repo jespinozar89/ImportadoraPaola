@@ -13,20 +13,22 @@ export class ProductFavoriteComponent implements OnInit {
   totalFavorites = 0;
   products = [
     {
-      id: 1,
-      name: 'Auriculares inalámbricos con cancelación de ruido',
-      description: 'Auriculares inalámbricos de primera calidad con cancelación activa de ruido y una batería de hasta 30 horas de duración.',
-      price: 64990,
-      availability: 'Disponible',
-      image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&w=400&q=80'
+      producto_id: 1,
+      nombre: 'Auriculares inalámbricos con cancelación de ruido',
+      descripcion: 'Auriculares inalámbricos de primera calidad con cancelación activa de ruido y una batería de hasta 30 horas de duración.',
+      precio: 64990,
+      stock: 0,
+      imagen: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&w=400&q=80',
+      categoria_id: 2
     },
     {
-      id: 2,
-      name: 'Auriculares inalámbricos con cancelación de ruido',
-      description: 'Auriculares inalámbricos de primera calidad con cancelación activa de ruido y una batería de hasta 30 horas de duración.',
-      price: 64990,
-      availability: 'Disponible',
-      image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&w=400&q=80'
+      producto_id: 1,
+      nombre: 'Auriculares inalámbricos con cancelación de ruido',
+      descripcion: 'Auriculares inalámbricos de primera calidad con cancelación activa de ruido y una batería de hasta 30 horas de duración.',
+      precio: 64990,
+      stock: 0,
+      imagen: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&w=400&q=80',
+      categoria_id: 2
     },
   ];
 

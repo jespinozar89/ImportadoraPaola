@@ -1,31 +1,27 @@
-<div class="card h-100" (click)="viewDetails(mode)" style="cursor: pointer;">
+<div class="card h-100" (click)="viewDetails()" style="cursor: pointer;">
   <!-- Ícono del corazón y Editar -->
-  <button *ngIf="mode === 'cliente'"
-          class="position-absolute top-0 end-0 m-2 p-1 rounded shadow-sm favorite-btn"
-          (click)="toggleFavorite($event)">
+  <button class="position-absolute top-0 end-0 m-2 p-1 rounded shadow-sm favorite-btn"
+    (click)="toggleFavorite($event)">
     <i class="bi" [ngClass]="{
       'bi-heart': !isFavorite,
       'bi-heart-fill text-danger': isFavorite
     }"></i>
   </button>
-  <button *ngIf="mode === 'admin'"
-          class="position-absolute top-0 end-0 m-2 p-1 rounded shadow-sm favorite-btn">
-    <i class="bi bi-pencil-fill text-success"></i>
-  </button>
-  <img [src]="product.image" class="card-img-top" alt="{{ product.name }}">
+  <img [src]="product.imagen ? product.imagen : 'https://cdn-icons-png.flaticon.com/512/8344/8344917.png'" class="card-img-top" alt="{{ product.nombre }}">
   <div class="card-body">
-    <h5 class="card-title">{{ product.name }}</h5>
-    <p class="card-text">{{ product.description }}</p>
-    <p class="text-success">{{ product.availability }}</p>
+    <h5 class="card-title">{{ product.nombre }}</h5>
+    <p class="card-text">
+      {{ product.descripcion.length > 120 ? (product.descripcion | slice:0:120) + '...' : product.descripcion }}
+    </p>
+    <p class="text-success">
+      {{ product.stock > 0 ? 'Disponible' : 'Agotado' }}
+    </p>
     <div class="d-flex justify-content-between align-items-center mt-3">
-      <span class="fw-bold fs-5 text-primary"> ${{ product.price | number:'1.0-0':'es-CL' }}</span>
-      <button *ngIf="mode === 'cliente'" class="btn btn-sm btn-primary d-flex align-items-center gap-2 fw-bold" (click)="addToCart($event)">
+      <span class="fw-bold fs-5 text-primary"> ${{ product.precio| number:'1.0-0':'es-CL' }}</span>
+      <button class="btn btn-sm btn-primary d-flex align-items-center gap-2 fw-bold"
+        (click)="addToCart($event)">
         <i class="bi bi-cart-fill"></i>
         Añadir al carrito
-      </button>
-      <button *ngIf="mode === 'admin'" class="btn btn-sm btn-danger d-flex align-items-center gap-2 fw-bold" (click)="$event.stopPropagation()">
-        <i class="bi bi-trash-fill"></i>
-        Eliminar
       </button>
     </div>
   </div>

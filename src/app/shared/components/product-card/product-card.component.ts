@@ -1,18 +1,21 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { Producto } from '../../../core/services/product.service';
 import { FavoriteService } from '../../../core/services/favorite.service';
 import { CartService } from '../../../core/services/cart.service';
-import { Router } from '@angular/router';
+
 
 @Component({
   selector: 'app-product-card',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './product-card.component.html',
   styleUrl: './product-card.component.scss'
 })
-export class ProductCardComponent {
-  @Input() product: any;
-  @Input() mode: 'cliente' | 'admin' = 'cliente';
+export class ProductCardComponent implements OnInit {
+
+  @Input({ required: true }) product!: Producto;
   isFavorite = false;
 
   constructor(
@@ -21,29 +24,32 @@ export class ProductCardComponent {
     private router: Router
   ) { }
 
-  ngOnInit() {
-    this.isFavorite = this.favoriteService.isFavorite(this.product.id);
+  ngOnInit(): void {
+    if (this.product) {
+        this.isFavorite = this.favoriteService.isFavorite(this.product.producto_id);
+    }
   }
 
   addToCart(event: MouseEvent) {
-      event.stopPropagation(); // evita que se dispare verDetalle()
-    this.cartService.addToCart(this.product.id);
+      event.stopPropagation();
+    this.cartService.addToCart(this.product.producto_id);
   }
 
   toggleFavorite(event: MouseEvent) {
-      event.stopPropagation(); // evita que se dispare verDetalle()
-    this.favoriteService.toggleFavorite(this.product.id);
+      event.stopPropagation();
+    this.favoriteService.toggleFavorite(this.product.producto_id);
     this.isFavorite = !this.isFavorite;
   }
 
-  viewDetails(mode: string = 'cliente') {
+  viewDetails() {
+    if (!this.product || !this.product.producto_id) {
+        console.error('Error de navegación: El producto o el ID es indefinido.');
+        return;
+    }
 
-    if(mode === 'admin') {
-      this.router.navigate(['/form']);
-    }
-    else{
-      this.router.navigate(['/producto', this.product.id]);
-    }
+    const productId = this.product.producto_id;
+
+   this.router.navigate(['/producto', productId]);
 
   }
 
