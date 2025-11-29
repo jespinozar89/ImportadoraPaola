@@ -1,15 +1,11 @@
-<!-- Modal -->
 <div class="modal fade" id="signUpModal" tabindex="-1" aria-labelledby="signUpModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
 
-      <!-- Encabezado -->
       <div class="modal-header">
         <h5 class="modal-title" id="signUpModalLabel">Crear cuenta</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
-
-      <!-- Cuerpo -->
       <div class="modal-body">
         <div class="sign-up-container">
           <div class="sign-up-card">
@@ -19,19 +15,30 @@
             </div>
 
             <form (ngSubmit)="onSignUp()" #signUpForm="ngForm">
-              <!-- Nombre -->
-              <div class="mb-3">
-                <input
-                  type="text"
-                  class="form-control"
-                  placeholder="Nombre completo"
-                  name="name"
-                  [value]="name()"
-                  (input)="onInputChange($event, 'name')"
-                  required>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Nombres"
+                    name="nombres"
+                    [value]="nombres()"
+                    (input)="onInputChange($event, 'nombres')"
+                    required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Apellidos"
+                    name="apellidos"
+                    [value]="apellidos()"
+                    (input)="onInputChange($event, 'apellidos')"
+                    required>
+                </div>
               </div>
 
-              <!-- Correo -->
               <div class="mb-3">
                 <input
                   type="email"
@@ -43,7 +50,6 @@
                   required>
               </div>
 
-              <!-- Contraseña -->
               <div class="mb-3 position-relative">
                 <input
                   [type]="showPassword() ? 'text' : 'password'"
@@ -57,11 +63,10 @@
                   type="button"
                   class="btn position-absolute top-50 end-0 translate-middle-y me-2"
                   (click)="togglePasswordVisibility()">
-                  <i class="bi" [class.bi-eye]="!showPassword()" [class.bi-eye-slash]="showPassword()"></i>
+                  <i class="bi" [ngClass]="showPassword() ? 'bi-eye-slash' : 'bi-eye'"></i>
                 </button>
               </div>
 
-              <!-- Confirmar contraseña -->
               <div class="mb-3">
                 <input
                   [type]="showPassword() ? 'text' : 'password'"
@@ -73,13 +78,24 @@
                   required>
               </div>
 
-              <!-- Botón -->
-              <button type="submit" class="btn btn-primary w-100">Crear cuenta</button>
+              <div class="d-grid gap-2">
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  [disabled]="isLoading()">
+                  <ng-container *ngIf="isLoading()">
+                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    Registrando...
+                  </ng-container>
+                  <ng-container *ngIf="!isLoading()">
+                    Crear cuenta
+                  </ng-container>
+                </button>
+              </div>
 
-              <!-- Enlace a inicio de sesión -->
               <div class="text-center mt-3">
                 ¿Ya tienes una cuenta?
-                <a href="javascript:void(0)" (click)="onSignIn()">Iniciar sesión</a>
+                <a href="javascript:void(0)" class="text-decoration-none" (click)="onSignIn()">Iniciar sesión</a>
               </div>
             </form>
           </div>

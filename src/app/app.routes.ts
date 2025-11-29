@@ -11,6 +11,7 @@ import { CategoriesComponent } from './features/admin/categories/categories.comp
 
 export const routes: Routes = [
   { path: '', component: ProductListComponent },
+  { path: 'categorias/:nombre/:id', component: ProductListComponent },
   { path: 'producto/:id', component: ProductViewComponent },
   { path: 'wishlist', component: ProductFavoriteComponent },
   { path: 'shop', component: ProductShoppingCardComponent },

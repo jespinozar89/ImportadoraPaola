@@ -1,6 +1,6 @@
 <div class="container mt-4">
   <div class="mb-3">
-    <h6 class="fw-bold text-dark mb-1">TODO</h6>
+    <h6 class="fw-bold text-dark mb-1">{{nameCategory}}</h6>
     <p class="text-secondary small mb-0">{{totalProducts}} productos encontrados</p>
   </div>
 
@@ -10,11 +10,11 @@
     </div>
   </div>
 
-  <div class="mt-4 text-center">
+  <div class="mt-4 d-flex justify-content-center">
     <pagination-controls
       (pageChange)="p = $event"
-      previousLabel="Anterior"
-      nextLabel="Siguiente">
+      previousLabel="Ant."
+      nextLabel="Sig.">
     </pagination-controls>
   </div>
 </div>

@@ -1,25 +1,23 @@
-<!-- Modal -->
 <div class="modal fade" id="signInModal" tabindex="-1" aria-labelledby="signInModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
 
-      <!-- Encabezado -->
       <div class="modal-header">
         <h5 class="modal-title" id="signInModalLabel">Iniciar sesión</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
 
-      <!-- Cuerpo -->
       <div class="modal-body">
         <div class="sign-in-container">
           <div class="sign-in-card">
+
             <div class="sign-in-header text-center mb-3">
               <h2 class="sign-in-title">Bienvenido</h2>
               <p class="sign-in-subtitle">Accede a tu cuenta para gestionar tus compras</p>
             </div>
 
-            <form (ngSubmit)="onSignIn()" #signInForm="ngForm">
-              <!-- Correo -->
+            <form (ngSubmit)="onSignIn()">
+
               <div class="mb-3 position-relative">
                 <i class="bi bi-envelope position-absolute top-50 start-0 translate-middle-y ms-2"></i>
                 <input
@@ -32,7 +30,6 @@
                   required>
               </div>
 
-              <!-- Contraseña -->
               <div class="mb-3 position-relative">
                 <i class="bi bi-lock position-absolute top-50 start-0 translate-middle-y ms-2"></i>
                 <input
@@ -43,27 +40,37 @@
                   [value]="password()"
                   (input)="onPasswordChange($event)"
                   required>
+
                 <button
                   type="button"
                   class="btn position-absolute top-50 end-0 translate-middle-y me-2"
+                  style="z-index: 10;"
                   (click)="togglePasswordVisibility()">
-                  <i class="bi" [class.bi-eye]="!showPassword()" [class.bi-eye-slash]="showPassword()"></i>
+                  <i class="bi" [ngClass]="showPassword() ? 'bi-eye-slash' : 'bi-eye'"></i>
                 </button>
               </div>
 
-              <!-- Botón -->
-              <button type="submit" class="btn btn-primary w-100">Iniciar sesión</button>
+              <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary" [disabled]="isLoading()">
+                  <ng-container *ngIf="isLoading()">
+                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    Ingresando...
+                  </ng-container>
+                  <ng-container *ngIf="!isLoading()">
+                    Iniciar sesión
+                  </ng-container>
+                </button>
+              </div>
 
-              <!-- Enlace a registro -->
               <div class="text-center mt-3">
                 ¿No tienes cuenta?
-                <a href="javascript:void(0)" (click)="onSignUp()">Regístrate</a>
+                <a href="javascript:void(0)" class="text-decoration-none" (click)="onSignUp()">Regístrate</a>
               </div>
+
             </form>
           </div>
         </div>
       </div>
-
-    </div>
+      </div>
   </div>
 </div>
