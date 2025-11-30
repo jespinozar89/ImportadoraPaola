@@ -3,8 +3,8 @@
   <button class="position-absolute top-0 end-0 m-2 p-1 rounded shadow-sm favorite-btn"
     (click)="toggleFavorite($event)">
     <i class="bi" [ngClass]="{
-      'bi-heart': !isFavorite,
-      'bi-heart-fill text-danger': isFavorite
+      'bi-heart': !isProductFavorite(),
+      'bi-heart-fill text-danger': isProductFavorite()
     }"></i>
   </button>
   <img [src]="product.imagen ? product.imagen : 'https://cdn-icons-png.flaticon.com/512/8344/8344917.png'" class="card-img-top" alt="{{ product.nombre }}">

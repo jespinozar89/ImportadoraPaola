@@ -51,6 +51,7 @@ export class NavbarComponent implements OnInit { // 🆕 Implementar OnInit
     // Tus suscripciones existentes
     this.favoriteService.favoritesCount$.subscribe(count => {
       this.favoritesCount = count;
+      console.log('Favoritos actualizados en Navbar:', count);
     });
 
     this.cartService.cartCount$.subscribe(count => {
@@ -76,6 +77,10 @@ export class NavbarComponent implements OnInit { // 🆕 Implementar OnInit
   onLogout(): void {
     this.authService.logout(); // Llama al método del servicio que limpia el token y el estado.
     this.router.navigate(['/']); // Opcional: Redirigir a la página de inicio
+
+    localStorage.removeItem('navbar_selected_menu_item');
+    localStorage.removeItem('local_favorites');
+
     // alert('Sesión cerrada.'); // Feedback opcional
   }
 

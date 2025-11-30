@@ -105,6 +105,11 @@ export class AuthService {
 
   /** Obtiene el token JWT para el interceptor */
   public getAuthToken(): string | null {
-    return localStorage.getItem(this.USER_KEY);
+    // Usa el valor del BehaviorSubject, que ya fue cargado por getStoredUser()
+    const user = this.currentUserSubject.value;
+
+    // Si el objeto existe, devuelve el token como string o null
+    return user?.token ?? null;
   }
+
 }

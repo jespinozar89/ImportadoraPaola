@@ -5,6 +5,7 @@ import { NgxPaginationModule } from 'ngx-pagination';
 import { ProductCardComponent } from "../../../shared/components/product-card/product-card.component";
 import { ProductService, Producto } from '../../../core/services/product.service';
 import { Subscription } from 'rxjs';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-product-list',
@@ -21,19 +22,29 @@ export class ProductListComponent implements OnInit, OnDestroy {
   p: number = 1;
 
   private routeSubscription!: Subscription;
+  private authSubscription!: Subscription;
 
-  constructor(private route: ActivatedRoute, private productService: ProductService) { }
+  constructor(private route: ActivatedRoute,
+    private productService: ProductService,
+    private authService: AuthService
+  ) { }
 
   ngOnInit(): void {
     this.routeSubscription = this.route.paramMap.subscribe(params => {
       this.loadProducts(params);
     });
 
+    this.authSubscription = this.authService.currentUser.subscribe(() => {
+      this.refreshProductListState();
+    });
+
     this.p = this.productService.lastPage;
   }
 
   ngOnDestroy(): void {
-      this.productService.lastPage = this.p;
+    if (this.routeSubscription) this.routeSubscription.unsubscribe();
+    if (this.authSubscription) this.authSubscription.unsubscribe();
+    this.productService.lastPage = this.p;
   }
 
   async loadProducts(params: ParamMap): Promise<void> {
@@ -59,6 +70,10 @@ export class ProductListComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error al cargar la lista de productos:', error);
     }
+  }
+
+  private refreshProductListState(): void {
+    this.products = [...this.products];
   }
 
 }

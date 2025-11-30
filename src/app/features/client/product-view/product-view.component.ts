@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule, Location } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { ProductService, Producto } from '../../../core/services/product.service';
 import { CategoriaService } from '../../../core/services/categoria.service';
 import { firstValueFrom } from 'rxjs';
+import { UtilsService } from '../../../shared/service/utils.service';
 
 @Component({
   selector: 'app-product-view',
@@ -22,7 +23,7 @@ export class ProductViewComponent implements OnInit {
     private route: ActivatedRoute,
     private categoriaService: CategoriaService,
     private productService: ProductService,
-    private location: Location
+    public utilsService: UtilsService,
   ) { }
 
   ngOnInit() {
@@ -66,9 +67,5 @@ export class ProductViewComponent implements OnInit {
       this.quantity--;
     }
   }
-
-  volver() {
-  this.location.back();
-}
 
 }
