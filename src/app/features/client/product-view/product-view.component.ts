@@ -5,6 +5,7 @@ import { ProductService, Producto } from '../../../core/services/product.service
 import { CategoriaService } from '../../../core/services/categoria.service';
 import { firstValueFrom } from 'rxjs';
 import { UtilsService } from '../../../shared/service/utils.service';
+import { FavoriteService } from '../../../core/services/favorite.service';
 
 @Component({
   selector: 'app-product-view',
@@ -23,6 +24,7 @@ export class ProductViewComponent implements OnInit {
     private route: ActivatedRoute,
     private categoriaService: CategoriaService,
     private productService: ProductService,
+    private favoriteService: FavoriteService,
     public utilsService: UtilsService,
   ) { }
 
@@ -65,6 +67,19 @@ export class ProductViewComponent implements OnInit {
   decrement() {
     if (this.quantity > 1) {
       this.quantity--;
+    }
+  }
+
+  public isFavorite(): boolean {
+    if (!this.product || !this.product.producto_id) {
+      return false;
+    }
+    return this.favoriteService.isFavorite(this.product.producto_id);
+  }
+
+  public async toggleFavorite(): Promise<void> {
+    if (this.product && this.product.producto_id) {
+      await this.favoriteService.toggleFavorite(this.product.producto_id);
     }
   }
 

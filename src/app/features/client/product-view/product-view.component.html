@@ -1,5 +1,6 @@
 <div class="container">
-  <a (click)="this.utilsService.goBack()" class="back-link d-inline-flex align-items-center fw-semibold px-3 py-2 rounded">
+  <a (click)="this.utilsService.goBack()"
+    class="back-link d-inline-flex align-items-center fw-semibold px-3 py-2 rounded">
     <i class="bi bi-arrow-left me-2"></i>
     Volver a Productos
   </a>
@@ -10,7 +11,7 @@
     </div>
     <div class="col-md-6">
       <div class="bg-light text-dark fw-semibold small rounded-pill px-3 py-1 d-inline-block mb-2">
-      {{ categoryName }}
+        {{ categoryName }}
       </div>
       <h2>{{ product?.nombre }}</h2>
       <h4 class="text-primary mt-3 fw-bold">${{ product?.precio| number:'1.0-0':'es-CL' }}</h4>
@@ -37,8 +38,12 @@
         <button class="btn btn-primary flex-grow-1">
           <i class="bi bi-cart-fill"></i> Añadir al carrito
         </button>
-        <button class="btn btn-light border-0">
-          <i class="bi bi-heart text-secondary fs-5"></i>
+        <button class="btn btn-light border-0" (click)="toggleFavorite()" [disabled]="!product">
+          <i class="bi fs-5" [ngClass]="{
+            'bi-heart-fill text-danger': isFavorite(),
+            'bi-heart text-secondary': !isFavorite()
+         }">
+          </i>
         </button>
         <button class="btn btn-light border-0">
           <i class="bi bi-share-fill text-secondary fs-5"></i>
