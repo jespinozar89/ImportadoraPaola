@@ -18,11 +18,9 @@ interface Product {
   styleUrl: './product-form.component.scss'
 })
 export class ProductFormComponent {
-  // Signals para el estado reactivo
   imagePreview = signal<string>('');
   hasImage = signal<boolean>(false);
 
-  // Modelo del producto
   product: Product = {
     category: '',
     name: '',
@@ -133,7 +131,6 @@ export class ProductFormComponent {
   }
 
   goBack(): void {
-    // Implementa la navegación según tu routing
     console.log('Volver a productos');
   }
 }

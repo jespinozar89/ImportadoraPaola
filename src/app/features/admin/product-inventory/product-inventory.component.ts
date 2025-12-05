@@ -174,18 +174,16 @@ export class ProductInventoryComponent {
 
   onCreateProduct(): void {
     console.log('Abrir modal para crear producto');
-    // Aquí irá la lógica para abrir el modal
   }
 
   onEditProduct(product: Product): void {
     console.log('Editar producto:', product);
-    // Aquí irá la lógica para editar
   }
 
   onDeleteProduct(product: Product): void {
     if (confirm(`¿Estás seguro de eliminar el producto "${product.name}"?`)) {
       console.log('Eliminar producto:', product);
-      // Aquí irá la lógica para eliminar
+
     }
   }
 
@@ -198,6 +196,5 @@ export class ProductInventoryComponent {
 
   goBack(): void {
     console.log('Volver al panel');
-    // Implementa la navegación según tu routing
   }
 }

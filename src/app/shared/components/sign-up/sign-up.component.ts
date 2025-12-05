@@ -12,7 +12,7 @@ import { CreateUserDTO } from '../../../shared/models/auth.interface'; // <--- I
   styleUrls: ['./sign-up.component.scss']
 })
 export class SignUpModalComponent {
-  // 🆕 Nombres y Apellidos separados
+
   nombres = signal<string>('');
   apellidos = signal<string>('');
   email = signal<string>('');
@@ -34,9 +34,8 @@ export class SignUpModalComponent {
     this.showPassword.set(!this.showPassword());
   }
 
-  // Lógica de Registro
+
   onSignUp(): void {
-    // 1. Validaciones
     if (!this.nombres() || !this.apellidos() || !this.email() || !this.password() || !this.confirmPassword()) {
       alert('Por favor, completa todos los campos');
       return;
@@ -49,20 +48,18 @@ export class SignUpModalComponent {
 
     this.isLoading.set(true);
 
-    // 2. Crear el DTO usando los campos separados
     const data: CreateUserDTO = {
-      nombres: this.nombres(), // 👈 Uso directo
-      apellidos: this.apellidos(), // 👈 Uso directo
+      nombres: this.nombres(),
+      apellidos: this.apellidos(),
       email: this.email(),
       password: this.password(),
       telefono: undefined
     };
 
-    // 3. Llamar al servicio
     this.authService.register(data).subscribe({
       next: (response) => {
         this.isLoading.set(false);
-        alert('✅ Cuenta creada exitosamente. Ya puedes iniciar sesión.');
+        alert('Cuenta creada exitosamente. Ya puedes iniciar sesión.');
 
         this.resetForm();
         this.onSignIn();
@@ -76,7 +73,6 @@ export class SignUpModalComponent {
     });
   }
 
-  // Método auxiliar para limpiar las señales
   private resetForm(): void {
     this.nombres.set('');
     this.apellidos.set('');
@@ -85,7 +81,6 @@ export class SignUpModalComponent {
     this.confirmPassword.set('');
   }
 
-  // Lógica para cambiar al modal de Inicio de Sesión
   onSignIn(): void {
     const signUpModalEl = document.getElementById('signUpModal');
     const signInModalEl = document.getElementById('signInModal');

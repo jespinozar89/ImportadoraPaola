@@ -16,7 +16,6 @@ export class UtilsService {
   }
 
   public goToUrl(url: string = '/'): void {
-    // Usamos navigateByUrl para ir directamente a la ruta principal
     this.router.navigateByUrl(url);
   }
 }

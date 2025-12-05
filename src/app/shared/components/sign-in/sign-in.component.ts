@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../../core/services/auth.service'; // 👈 Asegúrate de la ruta correcta
+import { AuthService } from '../../../core/services/auth.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -15,7 +15,7 @@ export class SignInComponent {
   email = signal<string>('');
   password = signal<string>('');
   showPassword = signal<boolean>(false);
-  isLoading = signal<boolean>(false); // 🆕 Estado de carga
+  isLoading = signal<boolean>(false);
 
   constructor(
     private authService: AuthService,
@@ -40,7 +40,6 @@ export class SignInComponent {
       return;
     }
 
-    // 1. Activar estado de carga
     this.isLoading.set(true);
 
     const credentials = {
@@ -48,30 +47,20 @@ export class SignInComponent {
       password: this.password()
     };
 
-    // 2. Llamar al servicio
     this.authService.login(credentials).subscribe({
       next: (response) => {
-        // ✅ Éxito
         this.isLoading.set(false);
-        // Opcional: alert o SweetAlert
-        alert(`Bienvenido de nuevo!`);
 
-        // 3. Cerrar el modal
         this.closeModal();
 
-        // 4. Limpiar formulario
         this.email.set('');
         this.password.set('');
 
-        // Opcional: Redirigir si es necesario, aunque el AuthInterceptor ya manejará el token
-        // this.router.navigate(['/']);
         console.log('Login successful:', response);
       },
       error: (err) => {
-        // ❌ Error
         this.isLoading.set(false);
         console.error('Login error:', err);
-        // Mostrar mensaje del backend si existe
         alert(err.error?.message || 'Error al iniciar sesión. Verifica tus credenciales.');
       }
     });
@@ -88,7 +77,6 @@ export class SignInComponent {
         modalInstance.hide();
       }
 
-      // Limpieza de seguridad por si el backdrop se queda pegado
       const backdrop = document.querySelector('.modal-backdrop');
       if (backdrop) {
         backdrop.remove();
@@ -110,7 +98,6 @@ export class SignInComponent {
         || new (window as any).bootstrap.Modal(signUpModalEl);
 
       signInModalEl.addEventListener('hidden.bs.modal', () => {
-        // Elimina backdrop manualmente si quedó pegado
         const backdrop = document.querySelector('.modal-backdrop');
         if (backdrop) backdrop.remove();
         signUpInstance.show();

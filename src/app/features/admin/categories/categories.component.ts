@@ -136,23 +136,19 @@ export class CategoriesComponent {
 
   onCreateCategory(): void {
     console.log('Abrir modal para crear categoría');
-    // Aquí irá la lógica para abrir el modal
   }
 
   onEditCategory(category: Category): void {
     console.log('Editar categoría:', category);
-    // Aquí irá la lógica para editar
   }
 
   onDeleteCategory(category: Category): void {
     if (confirm(`¿Estás seguro de eliminar la categoría "${category.name}"?`)) {
       console.log('Eliminar categoría:', category);
-      // Aquí irá la lógica para eliminar
     }
   }
 
   goBack(): void {
     console.log('Volver al panel');
-    // Implementa la navegación según tu routing
   }
 }

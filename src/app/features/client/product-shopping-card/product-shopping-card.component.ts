@@ -1,91 +1,104 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { lastValueFrom, Subscription } from 'rxjs';
+import { CartService } from '../../../core/services/cart.service';
+import { FavoriteService } from '../../../core/services/favorite.service';
+import { CarritoDetalladoDTO } from '../../../shared/models/cart.interface';
 
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
-  total: number;
-}
 
 @Component({
   selector: 'app-product-shopping-card',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './product-shopping-card.component.html',
   styleUrl: './product-shopping-card.component.scss'
 })
-export class ProductShoppingCardComponent {
-  wishlistCount = 4;
+export class ProductShoppingCardComponent implements OnInit, OnDestroy {
 
-  cartItems: CartItem[] = [
-    {
-      id: 1,
-      name: 'Audífonos Inalámbricos con Cancelación de Ruido',
-      price: 64990,
-      quantity: 2,
-      image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&w=400&q=80',
-      total: 129980
-    },
-    {
-      id: 2,
-      name: 'Smart TV 4K',
-      price: 190990,
-      quantity: 1,
-      image: 'https://images.unsplash.com/photo-1593784991095-a205069470b6?auto=format&w=400&q=80',
-      total: 190990
+  public cartItems: CarritoDetalladoDTO[] = [];
+  public wishlistCount: number = 0;
+
+  private favoriteSubscription!: Subscription;
+
+  constructor(
+    private cartService: CartService,
+    private favoriteService: FavoriteService,
+  ) {}
+
+  async ngOnInit(): Promise<void> {
+    try {
+      this.cartItems = await lastValueFrom(this.cartService.getDetailedCart());
+
+    } catch (error) {
+      console.error('Error al cargar el carrito:', error);
     }
-  ];
+
+    this.favoriteSubscription = this.favoriteService.favoritesCount$.subscribe(count => {
+      this.wishlistCount = count;
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.favoriteSubscription?.unsubscribe();
+  }
+
+  // ----------------------------------------------------------------------
+  // CÁLCULOS SINCRONOS DEL RESUMEN DEL PEDIDO (Usan la propiedad cartItems)
+  // ----------------------------------------------------------------------
 
   get subtotal(): number {
-    return this.cartItems.reduce((sum, item) => sum + item.total, 0);
+    return this.cartItems.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
   }
 
   get tax(): number {
-    return 0.00;
+    return 0.00; // Valor fijo
   }
 
   get total(): number {
     return this.subtotal + this.tax;
   }
 
+  // ----------------------------------------------------------------------
+  // ACCIONES (DELEGADAS A SERVICIOS)
+  // ----------------------------------------------------------------------
+
+
   continueShopping(): void {
     console.log('Continuar comprando');
   }
 
-  viewWishlist(): void {
-    console.log('Ver lista de deseos');
-  }
-
-  addAllToCart(): void {
-    console.log('Agregar todo al carrito');
-  }
-
-  decreaseQuantity(item: CartItem): void {
-    if (item.quantity > 1) {
-      item.quantity--;
-      item.total = item.price * item.quantity;
+  async decreaseQuantity(item: CarritoDetalladoDTO): Promise<void> {
+    if (item.cantidad > 1) {
+      await this.cartService.decreaseToCart(item.producto_id);
+      await this.refetchCartData();
     }
   }
 
-  increaseQuantity(item: CartItem): void {
-    item.quantity++;
-    item.total = item.price * item.quantity;
-  }
-
-  addToWishlist(item: CartItem): void {
-    console.log('Agregar a lista de deseos:', item.name);
-  }
-
-  removeItem(item: CartItem): void {
-    const index = this.cartItems.indexOf(item);
-    if (index > -1) {
-      this.cartItems.splice(index, 1);
+  async increaseQuantity(item: CarritoDetalladoDTO): Promise<void> {
+    if (item.cantidad > 0) {
+      await this.cartService.addToCart(item.producto_id);
+      await this.refetchCartData();
     }
   }
 
-  proceedToCheckout(): void {
-    console.log('Proceder al pago');
+  addToWishlist(item: CarritoDetalladoDTO): void {
+    this.favoriteService.toggleFavorite(item.carrito_id);
+  }
+
+  async removeItem(item: CarritoDetalladoDTO): Promise<void> {
+    await this.cartService.removeFromCart(item.producto_id);
+    await this.refetchCartData();
+  }
+
+  /**
+   * Método de ayuda para recargar los datos después de una acción de modificación.
+   * Esto simula el comportamiento reactivo.
+   */
+  private async refetchCartData(): Promise<void> {
+    try {
+      this.cartItems = await lastValueFrom(this.cartService.getDetailedCart());
+    } catch (error) {
+      console.error('Error al recargar el carrito:', error);
+    }
   }
 }

@@ -1,5 +1,3 @@
-// src/app/core/services/auth.service.ts
-
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap } from 'rxjs';
@@ -19,7 +17,6 @@ export class AuthService {
   public currentUser: Observable<UserLogged | null>;
 
   constructor(private http: HttpClient) {
-    // 1. Inicializar el estado de usuario leyendo el token almacenado
     this.currentUserSubject = new BehaviorSubject<UserLogged | null>(this.getStoredUser());
     this.currentUser = this.currentUserSubject.asObservable();
   }
@@ -43,7 +40,6 @@ export class AuthService {
    */
   public register(data: CreateUserDTO): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, data);
-    // Nota: El backend probablemente devolverá un token. Puedes llamar a loginAfterRegister() aquí.
   }
 
   /**
@@ -51,8 +47,6 @@ export class AuthService {
    */
   public login(data: LoginPayload): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, data).pipe(
-      // Usar tap para ejecutar una acción después de una respuesta exitosa,
-      // sin modificar el observable.
       tap(response => {
         this.storeAuthData(response);
       })
@@ -78,7 +72,6 @@ export class AuthService {
       token: response.token,
     };
 
-    // 🆕 Guardar el OBJETO DE USUARIO COMPLETO como una cadena JSON
     localStorage.setItem(this.USER_KEY, JSON.stringify(user));
 
     this.currentUserSubject.next(user);
@@ -95,7 +88,6 @@ export class AuthService {
         return user;
       } catch (e) {
         console.error("Error al recuperar el usuario de localStorage:", e);
-        // Limpiar datos corruptos
         localStorage.removeItem(this.USER_KEY);
         return null;
       }
@@ -105,10 +97,8 @@ export class AuthService {
 
   /** Obtiene el token JWT para el interceptor */
   public getAuthToken(): string | null {
-    // Usa el valor del BehaviorSubject, que ya fue cargado por getStoredUser()
     const user = this.currentUserSubject.value;
 
-    // Si el objeto existe, devuelve el token como string o null
     return user?.token ?? null;
   }
 

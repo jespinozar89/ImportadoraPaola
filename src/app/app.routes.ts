@@ -9,6 +9,7 @@ import { OrderManagementComponent } from './features/admin/order-management/orde
 import { OrderDetailComponent } from './features/admin/order-detail/order-detail.component';
 import { CategoriesComponent } from './features/admin/categories/categories.component';
 
+//debo aplicar Lazy Loading en el futuro
 export const routes: Routes = [
   { path: '', component: ProductListComponent },
   { path: 'categorias/:nombre/:id', component: ProductListComponent },

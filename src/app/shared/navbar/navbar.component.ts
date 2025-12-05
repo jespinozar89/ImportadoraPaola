@@ -1,11 +1,8 @@
-// src/app/shared/components/navbar/navbar.component.ts
-
-import { Component, OnInit, signal } from '@angular/core'; // 🆕 Importar signal y OnInit
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, Router } from "@angular/router"; // 🆕 Importar Router
+import { RouterLink, Router } from "@angular/router";
 import { FavoriteService } from '../../core/services/favorite.service';
 import { CartService } from '../../core/services/cart.service';
-// 🆕 Importar AuthService y las interfaces necesarias (asumiendo que UserLogged está ahí)
 import { AuthService } from '../../core/services/auth.service';
 import { UserLogged } from '../models/auth.interface';
 import { CategoriaService } from '../../core/services/categoria.service';
@@ -15,12 +12,12 @@ declare const bootstrap: any;
 
 @Component({
   selector: 'app-navbar',
-  standalone: true, // Asumo que tu componente es standalone (aunque no lo definiste, Angular 19 lo usa por defecto)
+  standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss'
 })
-export class NavbarComponent implements OnInit { // 🆕 Implementar OnInit
+export class NavbarComponent implements OnInit {
 
   private readonly SELECTED_MENU_KEY = 'navbar_selected_menu_item';
 
@@ -28,7 +25,6 @@ export class NavbarComponent implements OnInit { // 🆕 Implementar OnInit
   cartCount = 0;
   selected = localStorage.getItem(this.SELECTED_MENU_KEY) || 'Todo';
 
-  // 🆕 Señales para el estado de autenticación
   currentUser = signal<UserLogged | null>(null);
   isLoggedIn = signal<boolean>(false);
   categorias = signal<Categoria[]>([]);
@@ -42,13 +38,11 @@ export class NavbarComponent implements OnInit { // 🆕 Implementar OnInit
   ) { }
 
   ngOnInit() {
-    // Suscripción al estado de autenticación (la clave de la comunicación)
     this.authService.currentUser.subscribe(user => {
       this.currentUser.set(user);
-      this.isLoggedIn.set(!!user); // Establece a true si el usuario no es null
+      this.isLoggedIn.set(!!user);
     });
 
-    // Tus suscripciones existentes
     this.favoriteService.favoritesCount$.subscribe(count => {
       this.favoritesCount = count;
       console.log('Favoritos actualizados en Navbar:', count);
@@ -73,18 +67,14 @@ export class NavbarComponent implements OnInit { // 🆕 Implementar OnInit
     });
   }
 
-  // 🆕 Lógica para cerrar sesión
   onLogout(): void {
-    this.authService.logout(); // Llama al método del servicio que limpia el token y el estado.
-    this.router.navigate(['/']); // Opcional: Redirigir a la página de inicio
+    this.authService.logout();
+    this.router.navigate(['/']);
 
     localStorage.removeItem('navbar_selected_menu_item');
     localStorage.removeItem('local_favorites');
-
-    // alert('Sesión cerrada.'); // Feedback opcional
   }
 
-  // Tu lógica existente para Offcanvas y selección
   selectItem(value: string) {
     this.selected = value;
     localStorage.setItem(this.SELECTED_MENU_KEY, value);
