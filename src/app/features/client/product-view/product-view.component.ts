@@ -44,9 +44,11 @@ export class ProductViewComponent implements OnInit {
 
   async loadProduct(id: number): Promise<void> {
     try {
-      console.log(`Cargando producto con ID: ${id}`);
 
       const loadedProduct = await this.productService.findById(id);
+      const cartItems = await this.cartService.getCartItems();
+      const cartItem = cartItems.get(id);
+      this.quantity = cartItem ? cartItem.cantidad : 1;
 
       if (loadedProduct) {
         this.product = loadedProduct;
@@ -62,17 +64,17 @@ export class ProductViewComponent implements OnInit {
     }
   }
 
-  increment() {
+  async increment() : Promise<void> {
     if (this.quantity > 0) {
-      this.quantity++;
-      this.cartService.addToCart(this.productId);
+      await this.cartService.addToCart(this.productId);
+      await this.loadProduct(this.productId);
     }
   }
 
-  decrement() {
+  async decrement() : Promise<void> {
     if (this.quantity > 0) {
-      this.quantity--;
-      this.cartService.decreaseToCart(this.productId);
+      await this.cartService.decreaseToCart(this.productId);
+      await this.loadProduct(this.productId);
     }
   }
 
