@@ -6,6 +6,7 @@ import { CategoriaService } from '../../../core/services/categoria.service';
 import { firstValueFrom } from 'rxjs';
 import { UtilsService } from '../../../shared/service/utils.service';
 import { FavoriteService } from '../../../core/services/favorite.service';
+import { CartService } from '../../../core/services/cart.service';
 
 @Component({
   selector: 'app-product-view',
@@ -25,6 +26,7 @@ export class ProductViewComponent implements OnInit {
     private categoriaService: CategoriaService,
     private productService: ProductService,
     private favoriteService: FavoriteService,
+    private cartService: CartService,
     public utilsService: UtilsService,
   ) { }
 
@@ -61,12 +63,16 @@ export class ProductViewComponent implements OnInit {
   }
 
   increment() {
-    this.quantity++;
+    if (this.quantity > 0) {
+      this.quantity++;
+      this.cartService.addToCart(this.productId);
+    }
   }
 
   decrement() {
-    if (this.quantity > 1) {
+    if (this.quantity > 0) {
       this.quantity--;
+      this.cartService.decreaseToCart(this.productId);
     }
   }
 
