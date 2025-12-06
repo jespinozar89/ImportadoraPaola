@@ -29,7 +29,7 @@
         <label for="quantity" class="fw-bold mb-0">Cantidad:</label>
 
         <div class="input-group" style="width: 120px;">
-          <button class="btn btn-outline-secondary" type="button" [disabled]="quantity <= 1" (click)="decrement()">−</button>
+          <button class="btn btn-outline-secondary" type="button" [disabled]="quantity <= 0" (click)="decrement()">−</button>
           <input type="text" class="form-control text-center" id="quantity" [value]="quantity" readonly>
           <button class="btn btn-outline-secondary" type="button" (click)="increment()">+</button>
         </div>

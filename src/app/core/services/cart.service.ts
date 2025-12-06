@@ -17,13 +17,11 @@ export class CartService {
   private apiUrl = `${environment.apiUrl}/carrito`;
   private readonly LOCAL_CART_KEY = 'local_cart';
 
-  // 💡 cartItems ahora es un Map<producto_id, CartItem> unificado
   private cartItems = new Map<number, CartItem>();
 
   private cartCount = new BehaviorSubject<number>(0);
   cartCount$ = this.cartCount.asObservable();
 
-  // 🆕 Para notificar a los componentes de la vista del carrito
   private cartItemsSubject = new BehaviorSubject<CartItem[]>([]);
   cartItems$ = this.cartItemsSubject.asObservable();
 
@@ -32,16 +30,13 @@ export class CartService {
   private authSubscription!: Subscription;
 
   constructor() {
-    // 1. Cargamos el estado inicial (será local si no hay token)
     this.loadCartInitialState();
 
-    // 2. Suscripción a cambios de sesión (login/logout)
     this.authSubscription = this.authService.currentUser.subscribe(user => {
-      // Sincronizar solo si el estado de autenticación cambió de manera significativa
       if (user) {
-        this.syncLocalToDatabase(); // El usuario se logueó
+        this.syncLocalToDatabase();
       } else {
-        this.loadCartInitialState(); // El usuario cerró sesión
+        this.loadCartInitialState();
       }
     });
   }
@@ -84,9 +79,14 @@ export class CartService {
 
     const newCantidad = item.cantidad - 1;
 
-    if (newCantidad > 0) {
+    if (newCantidad >= 0) {
       if (this.authService.isAuthenticated()) {
-        await this.handleRemoteAddOrUpdate(productId, newCantidad);
+        if(newCantidad === 0){
+          await this.handleRemoteRemove(productId);
+        }
+        else {
+          await this.handleRemoteAddOrUpdate(productId, newCantidad);
+        }
       } else {
         this.handleLocalAddOrUpdate(productId, newCantidad);
       }
@@ -121,6 +121,29 @@ export class CartService {
   }
 
   /**
+   * Obtiene la lista actual de ítems del carrito desde el localStorage.
+   */
+  public getCartItemsLocal(): Map<number, CartItem> {
+    const data = localStorage.getItem(this.LOCAL_CART_KEY);
+    const map = new Map<number, CartItem>();
+
+    if (!data) {
+      return map;
+    }
+
+    try {
+      const itemsArray: CartItem[] = JSON.parse(data);
+      itemsArray.forEach(item => {
+        map.set(item.producto_id, item);
+      });
+    } catch (e) {
+      console.error('Failed to parse local cart from localStorage', e);
+    }
+
+    return map;
+  }
+
+  /**
    * Obtiene la lista actual de productos del carrito.
    */
   public getDetailedCart(): Observable<CarritoDetalladoDTO[]> {
@@ -135,7 +158,6 @@ export class CartService {
       this.cartItems.clear();
       this.saveLocalCart();
     } else {
-      // Llama al método del backend
       await lastValueFrom(this.http.delete(`${this.apiUrl}/clear`));
       this.cartItems.clear();
     }
@@ -210,22 +232,16 @@ export class CartService {
   private async syncLocalToDatabase(): Promise<void> {
     const localItems = this.getCartItems();
 
-    // 1. Cargar ítems remotos (DB)
     const remoteItems = await lastValueFrom(this.http.get<CarritoResponse[]>(this.apiUrl));
-    this.mapRemoteItemsToCart(remoteItems); // Rellena this.cartItems con IDs de la BD
+    this.mapRemoteItemsToCart(remoteItems);
 
-    // 2. Fusionar: Añadir ítems locales al remoto
     for (const [productId, localItem] of localItems.entries()) {
       if (!this.cartItems.has(productId)) {
-        // Ítem en local, pero no en DB: Añadir a DB
         const response = await this.addItemToRemote(productId, localItem.cantidad);
         this.cartItems.set(productId, { ...response, carrito_id: response.carrito_id });
       }
-      // NOTA: Si un ítem está en ambos, se asume que la cantidad del DB es la correcta,
-      // o podrías agregar lógica de merge más compleja si lo requieres.
     }
 
-    // 3. Limpiar local storage una vez sincronizado
     localStorage.removeItem(this.LOCAL_CART_KEY);
     this.updateSubjects();
   }
@@ -251,7 +267,6 @@ export class CartService {
     const existingItem = this.cartItems.get(productId);
 
     if (existingItem && existingItem.carrito_id) {
-      // 1. Actualizar cantidad (PATCH /carrito/{carritoId})
       const dto: UpdateItemQuantityDTO = { cantidad: newCantidad };
       const url = `${this.apiUrl}/${existingItem.carrito_id}`;
       const response = await lastValueFrom(this.http.patch<CarritoResponse>(url, dto));
@@ -259,7 +274,6 @@ export class CartService {
       this.cartItems.set(productId, { ...existingItem, cantidad: response.cantidad });
 
     } else {
-      // 2. Añadir ítem (POST /carrito)
       const response = await this.addItemToRemote(productId, newCantidad);
       this.cartItems.set(productId, { ...response, carrito_id: response.carrito_id });
     }
@@ -277,7 +291,6 @@ export class CartService {
     const existingItem = this.cartItems.get(productId);
 
     if (existingItem && existingItem.carrito_id) {
-      // Eliminar ítem (DELETE /carrito/{carritoId})
       await lastValueFrom(this.http.delete(`${this.apiUrl}/${existingItem.carrito_id}`));
       this.cartItems.delete(productId);
     }

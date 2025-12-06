@@ -27,6 +27,7 @@ export class ProductShoppingCardComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     try {
+      // debo validar que el usuario este logueado antes de cargar el carrito
       this.cartItems = await lastValueFrom(this.cartService.getDetailedCart());
 
     } catch (error) {

@@ -18,7 +18,7 @@ export class ProductViewComponent implements OnInit {
 
   product: Producto | null = null;
   productId!: number;
-  quantity: number = 1;
+  quantity: number = 0;
   categoryName: string = '';
 
   constructor(
@@ -48,7 +48,7 @@ export class ProductViewComponent implements OnInit {
       const loadedProduct = await this.productService.findById(id);
       const cartItems = await this.cartService.getCartItems();
       const cartItem = cartItems.get(id);
-      this.quantity = cartItem ? cartItem.cantidad : 1;
+      this.quantity = cartItem ? cartItem.cantidad : 0;
 
       if (loadedProduct) {
         this.product = loadedProduct;
@@ -65,14 +65,14 @@ export class ProductViewComponent implements OnInit {
   }
 
   async increment() : Promise<void> {
-    if (this.quantity > 0) {
+    if (this.quantity >= 0) {
       await this.cartService.addToCart(this.productId);
       await this.loadProduct(this.productId);
     }
   }
 
   async decrement() : Promise<void> {
-    if (this.quantity > 0) {
+    if (this.quantity >= 0) {
       await this.cartService.decreaseToCart(this.productId);
       await this.loadProduct(this.productId);
     }
