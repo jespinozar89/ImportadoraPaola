@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
-import { Producto } from '../../../core/services/product.service';
-import { FavoriteService } from '../../../core/services/favorite.service';
-import { CartService } from '../../../core/services/cart.service';
+import { Producto } from '@/core/services/product.service';
+import { FavoriteService } from '@/core/services/favorite.service';
+import { CartService } from '@/core/services/cart.service';
 
 
 @Component({

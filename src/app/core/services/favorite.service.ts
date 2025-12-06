@@ -1,9 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { AuthService } from './auth.service';
-import { environment } from '../../../environments/environment';
-import { AddFavoritoDTO, Favorito } from '../../shared/models/favorite.interface';
+import { AuthService } from '@/core/services/auth.service';
+import { environment } from '@/environments/environment';
+import { AddFavoritoDTO, Favorito } from '@/shared/models/favorite.interface';
 
 @Injectable({
   providedIn: 'root'

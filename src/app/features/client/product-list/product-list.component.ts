@@ -2,10 +2,10 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { NgxPaginationModule } from 'ngx-pagination';
-import { ProductCardComponent } from "../../../shared/components/product-card/product-card.component";
-import { ProductService, Producto } from '../../../core/services/product.service';
+import { ProductCardComponent } from "@/shared/components/product-card/product-card.component";
+import { ProductService, Producto } from '@/core/services/product.service';
 import { Subscription } from 'rxjs';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService } from '@/core/services/auth.service';
 
 @Component({
   selector: 'app-product-list',

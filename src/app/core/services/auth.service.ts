@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap } from 'rxjs';
-import { CreateUserDTO, LoginPayload, AuthResponse, UserLogged } from '../../shared/models/auth.interface'; // Ajustar ruta
-import { environment } from '../../../environments/environment';
+import { CreateUserDTO, LoginPayload, AuthResponse, UserLogged } from '@/shared/models/auth.interface';
+import { environment } from '@/environments/environment';
 
 @Injectable({
   providedIn: 'root'

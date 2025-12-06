@@ -1,8 +1,8 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../../core/services/auth.service'; // <--- Ajusta la ruta del servicio
-import { CreateUserDTO } from '../../../shared/models/auth.interface'; // <--- Importa el DTO
+import { AuthService } from '@/core/services/auth.service';
+import { CreateUserDTO } from '@/shared/models/auth.interface';
 
 @Component({
   selector: 'app-sign-up',

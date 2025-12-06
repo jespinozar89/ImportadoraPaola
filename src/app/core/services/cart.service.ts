@@ -1,12 +1,14 @@
-// src/app/core/services/cart.service.ts
-
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, Subscription, lastValueFrom } from 'rxjs';
-import { environment } from '../../../environments/environment';
-// Importa las interfaces definidas en el paso 1 y el servicio de Auth
-import { AuthService } from '../services/auth.service';
-import { AddItemToCartDTO, CartItem, CarritoResponse, UpdateItemQuantityDTO, CarritoDetalladoDTO } from '../../shared/models/cart.interface';
+import { environment } from '@/environments/environment';
+import { AuthService } from '@/core/services/auth.service';
+import { AddItemToCartDTO,
+         CartItem,
+         CarritoResponse,
+         UpdateItemQuantityDTO,
+         CarritoDetalladoDTO
+} from '@/shared/models/cart.interface';
 
 @Injectable({
   providedIn: 'root'

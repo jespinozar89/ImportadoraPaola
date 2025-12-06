@@ -1,8 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Categoria, CreateCategoriaDTO, UpdateCategoriaDTO } from '../../shared/models/categoria.interface'; // Ajusta la ruta si es necesario
-import { environment } from '../../../environments/environment';
+import { Categoria,
+         CreateCategoriaDTO,
+         UpdateCategoriaDTO
+} from '@/shared/models/categoria.interface';
+import { environment } from '@/environments/environment';
 
 @Injectable({
   providedIn: 'root'

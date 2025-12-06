@@ -4,6 +4,12 @@
   "compileOnSave": false,
   "compilerOptions": {
     "outDir": "./dist/out-tsc",
+    // absolute routes
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/app/*"],
+      "@/environments/*": ["./src/environments/*"],
+    },
     "strict": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,

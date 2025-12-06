@@ -1,12 +1,12 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from "@angular/router";
-import { FavoriteService } from '../../core/services/favorite.service';
-import { CartService } from '../../core/services/cart.service';
-import { AuthService } from '../../core/services/auth.service';
-import { UserLogged } from '../models/auth.interface';
-import { CategoriaService } from '../../core/services/categoria.service';
-import { Categoria } from '../models/categoria.interface';
+import { FavoriteService } from '@/core/services/favorite.service';
+import { CartService } from '@/core/services/cart.service';
+import { AuthService } from '@/core/services/auth.service';
+import { UserLogged } from '@/shared/models/auth.interface';
+import { CategoriaService } from '@/core/services/categoria.service';
+import { Categoria } from '@/shared/models/categoria.interface';
 
 declare const bootstrap: any;
 

@@ -3,8 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { Producto,
          ProductoCreateInput,
-         ProductoUpdateInput } from '../../shared/models/producto.interface';
-import { environment } from '../../../environments/environment';
+         ProductoUpdateInput } from '@/shared/models/producto.interface';
+import { environment } from '@/environments/environment';
 
 @Injectable({
   providedIn: 'root'

@@ -1,9 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { lastValueFrom, Subscription } from 'rxjs';
-import { CartService } from '../../../core/services/cart.service';
-import { FavoriteService } from '../../../core/services/favorite.service';
-import { CarritoDetalladoDTO } from '../../../shared/models/cart.interface';
+import { CartService } from '@/core/services/cart.service';
+import { FavoriteService } from '@/core/services/favorite.service';
+import { CarritoDetalladoDTO } from '@/shared/models/cart.interface';
 
 
 @Component({

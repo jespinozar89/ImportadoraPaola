@@ -1,11 +1,11 @@
-import { ProductService } from './../../../core/services/product.service';
+import { ProductService } from '@/core/services/product.service';
 import { Component, OnInit } from '@angular/core';
-import { FavoriteService } from '../../../core/services/favorite.service';
+import { FavoriteService } from '@/core/services/favorite.service';
 import { CommonModule } from '@angular/common';
-import { ProductCardComponent } from "../../../shared/components/product-card/product-card.component";
-import { Producto } from '../../../shared/models/producto.interface';
+import { ProductCardComponent } from "@/shared/components/product-card/product-card.component";
+import { Producto } from '@/core/services/product.service';
 import { Subscription } from 'rxjs';
-import { UtilsService } from '../../../shared/service/utils.service';
+import { UtilsService } from '@/shared/service/utils.service';
 
 @Component({
   selector: 'app-product-favorite',

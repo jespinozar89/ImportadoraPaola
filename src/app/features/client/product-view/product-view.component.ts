@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { ProductService, Producto } from '../../../core/services/product.service';
-import { CategoriaService } from '../../../core/services/categoria.service';
+import { ProductService, Producto } from '@/core/services/product.service';
+import { CategoriaService } from '@/core/services/categoria.service';
 import { firstValueFrom } from 'rxjs';
-import { UtilsService } from '../../../shared/service/utils.service';
-import { FavoriteService } from '../../../core/services/favorite.service';
-import { CartService } from '../../../core/services/cart.service';
+import { UtilsService } from '@/shared/service/utils.service';
+import { FavoriteService } from '@/core/services/favorite.service';
+import { CartService } from '@/core/services/cart.service';
 
 @Component({
   selector: 'app-product-view',
