@@ -7,6 +7,7 @@ import { AuthService } from '@/core/services/auth.service';
 import { UserLogged } from '@/shared/models/auth.interface';
 import { CategoriaService } from '@/core/services/categoria.service';
 import { Categoria } from '@/shared/models/categoria.interface';
+import { ProductService } from '@/core/services/product.service';
 
 declare const bootstrap: any;
 
@@ -34,6 +35,7 @@ export class NavbarComponent implements OnInit {
     private cartService: CartService,
     private authService: AuthService,
     private categoriaService: CategoriaService,
+    private productService: ProductService,
     private router: Router
   ) { }
 
@@ -78,6 +80,20 @@ export class NavbarComponent implements OnInit {
   selectItem(value: string) {
     this.selected = value;
     localStorage.setItem(this.SELECTED_MENU_KEY, value);
+    this.productService.lastPage = 1;
+  }
+
+  goToShop() {
+    if (this.authService.isAuthenticated()) {
+      this.router.navigate(['/shop']);
+    }
+    else {
+      const modalElement = document.getElementById('signInModal');
+      if (modalElement) {
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+      }
+    }
   }
 
   closeOffcanvas() {

@@ -4,12 +4,13 @@ import { lastValueFrom, Subscription } from 'rxjs';
 import { CartService } from '@/core/services/cart.service';
 import { FavoriteService } from '@/core/services/favorite.service';
 import { CarritoDetalladoDTO } from '@/shared/models/cart.interface';
+import { RouterLink } from "@angular/router";
 
 
 @Component({
   selector: 'app-product-shopping-card',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './product-shopping-card.component.html',
   styleUrl: './product-shopping-card.component.scss'
 })
@@ -27,7 +28,6 @@ export class ProductShoppingCardComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     try {
-      // debo validar que el usuario este logueado antes de cargar el carrito
       this.cartItems = await lastValueFrom(this.cartService.getDetailedCart());
 
     } catch (error) {
@@ -66,6 +66,19 @@ export class ProductShoppingCardComponent implements OnInit, OnDestroy {
 
   continueShopping(): void {
     console.log('Continuar comprando');
+  }
+
+  async addFavoritesToCart(): Promise<void> {
+    const favoriteIds = await this.favoriteService.getCurrentFavoriteIds();
+
+     const promises = favoriteIds
+    .filter(id => !this.cartItems.find(item => item.producto_id === id))
+    .map(id => this.cartService.addToCart(id));
+
+    await Promise.all(promises);
+
+    await this.refetchCartData();
+    console.log('Productos de favoritos agregados al carrito');
   }
 
   async decreaseQuantity(item: CarritoDetalladoDTO): Promise<void> {

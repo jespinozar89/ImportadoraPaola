@@ -30,6 +30,8 @@ export class ProductListComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
+    this.p = this.productService.lastPage;
+
     this.routeSubscription = this.route.paramMap.subscribe(params => {
       this.loadProducts(params);
     });
@@ -37,14 +39,11 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.authSubscription = this.authService.currentUser.subscribe(() => {
       this.refreshProductListState();
     });
-
-    this.p = this.productService.lastPage;
   }
 
   ngOnDestroy(): void {
     if (this.routeSubscription) this.routeSubscription.unsubscribe();
     if (this.authSubscription) this.authSubscription.unsubscribe();
-    this.productService.lastPage = this.p;
   }
 
   async loadProducts(params: ParamMap): Promise<void> {
@@ -65,12 +64,20 @@ export class ProductListComponent implements OnInit, OnDestroy {
         this.totalProducts = data.length;
       }
 
-      this.p = 1;
+      this.p = this.productService.lastPage;
+      console.log('Página cargada:', this.p);
 
     } catch (error) {
       console.error('Error al cargar la lista de productos:', error);
     }
   }
+
+  onPageChange(page: number): void {
+    this.p = page;
+    this.productService.lastPage = page;
+    console.log('Página cambiada a:', this.productService.lastPage);
+  }
+
 
   private refreshProductListState(): void {
     this.products = [...this.products];

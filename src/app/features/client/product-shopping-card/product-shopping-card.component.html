@@ -20,10 +20,10 @@
         </div>
       </div>
       <div>
-        <button class="btn btn-link text-primary text-decoration-none me-2">
+        <a routerLink="/wishlist" class="btn btn-link text-primary text-decoration-none me-2">
           Ver Todo
-        </button>
-        <button class="btn btn-primary">
+        </a>
+        <button (click)="addFavoritesToCart()" class="btn btn-primary">
           <i class="bi bi-cart-fill"></i> Agregar Todo al Carrito
         </button>
       </div>
@@ -40,8 +40,10 @@
             <div class="cart-item" *ngFor="let item of cartItems; let last = last" [class.border-bottom]="!last">
               <div class="row align-items-center">
                 <div class="col-md-2 col-3">
-                  <img [src]="item.imagen" class="img-fluid h-100 rounded" [style.object-fit]="'cover'"
+                  <a routerLink="/producto/{{ item.producto_id }}">
+                  <img [src]="item.imagen ? item.imagen : 'null.png'" class="img-fluid h-100 rounded" [style.object-fit]="'cover'"
                     alt="{{ item.nombre }}">
+                    </a>
                 </div>
 
                 <div class="col-md-4 col-9">

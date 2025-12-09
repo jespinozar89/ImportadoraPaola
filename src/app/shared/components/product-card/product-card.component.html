@@ -7,7 +7,7 @@
       'bi-heart-fill text-danger': isProductFavorite()
     }"></i>
   </button>
-  <img [src]="product.imagen ? product.imagen : 'https://cdn-icons-png.flaticon.com/512/8344/8344917.png'" class="card-img-top" alt="{{ product.nombre }}">
+  <img [src]="product.imagen ? product.imagen : 'null.png'" class="card-img-top" alt="{{ product.nombre }}">
   <div class="card-body">
     <h5 class="card-title">{{ product.nombre }}</h5>
     <p class="card-text">
