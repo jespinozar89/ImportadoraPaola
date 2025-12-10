@@ -5,6 +5,7 @@ import { CartService } from '@/core/services/cart.service';
 import { FavoriteService } from '@/core/services/favorite.service';
 import { CarritoDetalladoDTO } from '@/shared/models/cart.interface';
 import { RouterLink } from "@angular/router";
+import { HotToastService } from '@ngxpert/hot-toast';
 
 
 @Component({
@@ -24,6 +25,7 @@ export class ProductShoppingCardComponent implements OnInit, OnDestroy {
   constructor(
     private cartService: CartService,
     private favoriteService: FavoriteService,
+    private toast: HotToastService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -78,13 +80,15 @@ export class ProductShoppingCardComponent implements OnInit, OnDestroy {
     await Promise.all(promises);
 
     await this.refetchCartData();
-    console.log('Productos de favoritos agregados al carrito');
+    this.toast.success('Productos de favoritos agregados al carrito')
   }
 
   async decreaseQuantity(item: CarritoDetalladoDTO): Promise<void> {
     if (item.cantidad > 1) {
       await this.cartService.decreaseToCart(item.producto_id);
       await this.refetchCartData();
+      this.toast.success('Producto restado al carrito')
+
     }
   }
 
@@ -92,6 +96,7 @@ export class ProductShoppingCardComponent implements OnInit, OnDestroy {
     if (item.cantidad > 0) {
       await this.cartService.addToCart(item.producto_id);
       await this.refetchCartData();
+      this.toast.success('Producto sumado al carrito')
     }
   }
 
@@ -102,6 +107,7 @@ export class ProductShoppingCardComponent implements OnInit, OnDestroy {
   async removeItem(item: CarritoDetalladoDTO): Promise<void> {
     await this.cartService.removeFromCart(item.producto_id);
     await this.refetchCartData();
+    this.toast.success('Producto eliminado del carrito')
   }
 
   /**

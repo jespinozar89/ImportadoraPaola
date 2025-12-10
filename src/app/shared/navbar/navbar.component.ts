@@ -1,6 +1,6 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, Router } from "@angular/router";
+import { RouterLink, Router, ActivatedRoute, NavigationEnd } from "@angular/router";
 import { FavoriteService } from '@/core/services/favorite.service';
 import { CartService } from '@/core/services/cart.service';
 import { AuthService } from '@/core/services/auth.service';
@@ -8,6 +8,7 @@ import { UserLogged } from '@/shared/models/auth.interface';
 import { CategoriaService } from '@/core/services/categoria.service';
 import { Categoria } from '@/shared/models/categoria.interface';
 import { ProductService } from '@/core/services/product.service';
+import { filter } from 'rxjs/operators';
 
 declare const bootstrap: any;
 
@@ -36,7 +37,7 @@ export class NavbarComponent implements OnInit {
     private authService: AuthService,
     private categoriaService: CategoriaService,
     private productService: ProductService,
-    private router: Router
+    private router: Router,
   ) { }
 
   ngOnInit() {
@@ -55,6 +56,17 @@ export class NavbarComponent implements OnInit {
     });
 
     this.loadCategories();
+
+    // this.router.events
+    // .pipe(filter(event => event instanceof NavigationEnd))
+    // .subscribe((event: NavigationEnd) => {
+    //   const urlComplete = event.url;
+    //   const segments = urlComplete.split('/').filter(s => s.length > 0);
+    //   const url = segments.length > 0 ? segments[1] : 'Todo';
+    //   this.selectItem(url);
+    //   console.log("url:", url);
+    // });
+
   }
 
   loadCategories(): void {

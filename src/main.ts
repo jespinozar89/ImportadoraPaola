@@ -1,4 +1,5 @@
 import { bootstrapApplication } from '@angular/platform-browser';
+import { provideHotToastConfig } from '@ngxpert/hot-toast';
 import { AppComponent } from './app/app.component';
 import { appConfig } from './app/app.config';
 import { provideRouter } from '@angular/router';
@@ -12,6 +13,7 @@ bootstrapApplication(AppComponent, {
   ...appConfig,
   providers: [
     ...appConfig.providers,
-    provideRouter(routes)
+    provideHotToastConfig(),
+    provideRouter(routes), provideHotToastConfig()
   ]
 }).catch(err => console.error(err));

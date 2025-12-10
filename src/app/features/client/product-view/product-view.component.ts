@@ -7,6 +7,7 @@ import { firstValueFrom } from 'rxjs';
 import { UtilsService } from '@/shared/service/utils.service';
 import { FavoriteService } from '@/core/services/favorite.service';
 import { CartService } from '@/core/services/cart.service';
+import { HotToastService } from '@ngxpert/hot-toast';
 
 @Component({
   selector: 'app-product-view',
@@ -27,6 +28,7 @@ export class ProductViewComponent implements OnInit {
     private productService: ProductService,
     private favoriteService: FavoriteService,
     private cartService: CartService,
+    private toast: HotToastService,
     public utilsService: UtilsService,
   ) { }
 
@@ -68,13 +70,19 @@ export class ProductViewComponent implements OnInit {
     if (this.quantity >= 0) {
       await this.cartService.addToCart(this.productId);
       await this.loadProduct(this.productId);
+      this.toast.success('Producto sumado al carrito')
     }
   }
 
   async decrement() : Promise<void> {
     if (this.quantity >= 0) {
+      let menssage = 'Producto restado al carrito'
+
       await this.cartService.decreaseToCart(this.productId);
       await this.loadProduct(this.productId);
+
+      if(this.quantity === 0) menssage = "Producto eliminado del carrito"
+      this.toast.success(menssage)
     }
   }
 
