@@ -6,6 +6,7 @@
         <h5 class="modal-title" id="signUpModalLabel">Crear cuenta</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
+
       <div class="modal-body">
         <div class="sign-up-container">
           <div class="sign-up-card">
@@ -14,7 +15,7 @@
               <p class="sign-up-subtitle">Crea tu cuenta para gestionar tus compras</p>
             </div>
 
-            <form (ngSubmit)="onSignUp()" #signUpForm="ngForm">
+            <form (ngSubmit)="onSignUp()">
 
               <div class="row">
                 <div class="col-md-6 mb-3">
@@ -25,8 +26,12 @@
                     name="nombres"
                     [value]="nombres()"
                     (input)="onInputChange($event, 'nombres')"
-                    required>
+                    required
+                    [attr.aria-invalid]="!nombresValid()"
+                  />
+                  <div *ngIf="formTouched() && !nombresValid()" class="text-danger mt-1">Campo nombre obligatorio</div>
                 </div>
+
                 <div class="col-md-6 mb-3">
                   <input
                     type="text"
@@ -35,7 +40,10 @@
                     name="apellidos"
                     [value]="apellidos()"
                     (input)="onInputChange($event, 'apellidos')"
-                    required>
+                    required
+                    [attr.aria-invalid]="!apellidosValid()"
+                  />
+                  <div *ngIf="formTouched() && !apellidosValid()" class="text-danger mt-1">Campo apellido obligatorio</div>
                 </div>
               </div>
 
@@ -47,24 +55,49 @@
                   name="email"
                   [value]="email()"
                   (input)="onInputChange($event, 'email')"
-                  required>
+                  required
+                  [attr.aria-invalid]="!emailValid()"
+                />
+                <div *ngIf="formTouched() && !emailValid()" class="text-danger mt-1">Email inválido</div>
               </div>
 
-              <div class="mb-3 position-relative">
+              <div class="mb-3">
                 <input
-                  [type]="showPassword() ? 'text' : 'password'"
-                  class="form-control pe-5"
-                  placeholder="Contraseña"
-                  name="password"
-                  [value]="password()"
-                  (input)="onInputChange($event, 'password')"
-                  required>
-                <button
-                  type="button"
-                  class="btn position-absolute top-50 end-0 translate-middle-y me-2"
-                  (click)="togglePasswordVisibility()">
-                  <i class="bi" [ngClass]="showPassword() ? 'bi-eye-slash' : 'bi-eye'"></i>
-                </button>
+                  type="text"
+                  inputmode="numeric"
+                  class="form-control"
+                  placeholder="Teléfono (9 dígitos)"
+                  name="telefono"
+                  [value]="telefono()"
+                  (input)="onInputChange($event, 'telefono')"
+                  required
+                  [attr.aria-invalid]="!telefonoValid()"
+                />
+                <div *ngIf="formTouched() && !telefonoValid()" class="text-danger mt-1">Teléfono inválido (solo números, 9 dígitos)</div>
+              </div>
+
+              <div class="mb-3">
+                <div class="input-group">
+                  <input
+                    [type]="showPassword() ? 'text' : 'password'"
+                    class="form-control"
+                    placeholder="Contraseña"
+                    name="password"
+                    [value]="password()"
+                    (input)="onInputChange($event, 'password')"
+                    required
+                    [attr.aria-invalid]="!passwordValid()"
+                  />
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    (click)="togglePasswordVisibility()"
+                    tabindex="-1"
+                    aria-label="Mostrar/ocultar contraseña">
+                    <i class="bi" [ngClass]="showPassword() ? 'bi-eye-slash' : 'bi-eye'"></i>
+                  </button>
+                </div>
+                <div *ngIf="formTouched() && !passwordValid()" class="text-danger mt-1">Contraseña mínimo 6 caracteres</div>
               </div>
 
               <div class="mb-3">
@@ -75,7 +108,11 @@
                   name="confirmPassword"
                   [value]="confirmPassword()"
                   (input)="onInputChange($event, 'confirmPassword')"
-                  required>
+                  required
+                  [attr.aria-invalid]="!confirmPasswordValid()"
+                />
+                <div *ngIf="formTouched() && !confirmPasswordValid()" class="text-danger mt-1">Las contraseñas no coinciden</div>
+
               </div>
 
               <div class="d-grid gap-2">
@@ -87,9 +124,7 @@
                     <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                     Registrando...
                   </ng-container>
-                  <ng-container *ngIf="!isLoading()">
-                    Crear cuenta
-                  </ng-container>
+                  <ng-container *ngIf="!isLoading()">Crear cuenta</ng-container>
                 </button>
               </div>
 

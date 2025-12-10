@@ -1,8 +1,9 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '@/core/services/auth.service';
 import { CreateUserDTO } from '@/shared/models/auth.interface';
+import { HotToastService } from '@ngxpert/hot-toast';
 
 @Component({
   selector: 'app-sign-up',
@@ -13,20 +14,44 @@ import { CreateUserDTO } from '@/shared/models/auth.interface';
 })
 export class SignUpModalComponent {
 
-  nombres = signal<string>('');
-  apellidos = signal<string>('');
-  email = signal<string>('');
-  password = signal<string>('');
-  confirmPassword = signal<string>('');
-  showPassword = signal<boolean>(false);
-  isLoading = signal<boolean>(false);
+  nombres = signal('');
+  apellidos = signal('');
+  email = signal('');
+  telefono = signal('');
+  password = signal('');
+  confirmPassword = signal('');
+  showPassword = signal(false);
+  isLoading = signal(false);
+  formTouched = signal(false);
+
+  // Validaciones (signals + computed)
+  nombresValid = computed(() => this.nombres().trim().length >= 2);
+  apellidosValid = computed(() => this.apellidos().trim().length >= 2);
+  emailValid = computed(() => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email()));
+  telefonoValid = computed(() => /^[0-9]{9}$/.test(this.telefono()));
+  passwordValid = computed(() => this.password().length >= 6);
+  confirmPasswordValid = computed(() => this.password() === this.confirmPassword());
+
+  formValid = computed(() =>
+    this.nombresValid() &&
+    this.apellidosValid() &&
+    this.emailValid() &&
+    this.telefonoValid() &&
+    this.passwordValid() &&
+    this.confirmPasswordValid()
+  );
 
   constructor(
-    private authService: AuthService
+    private authService: AuthService,
+    private toast: HotToastService,
   ) {}
 
-  onInputChange(event: Event, field: 'nombres' | 'apellidos' | 'email' | 'password' | 'confirmPassword') {
-    const value = (event.target as HTMLInputElement).value;
+  onInputChange(
+    event: Event,
+    field: 'nombres' | 'apellidos' | 'email' | 'telefono' | 'password' | 'confirmPassword'
+  ) {
+    let value = (event.target as HTMLInputElement).value;
+    if (field === 'telefono') value = value.replace(/\D/g, '');
     this[field].set(value);
   }
 
@@ -34,17 +59,14 @@ export class SignUpModalComponent {
     this.showPassword.set(!this.showPassword());
   }
 
-
   onSignUp(): void {
-    if (!this.nombres() || !this.apellidos() || !this.email() || !this.password() || !this.confirmPassword()) {
-      alert('Por favor, completa todos los campos');
+    this.formTouched.set(true);
+
+    if (!this.formValid()){
+      this.toast.warning('Por favor, completa todos los campos correctamente.');
       return;
     }
 
-    if (this.password() !== this.confirmPassword()) {
-      alert('Las contraseñas no coinciden');
-      return;
-    }
 
     this.isLoading.set(true);
 
@@ -52,23 +74,21 @@ export class SignUpModalComponent {
       nombres: this.nombres(),
       apellidos: this.apellidos(),
       email: this.email(),
+      telefono: this.telefono(),
       password: this.password(),
-      telefono: undefined
     };
 
     this.authService.register(data).subscribe({
-      next: (response) => {
+      next: () => {
         this.isLoading.set(false);
-        alert('Cuenta creada exitosamente. Ya puedes iniciar sesión.');
-
+        this.toast.success('Cuenta creada exitosamente. Ya puedes iniciar sesión.');
         this.resetForm();
         this.onSignIn();
       },
       error: (err) => {
         this.isLoading.set(false);
         console.error('Error registro:', err);
-        const mensaje = err.error?.message || 'Error al crear la cuenta. Inténtalo de nuevo.';
-        alert(mensaje);
+        this.toast.error(err.error?.message || 'Error al crear la cuenta. Inténtalo de nuevo.');
       }
     });
   }
@@ -77,6 +97,7 @@ export class SignUpModalComponent {
     this.nombres.set('');
     this.apellidos.set('');
     this.email.set('');
+    this.telefono.set('');
     this.password.set('');
     this.confirmPassword.set('');
   }
@@ -94,7 +115,6 @@ export class SignUpModalComponent {
       signUpModalEl.addEventListener('hidden.bs.modal', () => {
         const backdrop = document.querySelector('.modal-backdrop');
         if (backdrop) backdrop.remove();
-
         signInInstance.show();
       }, { once: true });
 

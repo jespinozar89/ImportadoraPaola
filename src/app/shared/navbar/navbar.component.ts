@@ -1,6 +1,6 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, Router, ActivatedRoute, NavigationEnd } from "@angular/router";
+import { RouterLink, Router, NavigationEnd } from "@angular/router";
 import { FavoriteService } from '@/core/services/favorite.service';
 import { CartService } from '@/core/services/cart.service';
 import { AuthService } from '@/core/services/auth.service';
@@ -9,6 +9,9 @@ import { CategoriaService } from '@/core/services/categoria.service';
 import { Categoria } from '@/shared/models/categoria.interface';
 import { ProductService } from '@/core/services/product.service';
 import { filter } from 'rxjs/operators';
+import { UtilsService } from '@/shared/service/utils.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { HotToastService } from '@ngxpert/hot-toast';
 
 declare const bootstrap: any;
 
@@ -38,34 +41,45 @@ export class NavbarComponent implements OnInit {
     private categoriaService: CategoriaService,
     private productService: ProductService,
     private router: Router,
+    private destroyRef: DestroyRef,
+    private toast: HotToastService,
+    public utilsService: UtilsService,
   ) { }
 
   ngOnInit() {
-    this.authService.currentUser.subscribe(user => {
+    this.authService.currentUser
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe(user => {
       this.currentUser.set(user);
       this.isLoggedIn.set(!!user);
     });
 
-    this.favoriteService.favoritesCount$.subscribe(count => {
+    this.favoriteService.favoritesCount$
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe(count => {
       this.favoritesCount = count;
       console.log('Favoritos actualizados en Navbar:', count);
     });
 
-    this.cartService.cartCount$.subscribe(count => {
+    this.cartService.cartCount$
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe(count => {
       this.cartCount = count;
     });
 
     this.loadCategories();
 
-    // this.router.events
-    // .pipe(filter(event => event instanceof NavigationEnd))
-    // .subscribe((event: NavigationEnd) => {
-    //   const urlComplete = event.url;
-    //   const segments = urlComplete.split('/').filter(s => s.length > 0);
-    //   const url = segments.length > 0 ? segments[1] : 'Todo';
-    //   this.selectItem(url);
-    //   console.log("url:", url);
-    // });
+    this.router.events
+      .pipe(
+        filter(event => event instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((event: NavigationEnd) => {
+        const urlComplete = event.url;
+        const segments = urlComplete.split('/').filter(s => s.length > 0);
+        const url = segments.length > 0 ? segments[1] : 'Todo';
+        this.selectItem(url);
+      });
 
   }
 
@@ -105,6 +119,7 @@ export class NavbarComponent implements OnInit {
         const modal = new bootstrap.Modal(modalElement);
         modal.show();
       }
+      this.toast.info('Por favor, inicia sesión para acceder al carrito.');
     }
   }
 

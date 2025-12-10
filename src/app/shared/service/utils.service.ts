@@ -18,4 +18,8 @@ export class UtilsService {
   public goToUrl(url: string = '/'): void {
     this.router.navigateByUrl(url);
   }
+
+  getCategoriaNombre(nombre: string): string {
+    return nombre.replace(/_/g, ' ');
+  }
 }

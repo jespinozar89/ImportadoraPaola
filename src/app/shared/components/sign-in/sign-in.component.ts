@@ -2,7 +2,7 @@ import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '@/core/services/auth.service';
-import { Router } from '@angular/router';
+import { HotToastService } from '@ngxpert/hot-toast';
 
 @Component({
   selector: 'app-sign-in',
@@ -19,7 +19,7 @@ export class SignInComponent {
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private toast: HotToastService,
   ) {}
 
   onEmailChange(event: Event): void {
@@ -36,7 +36,7 @@ export class SignInComponent {
 
   onSignIn(): void {
     if (!this.email() || !this.password()) {
-      alert('Por favor, completa todos los campos');
+      this.toast.warning('Por favor, completa todos los campos.');
       return;
     }
 
@@ -55,13 +55,11 @@ export class SignInComponent {
 
         this.email.set('');
         this.password.set('');
-
-        console.log('Login successful:', response);
       },
       error: (err) => {
         this.isLoading.set(false);
         console.error('Login error:', err);
-        alert(err.error?.message || 'Error al iniciar sesión. Verifica tus credenciales.');
+        this.toast.error(err.error?.message || 'Error al iniciar sesión. Verifica tus credenciales.');
       }
     });
   }

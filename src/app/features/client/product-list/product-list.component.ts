@@ -1,11 +1,12 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit, DestroyRef } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { ProductCardComponent } from "@/shared/components/product-card/product-card.component";
 import { ProductService, Producto } from '@/core/services/product.service';
-import { Subscription } from 'rxjs';
 import { AuthService } from '@/core/services/auth.service';
+import { UtilsService } from '@/shared/service/utils.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-product-list',
@@ -13,7 +14,7 @@ import { AuthService } from '@/core/services/auth.service';
   templateUrl: './product-list.component.html',
   styleUrl: './product-list.component.scss'
 })
-export class ProductListComponent implements OnInit, OnDestroy {
+export class ProductListComponent implements OnInit {
 
   products: Producto[] = [];
   totalProducts = 0;
@@ -21,29 +22,27 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
   p: number = 1;
 
-  private routeSubscription!: Subscription;
-  private authSubscription!: Subscription;
-
   constructor(private route: ActivatedRoute,
     private productService: ProductService,
-    private authService: AuthService
+    private authService: AuthService,
+    private destroyRef: DestroyRef,
+    private utilsService: UtilsService
   ) { }
 
   ngOnInit(): void {
     this.p = this.productService.lastPage;
 
-    this.routeSubscription = this.route.paramMap.subscribe(params => {
+    this.route.paramMap
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe(params => {
       this.loadProducts(params);
     });
 
-    this.authSubscription = this.authService.currentUser.subscribe(() => {
+    this.authService.currentUser
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe(() => {
       this.refreshProductListState();
     });
-  }
-
-  ngOnDestroy(): void {
-    if (this.routeSubscription) this.routeSubscription.unsubscribe();
-    if (this.authSubscription) this.authSubscription.unsubscribe();
   }
 
   async loadProducts(params: ParamMap): Promise<void> {
@@ -51,7 +50,8 @@ export class ProductListComponent implements OnInit, OnDestroy {
       const idString = params.get('id');
       const nameString = params.get('nombre');
 
-      this.nameCategory = nameString ? nameString.toUpperCase() : 'TODO';
+      const nameCategoryString = nameString ? nameString.toUpperCase() : 'TODO';
+      this.nameCategory = this.utilsService.getCategoriaNombre(nameCategoryString);
       const data = await this.productService.findAll();
 
       if (idString) {

@@ -42,9 +42,9 @@ export class ProductCardComponent {
     }
   }
 
-  addToCart(event: MouseEvent) {
+  async addToCart(event: MouseEvent): Promise<void> {
     event.stopPropagation();
-    this.cartService.addToCart(this.product.producto_id);
+    await this.cartService.addToCart(this.product.producto_id);
     this.toast.success('Producto añadido al carrito')
   }
 

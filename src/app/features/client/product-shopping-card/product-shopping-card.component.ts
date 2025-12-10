@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { lastValueFrom, Subscription } from 'rxjs';
 import { CartService } from '@/core/services/cart.service';
@@ -6,6 +6,7 @@ import { FavoriteService } from '@/core/services/favorite.service';
 import { CarritoDetalladoDTO } from '@/shared/models/cart.interface';
 import { RouterLink } from "@angular/router";
 import { HotToastService } from '@ngxpert/hot-toast';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 
 @Component({
@@ -15,7 +16,7 @@ import { HotToastService } from '@ngxpert/hot-toast';
   templateUrl: './product-shopping-card.component.html',
   styleUrl: './product-shopping-card.component.scss'
 })
-export class ProductShoppingCardComponent implements OnInit, OnDestroy {
+export class ProductShoppingCardComponent implements OnInit {
 
   public cartItems: CarritoDetalladoDTO[] = [];
   public wishlistCount: number = 0;
@@ -25,6 +26,7 @@ export class ProductShoppingCardComponent implements OnInit, OnDestroy {
   constructor(
     private cartService: CartService,
     private favoriteService: FavoriteService,
+    private destroyRef: DestroyRef,
     private toast: HotToastService,
   ) {}
 
@@ -36,13 +38,15 @@ export class ProductShoppingCardComponent implements OnInit, OnDestroy {
       console.error('Error al cargar el carrito:', error);
     }
 
-    this.favoriteSubscription = this.favoriteService.favoritesCount$.subscribe(count => {
+    this.favoriteService.favoritesCount$
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe(count => {
       this.wishlistCount = count;
     });
   }
 
-  ngOnDestroy(): void {
-    this.favoriteSubscription?.unsubscribe();
+  public isFavorite(idProduct: number): boolean {
+    return this.favoriteService.isFavorite(idProduct);
   }
 
   // ----------------------------------------------------------------------
@@ -100,8 +104,14 @@ export class ProductShoppingCardComponent implements OnInit, OnDestroy {
     }
   }
 
-  addToWishlist(item: CarritoDetalladoDTO): void {
-    this.favoriteService.toggleFavorite(item.carrito_id);
+  async addToWishlist(item: CarritoDetalladoDTO): Promise<void> {
+    await this.favoriteService.toggleFavorite(item.producto_id);
+
+    if (this.isFavorite(item.producto_id)) {
+      this.toast.success('Producto añadido a favoritos');
+    } else {
+      this.toast.success('Producto eliminado de favoritos');
+    }
   }
 
   async removeItem(item: CarritoDetalladoDTO): Promise<void> {

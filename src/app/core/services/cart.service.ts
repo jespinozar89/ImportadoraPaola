@@ -230,7 +230,8 @@ export class CartService {
    * Sincroniza el carrito local con la BD al iniciar sesión.
    */
   private async syncLocalToDatabase(): Promise<void> {
-    const localItems = this.getCartItems();
+    const localItems = this.getCartItemsLocal();
+    console.log('Sincronizando carrito local a BD:', localItems);
 
     const remoteItems = await lastValueFrom(this.http.get<CarritoResponse[]>(this.apiUrl));
     this.mapRemoteItemsToCart(remoteItems);

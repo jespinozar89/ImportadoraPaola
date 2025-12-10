@@ -41,9 +41,9 @@
               <div class="row align-items-center">
                 <div class="col-md-2 col-3">
                   <a routerLink="/producto/{{ item.producto_id }}">
-                  <img [src]="item.imagen ? item.imagen : 'null.png'" class="img-fluid h-100 rounded" [style.object-fit]="'cover'"
-                    alt="{{ item.nombre }}">
-                    </a>
+                    <img [src]="item.imagen ? item.imagen : 'null.png'" class="img-fluid h-100 rounded"
+                      [style.object-fit]="'cover'" alt="{{ item.nombre }}">
+                  </a>
                 </div>
 
                 <div class="col-md-4 col-9">
@@ -70,7 +70,11 @@
                     <div class="item-actions">
                       <button class="btn btn-link text-secondary p-1" (click)="addToWishlist(item)"
                         title="Agregar a lista de deseos">
-                        <i class="bi bi-heart"></i>
+                        <i class="bi fs-5" [ngClass]="{
+                            'bi-heart-fill text-danger': isFavorite(item.producto_id),
+                            'bi-heart text-secondary': !isFavorite(item.producto_id)
+                        }">
+                        </i>
                       </button>
                       <button class="btn btn-link text-danger p-1" (click)="removeItem(item)" title="Eliminar artículo">
                         <i class="bi bi-trash-fill"></i>

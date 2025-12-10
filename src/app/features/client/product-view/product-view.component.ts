@@ -55,7 +55,9 @@ export class ProductViewComponent implements OnInit {
       if (loadedProduct) {
         this.product = loadedProduct;
         const categoria = await firstValueFrom(this.categoriaService.findById(loadedProduct.categoria_id));
-        this.categoryName = categoria?.nombre ?? '';
+
+        const nameCategoryString = categoria?.nombre ?? '';
+        this.categoryName = this.utilsService.getCategoriaNombre(nameCategoryString);
       } else {
         console.warn(`No se encontró el producto con ID: ${id}`);
       }
@@ -96,6 +98,11 @@ export class ProductViewComponent implements OnInit {
   public async toggleFavorite(): Promise<void> {
     if (this.product && this.product.producto_id) {
       await this.favoriteService.toggleFavorite(this.product.producto_id);
+      this.toast.success(
+          this.isFavorite() ?
+            'Producto añadido a favoritos' :
+            'Producto eliminado de favoritos'
+      );
     }
   }
 

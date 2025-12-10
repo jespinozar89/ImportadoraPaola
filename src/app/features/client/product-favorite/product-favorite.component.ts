@@ -1,11 +1,11 @@
 import { ProductService } from '@/core/services/product.service';
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit } from '@angular/core';
 import { FavoriteService } from '@/core/services/favorite.service';
 import { CommonModule } from '@angular/common';
 import { ProductCardComponent } from "@/shared/components/product-card/product-card.component";
 import { Producto } from '@/core/services/product.service';
-import { Subscription } from 'rxjs';
 import { UtilsService } from '@/shared/service/utils.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-product-favorite',
@@ -17,26 +17,21 @@ export class ProductFavoriteComponent implements OnInit {
   totalFavorites = 0;
   products: Producto[] = [];
 
-  private favoriteCountSubscription!: Subscription;
-
   constructor(private favoriteService: FavoriteService,
               private productService: ProductService,
+              private destroyRef: DestroyRef,
               public utilsService: UtilsService
   ) {}
 
   ngOnInit(): void {
-    this.favoriteCountSubscription = this.favoriteService.favoritesCount$.subscribe(count => {
+    this.favoriteService.favoritesCount$
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe(count => {
       this.totalFavorites = count;
       this.loadFavorites();
     });
 
     this.loadFavorites();
-  }
-
-  ngOnDestroy(): void {
-    if (this.favoriteCountSubscription) {
-      this.favoriteCountSubscription.unsubscribe();
-    }
   }
 
   async loadFavorites(): Promise<void> {
