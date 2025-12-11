@@ -7,7 +7,6 @@ import { AuthService } from '@/core/services/auth.service';
 import { UserLogged } from '@/shared/models/auth.interface';
 import { CategoriaService } from '@/core/services/categoria.service';
 import { Categoria } from '@/shared/models/categoria.interface';
-import { ProductService } from '@/core/services/product.service';
 import { filter } from 'rxjs/operators';
 import { UtilsService } from '@/shared/service/utils.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -33,13 +32,13 @@ export class NavbarComponent implements OnInit {
   currentUser = signal<UserLogged | null>(null);
   isLoggedIn = signal<boolean>(false);
   categorias = signal<Categoria[]>([]);
+  searchTerm = signal('');
 
   constructor(
     private favoriteService: FavoriteService,
     private cartService: CartService,
     private authService: AuthService,
     private categoriaService: CategoriaService,
-    private productService: ProductService,
     private router: Router,
     private destroyRef: DestroyRef,
     private toast: HotToastService,
@@ -48,24 +47,24 @@ export class NavbarComponent implements OnInit {
 
   ngOnInit() {
     this.authService.currentUser
-    .pipe(takeUntilDestroyed(this.destroyRef))
-    .subscribe(user => {
-      this.currentUser.set(user);
-      this.isLoggedIn.set(!!user);
-    });
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(user => {
+        this.currentUser.set(user);
+        this.isLoggedIn.set(!!user);
+      });
 
     this.favoriteService.favoritesCount$
-    .pipe(takeUntilDestroyed(this.destroyRef))
-    .subscribe(count => {
-      this.favoritesCount = count;
-      console.log('Favoritos actualizados en Navbar:', count);
-    });
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(count => {
+        this.favoritesCount = count;
+        console.log('Favoritos actualizados en Navbar:', count);
+      });
 
     this.cartService.cartCount$
-    .pipe(takeUntilDestroyed(this.destroyRef))
-    .subscribe(count => {
-      this.cartCount = count;
-    });
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(count => {
+        this.cartCount = count;
+      });
 
     this.loadCategories();
 
@@ -78,7 +77,10 @@ export class NavbarComponent implements OnInit {
         const urlComplete = event.url;
         const segments = urlComplete.split('/').filter(s => s.length > 0);
         const url = segments.length > 0 ? segments[1] : 'Todo';
-        this.selectItem(url);
+
+        if(!urlComplete.startsWith('/categorias/') && !urlComplete.startsWith('/producto/') && urlComplete !== '/') {
+          this.selectItem(url);
+        }
       });
 
   }
@@ -99,6 +101,7 @@ export class NavbarComponent implements OnInit {
     this.authService.logout();
     this.router.navigate(['/']);
 
+    localStorage.removeItem('lastPage');
     localStorage.removeItem('navbar_selected_menu_item');
     localStorage.removeItem('local_favorites');
   }
@@ -106,7 +109,15 @@ export class NavbarComponent implements OnInit {
   selectItem(value: string) {
     this.selected = value;
     localStorage.setItem(this.SELECTED_MENU_KEY, value);
-    this.productService.lastPage = 1;
+    localStorage.setItem('lastPage', "1");
+  }
+
+  setLastPageLocalStorage(){
+    const value = 'Todo'
+    this.selected = value;
+    localStorage.setItem(this.SELECTED_MENU_KEY, value);
+    localStorage.setItem('lastPage', "1");
+    console.log('lastpage reset : ' + localStorage.getItem('lastPage'));
   }
 
   goToShop() {
@@ -121,6 +132,16 @@ export class NavbarComponent implements OnInit {
       }
       this.toast.info('Por favor, inicia sesión para acceder al carrito.');
     }
+  }
+
+  onSearch(): void {
+    const term = this.searchTerm().replace(' ', '_');
+    if (!term) return;
+
+    this.selectItem('');
+    this.searchTerm.set('');
+
+    this.router.navigate(['/categorias', 'BuscarProducto', term]);
   }
 
   closeOffcanvas() {

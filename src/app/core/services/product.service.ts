@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { Producto,
@@ -12,7 +12,7 @@ import { environment } from '@/environments/environment';
 export class ProductService {
 
   private readonly baseUrl = `${environment.apiUrl}/productos`;
-  public lastPage: number = 1;
+  public  lastPage = signal(1);
 
   constructor(private http: HttpClient) { }
 

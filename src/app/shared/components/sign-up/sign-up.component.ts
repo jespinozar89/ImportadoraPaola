@@ -67,7 +67,6 @@ export class SignUpModalComponent {
       return;
     }
 
-
     this.isLoading.set(true);
 
     const data: CreateUserDTO = {

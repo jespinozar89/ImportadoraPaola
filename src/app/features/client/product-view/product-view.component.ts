@@ -37,6 +37,8 @@ export class ProductViewComponent implements OnInit {
     const idString = this.route.snapshot.paramMap.get('id');
     this.productId = idString ? +idString : 0;
 
+    //console.log('pagina actual:' + this.productService.lastPage());
+
     if (this.productId) {
       this.loadProduct(this.productId);
     } else {
@@ -68,7 +70,7 @@ export class ProductViewComponent implements OnInit {
     }
   }
 
-  async increment() : Promise<void> {
+  async increment(): Promise<void> {
     if (this.quantity >= 0) {
       await this.cartService.addToCart(this.productId);
       await this.loadProduct(this.productId);
@@ -76,14 +78,14 @@ export class ProductViewComponent implements OnInit {
     }
   }
 
-  async decrement() : Promise<void> {
+  async decrement(): Promise<void> {
     if (this.quantity >= 0) {
       let menssage = 'Producto restado al carrito'
 
       await this.cartService.decreaseToCart(this.productId);
       await this.loadProduct(this.productId);
 
-      if(this.quantity === 0) menssage = "Producto eliminado del carrito"
+      if (this.quantity === 0) menssage = "Producto eliminado del carrito"
       this.toast.success(menssage)
     }
   }
@@ -99,11 +101,22 @@ export class ProductViewComponent implements OnInit {
     if (this.product && this.product.producto_id) {
       await this.favoriteService.toggleFavorite(this.product.producto_id);
       this.toast.success(
-          this.isFavorite() ?
-            'Producto añadido a favoritos' :
-            'Producto eliminado de favoritos'
+        this.isFavorite() ?
+          'Producto añadido a favoritos' :
+          'Producto eliminado de favoritos'
       );
     }
   }
+
+  public copyLink(): void {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+      this.toast.success('Enlace copiado al portapapeles');
+    }).catch(err => {
+      this.toast.error('Error al copiar el enlace');
+      console.error('Error al copiar enlace:', err);
+    });
+  }
+
 
 }

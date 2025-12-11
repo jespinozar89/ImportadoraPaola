@@ -35,14 +35,29 @@
 
 
     <!-- Buscador -->
-    <form class="d-none d-md-flex flex-grow-1 me-3">
+    <div class="d-none d-md-flex flex-grow-1 me-3">
       <div class="input-group">
-        <input type="text" class="form-control search-input border-start-0" placeholder="Buscar productos..." />
-        <span class="input-group-text bg-white border-end-0">
+        <input
+          type="text"
+          class="form-control search-input border-start-0"
+          placeholder="Buscar productos..."
+          [value]="searchTerm()"
+          (keyup.enter)="onSearch()"
+          (input)="searchTerm.set($any($event.target).value)"
+          required
+        />
+        <button
+          type="button"
+          class="input-group-text bg-white border-end-0"
+          (click)="onSearch()"
+        >
           <i class="bi bi-search"></i>
-        </span>
+        </button>
       </div>
-    </form>
+    </div>
+
+
+
 
     <!-- Íconos y botones Escritorio-->
     <div class="d-none d-md-flex align-items-center gap-3">
@@ -143,7 +158,7 @@
     <!-- Categorías -->
     <h6 class="text-uppercase fw-bold text-muted mb-3 mt-4">Categorías</h6>
     <ul class="list-group list-group-flush">
-      <li routerLink="/" (click)="selectItem('Todo'); closeOffcanvas()" [class.active-item]="selected === 'Todo'"
+      <li routerLink="/" (click)="setLastPageLocalStorage(); closeOffcanvas()" [class.active-item]="selected === 'Todo'"
         class="list-group-item px-0 py-2 ps-2 border-bottom">Todo</li>
       <li *ngFor="let categoria of categorias()"
           routerLink="categorias/{{ categoria.nombre }}/{{ categoria.categoria_id }}"

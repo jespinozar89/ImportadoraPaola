@@ -1,4 +1,4 @@
-import { Component, OnInit, DestroyRef } from '@angular/core';
+import { Component, OnInit, DestroyRef, effect } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { NgxPaginationModule } from 'ngx-pagination';
@@ -21,6 +21,7 @@ export class ProductListComponent implements OnInit {
   nameCategory: string = 'TODO';
 
   p: number = 1;
+  itemsPerPage: number = 20;
 
   constructor(private route: ActivatedRoute,
     private productService: ProductService,
@@ -30,19 +31,20 @@ export class ProductListComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.p = this.productService.lastPage;
+
+    this.p = localStorage.getItem('lastPage') ? +localStorage.getItem('lastPage')! : 1;
 
     this.route.paramMap
-    .pipe(takeUntilDestroyed(this.destroyRef))
-    .subscribe(params => {
-      this.loadProducts(params);
-    });
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+        this.loadProducts(params);
+      });
 
     this.authService.currentUser
-    .pipe(takeUntilDestroyed(this.destroyRef))
-    .subscribe(() => {
-      this.refreshProductListState();
-    });
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.refreshProductListState();
+      });
   }
 
   async loadProducts(params: ParamMap): Promise<void> {
@@ -54,18 +56,24 @@ export class ProductListComponent implements OnInit {
       this.nameCategory = this.utilsService.getCategoriaNombre(nameCategoryString);
       const data = await this.productService.findAll();
 
-      if (idString) {
+      if (nameString != 'BuscarProducto' && idString) {
         const idNumber = +idString;
         this.products = data.filter(product => product.categoria_id === idNumber);
+        this.totalProducts = this.products.length;
+      }
+      else if (nameString === 'BuscarProducto' && idString) {
+        const searchTerm = idString.replace('_', ' ').toLowerCase();
+        this.nameCategory = "Resultados para: " + searchTerm;
+        this.products = data.filter(product =>
+          product.nombre.toLowerCase().includes(searchTerm) ||
+          product.producto_codigo.toLowerCase().includes(searchTerm)
+        );
         this.totalProducts = this.products.length;
       }
       else {
         this.products = data;
         this.totalProducts = data.length;
       }
-
-      this.p = this.productService.lastPage;
-      console.log('Página cargada:', this.p);
 
     } catch (error) {
       console.error('Error al cargar la lista de productos:', error);
@@ -74,8 +82,8 @@ export class ProductListComponent implements OnInit {
 
   onPageChange(page: number): void {
     this.p = page;
-    this.productService.lastPage = page;
-    console.log('Página cambiada a:', this.productService.lastPage);
+    this.productService.lastPage.set(page);
+    localStorage.setItem('lastPage', page.toString());
   }
 
 
