@@ -1,9 +1,11 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { Producto,
-         ProductoCreateInput,
-         ProductoUpdateInput } from '@/shared/models/producto.interface';
+import {
+  Producto,
+  ProductoCreateInput,
+  ProductoUpdateInput
+} from '@/shared/models/producto.interface';
 import { environment } from '@/environments/environment';
 
 @Injectable({
@@ -12,7 +14,7 @@ import { environment } from '@/environments/environment';
 export class ProductService {
 
   private readonly baseUrl = `${environment.apiUrl}/productos`;
-  public  lastPage = signal(1);
+  public lastPage = signal(1);
 
   constructor(private http: HttpClient) { }
 
@@ -42,6 +44,12 @@ export class ProductService {
     const url = `${this.baseUrl}/${id}`;
     return firstValueFrom(this.http.delete<Producto>(url));
   }
+
+  resetPage() {
+    this.lastPage.set(1);
+    localStorage.setItem('lastPage', '1');
+  }
+
 }
 
 

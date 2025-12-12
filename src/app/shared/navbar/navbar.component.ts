@@ -11,6 +11,7 @@ import { filter } from 'rxjs/operators';
 import { UtilsService } from '@/shared/service/utils.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HotToastService } from '@ngxpert/hot-toast';
+import { ProductService } from '@/core/services/product.service';
 
 declare const bootstrap: any;
 
@@ -39,6 +40,7 @@ export class NavbarComponent implements OnInit {
     private cartService: CartService,
     private authService: AuthService,
     private categoriaService: CategoriaService,
+    private productService: ProductService,
     private router: Router,
     private destroyRef: DestroyRef,
     private toast: HotToastService,
@@ -57,7 +59,6 @@ export class NavbarComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(count => {
         this.favoritesCount = count;
-        console.log('Favoritos actualizados en Navbar:', count);
       });
 
     this.cartService.cartCount$
@@ -78,7 +79,10 @@ export class NavbarComponent implements OnInit {
         const segments = urlComplete.split('/').filter(s => s.length > 0);
         const url = segments.length > 0 ? segments[1] : 'Todo';
 
-        if(!urlComplete.startsWith('/categorias/') && !urlComplete.startsWith('/producto/') && urlComplete !== '/') {
+        this.selected = url;
+        if (!urlComplete.startsWith('/categorias/') &&
+            !urlComplete.startsWith('/producto/') &&
+             urlComplete !== '/') {
           this.selectItem(url);
         }
       });
@@ -107,17 +111,9 @@ export class NavbarComponent implements OnInit {
   }
 
   selectItem(value: string) {
+    this.productService.resetPage();
     this.selected = value;
     localStorage.setItem(this.SELECTED_MENU_KEY, value);
-    localStorage.setItem('lastPage', "1");
-  }
-
-  setLastPageLocalStorage(){
-    const value = 'Todo'
-    this.selected = value;
-    localStorage.setItem(this.SELECTED_MENU_KEY, value);
-    localStorage.setItem('lastPage', "1");
-    console.log('lastpage reset : ' + localStorage.getItem('lastPage'));
   }
 
   goToShop() {

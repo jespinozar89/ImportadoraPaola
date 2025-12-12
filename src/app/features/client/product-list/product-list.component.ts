@@ -28,11 +28,15 @@ export class ProductListComponent implements OnInit {
     private authService: AuthService,
     private destroyRef: DestroyRef,
     private utilsService: UtilsService
-  ) { }
+  ) {
+    effect(() => {
+      this.p = this.productService.lastPage();
+    });
+  }
 
   ngOnInit(): void {
 
-    this.p = localStorage.getItem('lastPage') ? +localStorage.getItem('lastPage')! : 1;
+    this.p = Number(localStorage.getItem('lastPage')) || 1;
 
     this.route.paramMap
       .pipe(takeUntilDestroyed(this.destroyRef))

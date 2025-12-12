@@ -152,13 +152,14 @@
     <div *ngIf="currentUser()?.rol === 'cliente'">
       <h6 class="text-uppercase fw-bold text-muted mb-3 mt-4">Menu</h6>
       <ul class="list-group list-group-flush">
+         <li class="list-group-item px-0 py-2 ps-2 border-bottom">Perfil</li>
         <li class="list-group-item px-0 py-2 ps-2 border-bottom">Mis Pedidos</li>
       </ul>
     </div>
     <!-- Categorías -->
     <h6 class="text-uppercase fw-bold text-muted mb-3 mt-4">Categorías</h6>
     <ul class="list-group list-group-flush">
-      <li routerLink="/" (click)="setLastPageLocalStorage(); closeOffcanvas()" [class.active-item]="selected === 'Todo'"
+      <li routerLink="/" (click)="selectItem('Todo'); closeOffcanvas()" [class.active-item]="selected === 'Todo'"
         class="list-group-item px-0 py-2 ps-2 border-bottom">Todo</li>
       <li *ngFor="let categoria of categorias()"
           routerLink="categorias/{{ categoria.nombre }}/{{ categoria.categoria_id }}"
