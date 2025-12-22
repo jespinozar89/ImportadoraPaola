@@ -12,6 +12,21 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   const token = authService.getAuthToken();
 
+  const excludedUrls = [
+    { url: '/api/auth/register', method: 'POST' },
+    { url: '/api/auth/login', method: 'POST' },
+    { url: '/api/categorias', method: 'GET' },
+    { url: '/api/productos', method: 'GET' }
+  ];
+
+  const isExcluded = excludedUrls.some(config =>
+    req.url.includes(config.url) && req.method === config.method
+  );
+
+  if (isExcluded) {
+    return next(req);
+  }
+
   if (token) {
     const clonedReq = req.clone({
       headers: req.headers.set('Authorization', `Bearer ${token}`)

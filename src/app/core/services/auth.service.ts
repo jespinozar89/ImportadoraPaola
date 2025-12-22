@@ -64,7 +64,7 @@ export class AuthService {
     return user?.rol ?? null;
   }
 
-  openLoginModal() {
+  public openLoginModal() {
     const modalElement = document.getElementById('signInModal');
     if (modalElement) {
       const modal = new bootstrap.Modal(modalElement);
