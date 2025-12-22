@@ -58,7 +58,7 @@ export class ProductShoppingCardComponent implements OnInit {
   }
 
   get tax(): number {
-    return 0.00; // Valor fijo
+    return 0.00;
   }
 
   get total(): number {
@@ -120,10 +120,6 @@ export class ProductShoppingCardComponent implements OnInit {
     this.toast.success('Producto eliminado del carrito')
   }
 
-  /**
-   * Método de ayuda para recargar los datos después de una acción de modificación.
-   * Esto simula el comportamiento reactivo.
-   */
   private async refetchCartData(): Promise<void> {
     try {
       this.cartItems = await lastValueFrom(this.cartService.getDetailedCart());

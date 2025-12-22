@@ -4,6 +4,8 @@ import { Observable, BehaviorSubject, tap } from 'rxjs';
 import { CreateUserDTO, LoginPayload, AuthResponse, UserLogged } from '@/shared/models/auth.interface';
 import { environment } from '@/environments/environment';
 
+declare var bootstrap: any;
+
 @Injectable({
   providedIn: 'root'
 })
@@ -25,26 +27,18 @@ export class AuthService {
   // MÉTODOS PÚBLICOS
   // ----------------------------------------------------------------------
 
-  /** Obtiene el valor actual del usuario (síncrono) */
   public get currentUserValue(): UserLogged | null {
     return this.currentUserSubject.value;
   }
 
-  /** Indica si el usuario está logueado */
   public isAuthenticated(): boolean {
     return !!this.getAuthToken();
   }
 
-  /**
-   * Petición de Registro (POST /auth/register)
-   */
   public register(data: CreateUserDTO): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, data);
   }
 
-  /**
-   * Petición de Inicio de Sesión (POST /auth/login)
-   */
   public login(data: LoginPayload): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, data).pipe(
       tap(response => {
@@ -53,12 +47,29 @@ export class AuthService {
     );
   }
 
-  /**
-   * Cierra la sesión, limpia el almacenamiento y el estado.
-   */
   public logout(): void {
     localStorage.removeItem(this.USER_KEY);
     this.currentUserSubject.next(null);
+  }
+
+  public getAuthToken(): string | null {
+    const user = this.currentUserSubject.value;
+
+    return user?.token ?? null;
+  }
+
+  public getRolAuthToken() {
+    const user = this.currentUserSubject.value;
+
+    return user?.rol ?? null;
+  }
+
+  openLoginModal() {
+    const modalElement = document.getElementById('signInModal');
+    if (modalElement) {
+      const modal = new bootstrap.Modal(modalElement);
+      modal.show();
+    }
   }
 
   // ----------------------------------------------------------------------
@@ -93,13 +104,6 @@ export class AuthService {
       }
     }
     return null;
-  }
-
-  /** Obtiene el token JWT para el interceptor */
-  public getAuthToken(): string | null {
-    const user = this.currentUserSubject.value;
-
-    return user?.token ?? null;
   }
 
 }

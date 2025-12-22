@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { roleGuard } from '@/core/guard/role.guard';
 
 export const routes: Routes = [
   //cliente
@@ -28,6 +29,8 @@ export const routes: Routes = [
   },
   {
     path: 'shop',
+    canActivate: [roleGuard],
+    data: { roles: ['administrador','cliente'] },
     loadComponent: () =>
       import('@/features/client/product-shopping-card/product-shopping-card.component')
         .then(m => m.ProductShoppingCardComponent)
@@ -35,30 +38,40 @@ export const routes: Routes = [
   // admin
   {
     path: 'form',
+    canActivate: [roleGuard],
+    data: { roles: ['administrador'] },
     loadComponent: () =>
       import('@/features/admin/product-form/product-form.component')
         .then(m => m.ProductFormComponent)
   },
   {
     path: 'inventory',
+    canActivate: [roleGuard],
+    data: { roles: ['administrador'] },
     loadComponent: () =>
       import('@/features/admin/product-inventory/product-inventory.component')
         .then(m => m.ProductInventoryComponent)
   },
   {
     path: 'orders',
+    canActivate: [roleGuard],
+    data: { roles: ['administrador'] },
     loadComponent: () =>
       import('@/features/admin/order-management/order-management.component')
         .then(m => m.OrderManagementComponent)
   },
   {
     path: 'orderDetail',
+    canActivate: [roleGuard],
+    data: { roles: ['administrador'] },
     loadComponent: () =>
       import('@/features/admin/order-detail/order-detail.component')
         .then(m => m.OrderDetailComponent)
   },
   {
     path: 'categories',
+    canActivate: [roleGuard],
+    data: { roles: ['administrador'] },
     loadComponent: () =>
       import('@/features/admin/categories/categories.component')
         .then(m => m.CategoriesComponent)
