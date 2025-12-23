@@ -89,7 +89,7 @@
           </button>
 
           <ul class="dropdown-menu">
-            <li><span class="d-none d-sm-inline m-4">Bienvenido, {{ currentUser()?.nombre?.split(' ')?.[0] || ''
+            <li><span class="d-none d-sm-inline m-4">Bienvenido, {{ currentUser()?.nombres?.split(' ')?.[0] || ''
                 }}</span></li>
             <li>
               <hr class="dropdown-divider">
@@ -122,7 +122,7 @@
       </div>
       <div>
         <h6 class="mb-0 fw-bold">
-          {{ currentUser()?.nombre?.split(' ')?.[0] || '' }} {{ currentUser()?.apellido?.split(' ')?.[0] || '' }}
+          {{ currentUser()?.nombres?.split(' ')?.[0] || '' }} {{ currentUser()?.apellidos?.split(' ')?.[0] || '' }}
         </h6>
         <small class="text-muted">{{ currentUser()?.rol }}</small>
       </div>

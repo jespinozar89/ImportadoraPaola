@@ -16,8 +16,8 @@ export interface AuthResponse {
   usuario: {
     id: number;
     email: string;
-    nombre: string;
-    apellido: string;
+    nombres: string;
+    apellidos: string;
     rol?: string;
   };
 }
@@ -25,8 +25,8 @@ export interface AuthResponse {
 export interface UserLogged {
   id: number;
   email: string;
-  nombre: string;
-  apellido: string;
+  nombres: string;
+  apellidos: string;
   rol?: string;
   token?: string;
 }
