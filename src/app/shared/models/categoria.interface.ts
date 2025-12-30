@@ -15,4 +15,5 @@ export interface Categoria {
   descripcion?: string;
   estado: 'Activo' | 'Inactivo';
   fecha_creacion: string;
+  totalProductos: number;
 }

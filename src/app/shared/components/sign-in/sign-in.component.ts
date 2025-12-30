@@ -55,6 +55,7 @@ export class SignInComponent {
 
         this.email.set('');
         this.password.set('');
+        // localStorage.removeItem('jwt_token');
       },
       error: (err) => {
         this.isLoading.set(false);

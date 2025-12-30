@@ -1,6 +1,8 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { CategoriaService } from '@/core/services/categoria.service';
+import { firstValueFrom } from 'rxjs';
 
 interface Category {
   id: number;
@@ -18,101 +20,34 @@ interface Category {
   templateUrl: './categories.component.html',
   styleUrls: ['./categories.component.scss']
 })
-export class CategoriesComponent {
+export class CategoriesComponent implements OnInit {
+
+  private indexColor = 0;
+
   searchTerm = signal<string>('');
 
-  categories: Category[] = [
-    {
-      id: 1,
-      name: 'Lápices',
-      slug: '/lapices',
-      icon: 'pencil',
-      color: '#667eea',
-      productCount: 45,
-      status: 'active'
-    },
-    {
-      id: 2,
-      name: 'Cuadernos',
-      slug: '/cuadernos',
-      icon: 'journal',
-      color: '#f093fb',
-      productCount: 38,
-      status: 'active'
-    },
-    {
-      id: 3,
-      name: 'Block de Dibujo',
-      slug: '/block-dibujo',
-      icon: 'palette',
-      color: '#4facfe',
-      productCount: 22,
-      status: 'active'
-    },
-    {
-      id: 4,
-      name: 'Mochilas',
-      slug: '/mochilas',
-      icon: 'backpack',
-      color: '#43e97b',
-      productCount: 19,
-      status: 'active'
-    },
-    {
-      id: 5,
-      name: 'Pegamentos',
-      slug: '/pegamentos',
-      icon: 'sticky',
-      color: '#fa709a',
-      productCount: 15,
-      status: 'inactive'
-    },
-    {
-      id: 6,
-      name: 'Tijeras',
-      slug: '/tijeras',
-      icon: 'scissors',
-      color: '#ffc837',
-      productCount: 12,
-      status: 'active'
-    },
-    {
-      id: 7,
-      name: 'Reglas y Escuadras',
-      slug: '/reglas-escuadras',
-      icon: 'rulers',
-      color: '#ee9ca7',
-      productCount: 18,
-      status: 'active'
-    },
-    {
-      id: 8,
-      name: 'Cartucheras',
-      slug: '/cartucheras',
-      icon: 'box',
-      color: '#a8c0ff',
-      productCount: 25,
-      status: 'active'
-    },
-    {
-      id: 9,
-      name: 'Marcadores',
-      slug: '/marcadores',
-      icon: 'brush',
-      color: '#ff6b6b',
-      productCount: 30,
-      status: 'active'
-    },
-    {
-      id: 10,
-      name: 'Carpetas',
-      slug: '/carpetas',
-      icon: 'folder2',
-      color: '#51cf66',
-      productCount: 14,
-      status: 'inactive'
-    }
-  ];
+
+  categories: Category[] = [];
+
+  constructor(private categoriaService: CategoriaService){
+  }
+
+  async ngOnInit(): Promise<void> {
+
+    const categorias = await firstValueFrom(this.categoriaService.findAll());
+
+    categorias.forEach(categoria => {
+      this.categories.push({
+        id: categoria.categoria_id,
+        name: categoria.nombre.replace(/_/g, ' '),
+        slug: `/${categoria.nombre.toLowerCase().replace(/_/g, ' ')}`,
+        icon:'folder2',
+        color: this.getNextColor(),
+        productCount: categoria.totalProductos,
+        status: categoria.estado ? 'active' : 'inactive'
+      });
+    });
+  }
 
   get filteredCategories(): Category[] {
     const term = this.searchTerm().toLowerCase();
@@ -150,5 +85,17 @@ export class CategoriesComponent {
 
   goBack(): void {
     console.log('Volver al panel');
+  }
+
+  private getNextColor(): string {
+    const colors = ['#667eea',
+                    '#ff6b6b',
+                    '#4facfe',
+                    '#43e97b',
+                    '#ffc837',
+                    '#a8c0ff',
+                    '#ee9ca7'];
+
+    return colors[this.indexColor++ % colors.length];
   }
 }

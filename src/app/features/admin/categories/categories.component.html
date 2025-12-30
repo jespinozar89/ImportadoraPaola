@@ -1,4 +1,4 @@
-<div class="categories-container">
+<div class="container mt-4">
   <!-- Back Link -->
    <div class="back-link-container mb-3">
     <a href="#" class="back-link d-inline-flex align-items-center fw-semibold px-3 py-2 rounded">
@@ -71,7 +71,7 @@
                   </div>
                 </td>
                 <td>
-                  <span class="category-stats">{{ category.productCount }} productos</span>
+                  <span class="category-stats">{{ category.productCount }} {{category.productCount > 1 ? 'productos': 'producto'}}</span>
                 </td>
                 <td>
                   <span class="category-status"

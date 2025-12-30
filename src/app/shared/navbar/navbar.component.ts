@@ -79,10 +79,24 @@ export class NavbarComponent implements OnInit {
         const segments = urlComplete.split('/').filter(s => s.length > 0);
         const url = segments.length > 0 ? segments[1] : 'Todo';
 
+        //Admin
+        const routesAdmin = [
+          { prefix: '/inventory', label: 'inventario' },
+          { prefix: '/form', label: 'Nuevo' },
+          { prefix: '/orders', label: 'orders' },
+          { prefix: '/categories', label: 'Categorías' }
+        ];
+
+        const match = routesAdmin.find(r => urlComplete.startsWith(r.prefix));
+        if (match) {
+          this.selectItem(match.label);
+          return;
+        }
+
         this.selected = url;
         if (!urlComplete.startsWith('/categorias/') &&
-            !urlComplete.startsWith('/producto/') &&
-             urlComplete !== '/') {
+          !urlComplete.startsWith('/producto/') &&
+          urlComplete !== '/') {
           this.selectItem(url);
         }
       });

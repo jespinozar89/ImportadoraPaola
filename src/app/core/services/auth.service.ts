@@ -96,7 +96,7 @@ export class AuthService {
       try {
         const user = JSON.parse(userJson) as UserLogged;
 
-        return user;
+        return this.currentUserSubject.getValue();
       } catch (e) {
         console.error("Error al recuperar el usuario de localStorage:", e);
         localStorage.removeItem(this.USER_KEY);
