@@ -1,9 +1,11 @@
 export interface CreateCategoriaDTO {
   nombre: string;
   descripcion?: string;
+  estado: 'Activo' | 'Inactivo';
 }
 
 export interface UpdateCategoriaDTO {
+  categoria_id: number;
   nombre?: string;
   descripcion?: string;
   estado?: 'Activo' | 'Inactivo';

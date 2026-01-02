@@ -139,7 +139,7 @@
     <ul class="list-group list-group-flush">
       <li routerLink="/" (click)="selectItem('Todo'); closeOffcanvas()" [class.active-item]="selected === 'Todo'"
         class="list-group-item px-0 py-2 ps-2 border-bottom">Todo</li>
-      <li *ngFor="let categoria of categorias()"
+      <li *ngFor="let categoria of activeCategorias"
           routerLink="categorias/{{ categoria.nombre }}/{{ categoria.categoria_id }}"
           (click)="selectItem(categoria.nombre); closeOffcanvas()" [class.active-item]="selected === categoria.nombre"
           class="list-group-item px-0 py-2 ps-2 border-bottom">

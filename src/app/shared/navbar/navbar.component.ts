@@ -55,6 +55,8 @@ export class NavbarComponent implements OnInit {
         this.isLoggedIn.set(!!user);
       });
 
+    this.authService.checkSession();
+
     this.favoriteService.favoritesCount$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(count => {
@@ -128,6 +130,10 @@ export class NavbarComponent implements OnInit {
     this.productService.resetPage();
     this.selected = value;
     localStorage.setItem(this.SELECTED_MENU_KEY, value);
+  }
+
+  get activeCategorias() {
+    return this.categorias().filter(c => c.estado === 'Activo');
   }
 
   goToShop() {

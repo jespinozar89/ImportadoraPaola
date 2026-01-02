@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap } from 'rxjs';
 import { CreateUserDTO, LoginPayload, AuthResponse, UserLogged } from '@/shared/models/auth.interface';
@@ -19,7 +19,7 @@ export class AuthService {
   public currentUser: Observable<UserLogged | null>;
 
   constructor(private http: HttpClient) {
-    this.currentUserSubject = new BehaviorSubject<UserLogged | null>(this.getStoredUser());
+    this.currentUserSubject = new BehaviorSubject<UserLogged | null>(null);
     this.currentUser = this.currentUserSubject.asObservable();
   }
 
@@ -47,15 +47,34 @@ export class AuthService {
     );
   }
 
+  public checkSession(): void {
+    const token = localStorage.getItem(this.USER_KEY);
+
+    if (!token) return;
+
+    this.http.get<any>(`${this.apiUrl}/me`).subscribe({
+      next: (userData) => {
+        console.log("userData", userData);
+
+        this.currentUserSubject.next({
+          ...userData,
+          token: token
+        });
+      },
+      error: (err) => {
+        console.log("error", err);
+        this.logout();
+      }
+    });
+  }
+
   public logout(): void {
     localStorage.removeItem(this.USER_KEY);
     this.currentUserSubject.next(null);
   }
 
   public getAuthToken(): string | null {
-    const user = this.currentUserSubject.value;
-
-    return user?.token ?? null;
+    return this.currentUserSubject.value?.token || localStorage.getItem(this.USER_KEY);
   }
 
   public getRolAuthToken() {
@@ -78,32 +97,14 @@ export class AuthService {
 
   /** Almacena el token y actualiza el estado del usuario */
   private storeAuthData(response: AuthResponse): void {
+    localStorage.setItem(this.USER_KEY, response.token);
+
     const user: UserLogged = {
       ...response.usuario,
       token: response.token,
     };
 
-    localStorage.setItem(this.USER_KEY, JSON.stringify(user));
-
     this.currentUserSubject.next(user);
-  }
-
-  /** Intenta recuperar el usuario del token almacenado */
-  private getStoredUser(): UserLogged | null {
-    const userJson = localStorage.getItem(this.USER_KEY);
-
-    if (userJson) {
-      try {
-        const user = JSON.parse(userJson) as UserLogged;
-
-        return this.currentUserSubject.getValue();
-      } catch (e) {
-        console.error("Error al recuperar el usuario de localStorage:", e);
-        localStorage.removeItem(this.USER_KEY);
-        return null;
-      }
-    }
-    return null;
   }
 
 }

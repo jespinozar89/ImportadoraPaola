@@ -1,11 +1,11 @@
 <div class="container mt-4">
   <!-- Back Link -->
-   <div class="back-link-container mb-3">
+  <div class="back-link-container mb-3">
     <a href="#" class="back-link d-inline-flex align-items-center fw-semibold px-3 py-2 rounded">
       <i class="bi bi-arrow-left me-2"></i>
       Volver a Productos
     </a>
-    </div>
+  </div>
 
   <!-- Page Header -->
   <div class="page-header">
@@ -33,16 +33,13 @@
         <div class="search-create-section">
           <div class="search-box position-relative">
             <i class="bi bi-search search-icon"></i>
-            <input
-              type="text"
-              class="form-control"
-              placeholder="Buscar categorías..."
-              (input)="onSearch($event)"
+            <input type="text" class="form-control" placeholder="Buscar categorías..." (input)="onSearch($event)"
               [value]="searchTerm()">
           </div>
-          <button class="btn btn-primary" (click)="onCreateCategory()">
+          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#categoriaModal"
+            (click)="onCreateCategory()">
             <i class="bi bi-plus-circle me-2"></i>
-            Crear Categoría
+            Nueva Categoría
           </button>
         </div>
 
@@ -71,25 +68,23 @@
                   </div>
                 </td>
                 <td>
-                  <span class="category-stats">{{ category.productCount }} {{category.productCount > 1 ? 'productos': 'producto'}}</span>
+                  <span class="category-stats">{{ category.productCount }} {{category.productCount > 1 ? 'productos':
+                    'producto'}}</span>
                 </td>
                 <td>
-                  <span class="category-status"
-                        [class.active]="category.status === 'active'"
-                        [class.inactive]="category.status === 'inactive'">
+                  <span class="category-status" [class.active]="category.status === 'active'"
+                    [class.inactive]="category.status === 'inactive'">
                     {{ category.status === 'active' ? 'Activa' : 'Inactiva' }}
                   </span>
                 </td>
                 <td>
                   <div class="table-actions">
-                    <button class="btn btn-edit btn-action"
-                            (click)="onEditCategory(category)"
-                            title="Editar">
+                    <button class="btn btn-edit btn-action" data-bs-toggle="modal" data-bs-target="#categoriaModal"
+                      (click)="onEditOrDeleteCategory(category)">
                       <i class="bi bi-pencil"></i>
                     </button>
-                    <button class="btn btn-delete btn-action"
-                            (click)="onDeleteCategory(category)"
-                            title="Eliminar">
+                    <button class="btn btn-delete btn-action" data-bs-toggle="modal" data-bs-target="#deleteModal"
+                      (click)="onEditOrDeleteCategory(category)">
                       <i class="bi bi-trash"></i>
                     </button>
                   </div>
@@ -112,3 +107,9 @@
     </div>
   </div>
 </div>
+
+<!-- modal -->
+<app-categories-form [selectedCategory]="selectedCategory" (save)="onSaveCategory($event)">
+</app-categories-form>
+<app-confirm-modal [mensaje]="modalMessage" (confirm)="onDeleteCategory()">
+</app-confirm-modal>

@@ -1,0 +1,47 @@
+<div class="modal fade" id="categoriaModal" tabindex="-1" aria-labelledby="categoriaModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="categoriaModalLabel">
+          {{ selectedCategory ? 'Editar Categoría' : 'Nueva Categoría' }}
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <form [formGroup]="categoriaForm" (ngSubmit)="onSubmit()">
+
+          <div class="mb-3">
+            <label class="form-label">Nombre de la categoría</label>
+            <input type="text" class="form-control" formControlName="nombre" placeholder="Ej: Marcadores permanentes">
+            <div *ngIf="categoriaForm.get('nombre')?.invalid && categoriaForm.get('nombre')?.touched" class="text-danger small">
+              El nombre es obligatorio (mín. 3 caracteres).
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Descripción</label>
+            <textarea class="form-control" formControlName="descripcion" rows="3" placeholder="Breve descripción..."></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Estado</label>
+            <select class="form-select" formControlName="estado">
+              <option value="Activo">Activo</option>
+              <option value="Inactivo">Inactivo</option>
+            </select>
+          </div>
+
+          <div class="d-grid gap-2 mt-4">
+            <button type="submit" class="btn btn-primary" [disabled]="categoriaForm.invalid" data-bs-dismiss="modal">
+              <i class="bi bi-save me-2"></i>
+              {{ selectedCategory ? 'Actualizar Cambios' : 'Guardar Categoría' }}
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
