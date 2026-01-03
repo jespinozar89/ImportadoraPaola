@@ -1,0 +1,110 @@
+:host {
+  display: block;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+/* Tarjetas */
+.card {
+  border: 1px solid #dee2e6;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  background: white;
+}
+
+/* Área de subida de imagen */
+.image-upload-area {
+  border: 2px dashed #dee2e6;
+  border-radius: 12px;
+  padding: 3rem 2rem;
+  text-align: center;
+  background-color: #f8f9fa;
+  transition: all 0.3s ease;
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.image-upload-area:hover {
+  border-color: #0d6efd;
+  background-color: #e7f1ff;
+}
+
+.image-upload-area.has-image {
+  border: none;
+  padding: 0;
+  background-color: #f8f9fa;
+  cursor: default;
+}
+
+/* Placeholder de subida */
+.upload-placeholder {
+  width: 100%;
+}
+
+.upload-icon {
+  font-size: 4rem;
+  color: #6c757d;
+  margin-bottom: 1rem;
+}
+
+.upload-text {
+  color: #495057;
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.upload-subtext {
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+/* Vista previa de imagen */
+.image-preview-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  display: none;
+}
+
+.image-preview-container.active {
+  display: block;
+}
+
+.image-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 12px;
+}
+
+.remove-image-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10;
+}
+
+/* Labels */
+.form-label {
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 0.5rem;
+}
+
+/* Responsivo */
+@media (max-width: 992px) {
+  .image-upload-area {
+    min-height: 300px;
+    padding: 2rem 1rem;
+  }
+
+  .image-preview-container {
+    min-height: 300px;
+  }
+}

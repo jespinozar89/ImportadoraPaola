@@ -1,10 +1,16 @@
-import { Component, signal } from '@angular/core';
+import { Component} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ProductEditorComponent } from "../product-editor/product-editor.component";
+import { ProductService } from '@/core/services/product.service';
+import { Router } from '@angular/router';
+import { ProductoCreateInput } from '@/shared/models/producto.interface';
+import { HotToastService } from '@ngxpert/hot-toast';
 
 interface Product {
   category: string;
   name: string;
+  codeProduct: string;
   price: number;
   stock: string;
   description: string;
@@ -13,121 +19,32 @@ interface Product {
 
 @Component({
   selector: 'app-product-form',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ProductEditorComponent],
   templateUrl: './product-form.component.html',
   styleUrl: './product-form.component.scss'
 })
 export class ProductFormComponent {
-  imagePreview = signal<string>('');
-  hasImage = signal<boolean>(false);
 
-  product: Product = {
-    category: '',
-    name: '',
-    price: 0,
-    stock: '',
-    description: '',
-    imageUrl: ''
-  };
+  constructor(
+    private productService: ProductService,
+    private router: Router,
+    private toast: HotToastService) {}
 
-  categories = [
-    { value: 'notebooks', label: 'Cuadernos y Libretas' },
-    { value: 'pens', label: 'Lápices y Bolígrafos' },
-    { value: 'folders', label: 'Carpetas y Archivadores' },
-    { value: 'office', label: 'Artículos de Oficina' },
-    { value: 'school', label: 'Útiles Escolares' },
-    { value: 'art', label: 'Material de Arte y Dibujo' },
-    { value: 'books', label: 'Libros y Manuales' },
-    { value: 'accessories', label: 'Accesorios de Librería' }
-  ];
+  async handleCreateProduct(newProduct: Product) {
 
-  stock = [
-    { value: 'available', label: 'Disponible' },
-    { value: 'outOfStock', label: 'Agotado' },
-  ];
-
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files[0]) {
-      this.processFile(input.files[0]);
-    }
-  }
-
-  onDragOver(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-  }
-
-  onDrop(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-
-    if (event.dataTransfer?.files && event.dataTransfer.files[0]) {
-      const file = event.dataTransfer.files[0];
-      if (file.type.startsWith('image/')) {
-        this.processFile(file);
-      } else {
-        alert('Por favor, selecciona una imagen válida');
-      }
-    }
-  }
-
-  private processFile(file: File): void {
-    if (file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = (e: ProgressEvent<FileReader>) => {
-        const result = e.target?.result as string;
-        this.imagePreview.set(result);
-        this.hasImage.set(true);
-        this.product.imageUrl = result;
-      };
-      reader.readAsDataURL(file);
-    } else {
-      alert('Por favor, selecciona una imagen válida');
-    }
-  }
-
-  removeImage(event: Event): void {
-    event.stopPropagation();
-    this.imagePreview.set('');
-    this.hasImage.set(false);
-    this.product.imageUrl = '';
-  }
-
-  triggerFileInput(fileInput: HTMLInputElement): void {
-    if (!this.hasImage()) {
-      fileInput.click();
-    }
-  }
-
-  onSubmit(): void {
-    if (!this.product.category || !this.product.name || !this.product.price) {
-      alert('Por favor, completa todos los campos obligatorios (*)');
-      return;
+    const product: ProductoCreateInput = {
+      categoria_id: Number(newProduct.category),
+      nombre: newProduct.name,
+      producto_codigo: newProduct.codeProduct,
+      precio: newProduct.price,
+      stock: Number(newProduct.stock),
+      descripcion: newProduct.description,
+      imagen: newProduct.imageUrl
     }
 
-    if (!this.hasImage()) {
-      alert('Por favor, agrega una imagen del producto');
-      return;
-    }
+    await this.productService.create(product);
+    this.toast.success('Producto creado con éxito')
 
-    console.log('Producto creado:', this.product);
-    alert('¡Producto creado exitosamente!');
-    this.resetForm();
-  }
-
-  resetForm(): void {
-    this.product = {
-      category: '',
-      name: '',
-      price: 0,
-      stock: '',
-      description: '',
-      imageUrl: ''
-    };
-
-    this.imagePreview.set('');
-    this.hasImage.set(false);
   }
 
   goBack(): void {

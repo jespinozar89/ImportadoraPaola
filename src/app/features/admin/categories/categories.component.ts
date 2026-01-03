@@ -6,6 +6,7 @@ import { firstValueFrom } from 'rxjs';
 import { CategoriaModalComponent } from "../categories-form/categories-form.component";
 import { CreateCategoriaDTO, UpdateCategoriaDTO } from '@/shared/models/categoria.interface';
 import { ConfirmModalComponent } from "@/shared/components/confirm-modal/confirm-modal.component";
+import { HotToastService } from '@ngxpert/hot-toast';
 
 interface Category {
   id: number;
@@ -32,27 +33,29 @@ export class CategoriesComponent implements OnInit {
   categories: Category[] = [];
   selectedCategory: UpdateCategoriaDTO | null = null;
 
-  constructor(private categoriaService: CategoriaService) {
-  }
+  constructor(
+    private categoriaService: CategoriaService,
+    private toast: HotToastService
+  ) {}
 
   async ngOnInit(): Promise<void> {
     await this.loadCategory();
   }
 
-private async loadCategory(): Promise<void> {
-  const categorias = await firstValueFrom(this.categoriaService.findAll());
+  private async loadCategory(): Promise<void> {
+    const categorias = await firstValueFrom(this.categoriaService.findAll());
 
-  this.categories = categorias.map(categoria => ({
-    id: categoria.categoria_id,
-    name: categoria.nombre.replace(/_/g, ' '),
-    slug: `/${categoria.nombre.toLowerCase().replace(/_/g, ' ')}`,
-    icon: 'folder2',
-    color: this.getNextColor(),
-    productCount: categoria.totalProductos,
-    description: categoria.descripcion,
-    status: categoria.estado === 'Activo' ? 'active' : 'inactive'
-  }));
-}
+    this.categories = categorias.map(categoria => ({
+      id: categoria.categoria_id,
+      name: categoria.nombre.replace(/_/g, ' '),
+      slug: `/${categoria.nombre.toLowerCase().replace(/_/g, ' ')}`,
+      icon: 'folder2',
+      color: this.getNextColor(),
+      productCount: categoria.totalProductos,
+      description: categoria.descripcion,
+      status: categoria.estado === 'Activo' ? 'active' : 'inactive'
+    }));
+  }
 
 
   get filteredCategories(): Category[] {
@@ -92,7 +95,7 @@ private async loadCategory(): Promise<void> {
   async onSaveCategory(data: any) {
     if (data.categoria_id) {
       await firstValueFrom(this.categoriaService.update(data.categoria_id, data));
-      console.log('Editando:', data);
+      this.toast.success('Categoría actualizada con éxito')
     } else {
       const dataCategory: CreateCategoriaDTO = {
         nombre: data.nombre,
@@ -100,17 +103,18 @@ private async loadCategory(): Promise<void> {
         estado: data.estado
       };
       await firstValueFrom(this.categoriaService.create(dataCategory));
-      console.log('Creando:', dataCategory);
+      this.toast.success('Categoría creada con éxito')
     }
 
     await this.loadCategory();
   }
 
   async onDeleteCategory(): Promise<void> {
-    if(this.selectedCategory?.categoria_id){
+    if (this.selectedCategory?.categoria_id) {
       await firstValueFrom(this.categoriaService.delete(this.selectedCategory.categoria_id));
       await this.loadCategory();
       this.selectedCategory = null;
+      this.toast.success('Categoría eliminada con éxito')
     }
   }
 
@@ -119,12 +123,10 @@ private async loadCategory(): Promise<void> {
   }
 
   private getNextColor(): string {
-    const colors = ['#667eea',
-      '#ff6b6b',
-      '#4facfe',
-      '#43e97b',
-      '#ffc837',
-      '#a8c0ff',
+    const colors = [
+      '#667eea','#ff6b6b',
+      '#4facfe','#43e97b',
+      '#ffc837','#a8c0ff',
       '#ee9ca7'];
 
     return colors[this.indexColor++ % colors.length];
