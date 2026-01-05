@@ -4,17 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { CategoriaService } from '@/core/services/categoria.service';
 import { firstValueFrom } from 'rxjs';
 import { Categoria } from '@/shared/models/categoria.interface';
-
-export interface Product {
-  id?: number;
-  category: string;
-  name: string;
-  codeProduct: string;
-  price: number;
-  stock: string;
-  description: string;
-  imageUrl: string;
-}
+import { Producto } from '@/shared/models/producto.interface';
+import { ProductService } from '@/core/services/product.service';
+import { HotToastService } from '@ngxpert/hot-toast';
 
 @Component({
   selector: 'app-product-editor',
@@ -25,23 +17,26 @@ export interface Product {
 })
 export class ProductEditorComponent implements OnInit, OnChanges {
 
-  @Input() productData: Product | null = null;
+  @Input() productData: Producto | null = null;
 
-  @Output() save = new EventEmitter<Product>();
+  @Output() save = new EventEmitter<Producto>();
   @Output() cancel = new EventEmitter<void>();
 
   imagePreview = signal<string>('');
   hasImage = signal<boolean>(false);
+  isEdit = signal<boolean>(false);
   categories: Categoria[] = [];
 
-  product: Product = {
-    category: '',
-    name: '',
-    codeProduct: '',
-    price: 0,
-    stock: '',
-    description: '',
-    imageUrl: ''
+  product: Producto = {
+    categoria_id: 0,
+    categoria_nombre: '',
+    producto_id: 0,
+    producto_codigo: '',
+    nombre: '',
+    precio: 0,
+    stock: 1,
+    descripcion: '',
+    imagen: ''
   };
 
   stockOptions = [
@@ -49,7 +44,11 @@ export class ProductEditorComponent implements OnInit, OnChanges {
     { value: '0', label: 'Agotado' },
   ];
 
-  constructor(private categoriaService: CategoriaService) {}
+  constructor(
+    private categoriaService: CategoriaService,
+    private productService: ProductService,
+    private toast: HotToastService
+  ) { }
 
   async ngOnInit(): Promise<void> {
     this.categories = await firstValueFrom(this.categoriaService.findAll());
@@ -57,12 +56,21 @@ export class ProductEditorComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['productData'] && this.productData) {
-      this.product = { ...this.productData };
 
-      if (this.product.imageUrl) {
-        this.imagePreview.set(this.product.imageUrl);
+      this.product = { ...this.productData }
+
+      if(this.product.stock > 0){
+        this.product.stock = 1;
+      }
+
+      this.isEdit.set(true);
+      if (this.product?.imagen) {
+        this.imagePreview.set(this.product.imagen);
         this.hasImage.set(true);
       }
+    }
+    else{
+      this.resetForm();
     }
   }
 
@@ -90,7 +98,7 @@ export class ProductEditorComponent implements OnInit, OnChanges {
         const result = e.target?.result as string;
         this.imagePreview.set(result);
         this.hasImage.set(true);
-        this.product.imageUrl = result;
+        if (this.product) this.product.imagen = result;
       };
       reader.readAsDataURL(file);
     }
@@ -100,24 +108,36 @@ export class ProductEditorComponent implements OnInit, OnChanges {
     event.stopPropagation();
     this.imagePreview.set('');
     this.hasImage.set(false);
-    this.product.imageUrl = '';
+    if (this.product) {
+      this.product.imagen = '';
+    }
   }
 
   triggerFileInput(input: HTMLInputElement): void {
     if (!this.hasImage()) input.click();
   }
 
-  // --- Envío ---
-  onSubmit(): void {
-    if (!this.product.category ||
-        !this.product.name ||
-        !this.product.price ||
-        !this.product.stock ||
-        !this.product.description
+  async onSubmit(): Promise<void> {
+    if (this.product.categoria_id === 0 ||
+      !this.product.nombre ||
+      !this.product.precio ||
+      !this.product.imagen ||
+      !this.product.descripcion
     ) {
-      alert('Por favor, completa los campos obligatorios');
+      this.toast.error('Por favor, completa los campos obligatorios');
       return;
     }
+
+    console.log(this.isEdit());
+    const existProductCode = await this.productService.findByCode(this.product.producto_codigo);
+    if(existProductCode && !this.isEdit()){
+      this.toast.error('Ya existe un producto con ese código');
+      return;
+    }
+
+    this.product.categoria_id = Number(this.product.categoria_id);
+    this.product.stock = Number(this.product.stock);
+
 
     this.save.emit(this.product);
     this.resetForm();
@@ -129,15 +149,19 @@ export class ProductEditorComponent implements OnInit, OnChanges {
 
   resetForm(): void {
     this.product = {
-      category: '',
-      name: '',
-      codeProduct: '',
-      price: 0,
-      stock: '',
-      description: '',
-      imageUrl: ''
+      categoria_id: 0,
+      categoria_nombre: '',
+      producto_id: 0,
+      producto_codigo: '',
+      nombre: '',
+      precio: 0,
+      stock: 1,
+      descripcion: '',
+      imagen: ''
     };
+
     this.imagePreview.set('');
     this.hasImage.set(false);
+    this.isEdit.set(false);
   }
 }

@@ -13,12 +13,18 @@
     <p class="card-text">
       {{ product.descripcion.length > 120 ? (product.descripcion | slice:0:120) + '...' : product.descripcion }}
     </p>
-    <p class="text-success">
+    <span class="status-badge"
+          [class.disponible]="product.stock > 0"
+          [class.agotado]="product.stock === 0">
+      <i class="bi"
+          [class.bi-check-circle-fill]="product.stock > 0"
+          [class.bi-x-circle-fill]="product.stock === 0"></i>
       {{ product.stock > 0 ? 'Disponible' : 'Agotado' }}
-    </p>
+    </span>
     <div class="d-flex justify-content-between align-items-center mt-3">
       <span class="fw-bold fs-5 text-primary"> ${{ product.precio| number:'1.0-0':'es-CL' }}</span>
       <button class="btn btn-sm btn-primary d-flex align-items-center gap-2 fw-bold"
+        [disabled]="product.stock === 0"
         (click)="addToCart($event)">
         <i class="bi bi-cart-fill"></i>
         Añadir al carrito

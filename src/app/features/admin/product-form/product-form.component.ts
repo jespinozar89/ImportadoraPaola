@@ -3,8 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductEditorComponent } from "../product-editor/product-editor.component";
 import { ProductService } from '@/core/services/product.service';
-import { Router } from '@angular/router';
-import { ProductoCreateInput } from '@/shared/models/producto.interface';
+import { Producto, ProductoCreateInput } from '@/shared/models/producto.interface';
 import { HotToastService } from '@ngxpert/hot-toast';
 
 interface Product {
@@ -27,20 +26,19 @@ export class ProductFormComponent {
 
   constructor(
     private productService: ProductService,
-    private router: Router,
     private toast: HotToastService) {}
 
-  async handleCreateProduct(newProduct: Product) {
+  async handleCreateProduct(newProduct: Producto) {
 
     const product: ProductoCreateInput = {
-      categoria_id: Number(newProduct.category),
-      nombre: newProduct.name,
-      producto_codigo: newProduct.codeProduct,
-      precio: newProduct.price,
-      stock: Number(newProduct.stock),
-      descripcion: newProduct.description,
-      imagen: newProduct.imageUrl
-    }
+      categoria_id: newProduct.categoria_id,
+      nombre: newProduct.nombre,
+      producto_codigo: newProduct.producto_codigo,
+      precio: newProduct.precio,
+      stock: newProduct.stock,
+      descripcion: newProduct.descripcion,
+      imagen: newProduct.imagen
+    };
 
     await this.productService.create(product);
     this.toast.success('Producto creado con éxito')

@@ -46,8 +46,8 @@
           <!-- Category -->
           <div class="mb-3">
             <label for="category" class="form-label">Categoría *</label>
-            <select class="form-select" id="category" name="category" [(ngModel)]="product.category" required>
-              <option value="">Selecciona una categoría</option>
+            <select class="form-select" id="category" name="category" [(ngModel)]="product.categoria_id" required>
+              <option value="0">Selecciona una categoría</option>
               <option *ngFor="let cat of categories" [value]="cat.categoria_id">
                 {{ cat.nombre }}
               </option>
@@ -57,7 +57,7 @@
           <!-- Product Name -->
           <div class="mb-3">
             <label for="productName" class="form-label">Nombre del Producto *</label>
-            <input type="text" class="form-control" id="productName" name="productName" [(ngModel)]="product.name"
+            <input type="text" class="form-control" id="productName" name="productName" [(ngModel)]="product.nombre"
               placeholder="Ej: Lápiz Grafito HB Faber-Castell" required>
           </div>
 
@@ -65,7 +65,7 @@
           <div class="mb-3">
             <label for="productCode" class="form-label">Codigo del Producto *</label>
             <input type="text" class="form-control" id="productCode" name="productCode"
-              [(ngModel)]="product.codeProduct" placeholder="Ej: 4009900484039" required>
+              [(ngModel)]="product.producto_codigo" placeholder="Ej: 4009900484039" required>
           </div>
 
           <!-- Price and Stock -->
@@ -74,7 +74,7 @@
               <label for="price" class="form-label">Precio *</label>
               <div class="input-group">
                 <span class="input-group-text">$</span>
-                <input type="number" class="form-control" id="price" name="price" [(ngModel)]="product.price"
+                <input type="number" class="form-control" id="price" name="price" [(ngModel)]="product.precio"
                   step="0.01" min="0" placeholder="299.99" required>
               </div>
             </div>
@@ -82,7 +82,6 @@
             <div class="col-md-6 mb-3">
               <label for="stock" class="form-label">Stock Disponible</label>
               <select class="form-select" id="stock" name="stock" [(ngModel)]="product.stock" required>
-                <option value="">Seleccione stock</option>
                 <option *ngFor="let cat of stockOptions" [value]="cat.value">
                   {{ cat.label }}
                 </option>
@@ -93,7 +92,7 @@
           <!-- Description -->
           <div class="mb-4">
             <label for="description" class="form-label">Descripción</label>
-            <textarea class="form-control" id="description" name="description" [(ngModel)]="product.description"
+            <textarea class="form-control" id="description" name="description" [(ngModel)]="product.descripcion"
               rows="4" placeholder="Describe las características principales del producto..."></textarea>
           </div>
 

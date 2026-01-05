@@ -110,6 +110,17 @@ export class CategoriesComponent implements OnInit {
   }
 
   async onDeleteCategory(): Promise<void> {
+    const category = this.categories.filter(cat =>
+      cat.id === this.selectedCategory?.categoria_id &&
+      cat.productCount > 0
+    );
+
+    console.log("category",category);
+    if(category.length > 0){
+      this.toast.warning('No se puede eliminar esta categoría porque tiene productos asociados');
+      return;
+    }
+
     if (this.selectedCategory?.categoria_id) {
       await firstValueFrom(this.categoriaService.delete(this.selectedCategory.categoria_id));
       await this.loadCategory();

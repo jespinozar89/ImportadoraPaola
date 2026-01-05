@@ -31,7 +31,7 @@
       </div>
       <div class="card-body-custom">
         <!-- Filter and Create Section -->
-        <div class="filter-create-section">
+        <div class="search-create-section">
           <div class="filter-box">
             <label for="categoryFilter" class="filter-label">
               <i class="bi bi-funnel"></i>
@@ -42,12 +42,26 @@
               class="form-select"
               (change)="onCategoryChange($event)"
               [value]="selectedCategory()">
-              <option *ngFor="let cat of categories" [value]="cat.value">
-                {{ cat.label }}
+              <option value="all">Todas las categorías</option>
+              <option *ngFor="let cat of categories" [value]="cat.categoria_id">
+                {{ this.normalizeString(cat.nombre) }}
               </option>
             </select>
           </div>
-          <button class="btn btn-primary" (click)="onCreateProduct()">
+        </div>
+        <div class="search-create-section">
+          <div class="search-box position-relative">
+            <i class="bi bi-search search-icon"></i>
+            <input type="text"
+                   class="form-control"
+                   placeholder="Buscar nombre o codigo producto..."
+                   (input)="onSearch($event)"
+                   [value]="searchTerm()" >
+          </div>
+          <button class="btn btn-primary"
+                  data-bs-toggle="modal"
+                  data-bs-target="#editModal"
+                  (click)="onCreateProduct()">
             <i class="bi bi-plus-circle me-2"></i>
             Crear Producto
           </button>
@@ -66,44 +80,48 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let product of filteredProducts">
+              <tr *ngFor="let product of filteredProducts | paginate: { itemsPerPage: itemsPerPage, currentPage: p }" >
                 <td>
                   <div class="product-item">
-                    <img [src]="product.image"
-                         [alt]="product.name"
+                    <img [src]="product.imagen || 'null.png'"
+                         [alt]="product.nombre"
                          class="product-image">
                     <div class="product-info">
-                      <div class="product-name">{{ product.name }}</div>
-                      <div class="product-id">ID: {{ product.id }}</div>
+                      <div class="product-name">{{ product.nombre }}</div>
+                      <div class="product-id">Codigo: {{ product.producto_codigo }}</div>
                     </div>
                   </div>
                 </td>
                 <td>
-                  <span class="category-badge">{{ product.category }}</span>
+                  <span class="category-badge">{{ this.normalizeString(product.categoria_nombre) }}</span>
                 </td>
                 <td>
-                  <span class="product-price">{{ formatPrice(product.price) }}</span>
+                  <span class="product-price">{{ formatPrice(product.precio) }}</span>
                 </td>
 
                 <td>
                   <span class="status-badge"
-                        [class.disponible]="product.status === 'disponible'"
-                        [class.agotado]="product.status === 'agotado'">
+                        [class.disponible]="product.stock > 0"
+                        [class.agotado]="product.stock === 0">
                     <i class="bi"
-                       [class.bi-check-circle-fill]="product.status === 'disponible'"
-                       [class.bi-x-circle-fill]="product.status === 'agotado'"></i>
-                    {{ product.status === 'disponible' ? 'Disponible' : 'Agotado' }}
+                       [class.bi-check-circle-fill]="product.stock > 0"
+                       [class.bi-x-circle-fill]="product.stock === 0"></i>
+                    {{ product.stock > 0 ? 'Disponible' : 'Agotado' }}
                   </span>
                 </td>
                 <td>
                   <div class="table-actions">
                     <button class="btn btn-edit btn-action"
-                            (click)="onEditProduct(product)"
+                            data-bs-toggle="modal"
+                            data-bs-target="#editModal"
+                            (click)="onEditOrDeleteProduct(product)"
                             title="Editar">
                       <i class="bi bi-pencil"></i>
                     </button>
                     <button class="btn btn-delete btn-action"
-                            (click)="onDeleteProduct(product)"
+                            data-bs-toggle="modal"
+                            data-bs-target="#deleteModal"
+                            (click)="onEditOrDeleteProduct(product)"
                             title="Eliminar">
                       <i class="bi bi-trash"></i>
                     </button>
@@ -123,6 +141,35 @@
             </tbody>
           </table>
         </div>
+        <div class="mt-4 d-flex justify-content-center">
+          <pagination-controls
+            (pageChange)="onPageChange($event)"
+            previousLabel="Ant."
+            nextLabel="Sig.">
+          </pagination-controls>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- modal -->
+ <app-confirm-modal [mensaje]="modalMessage" (confirm)="onDeleteProduct()">
+</app-confirm-modal>
+
+ <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl"> <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ selectedProduct ? 'Editar Producto' : 'Crear Producto' }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body bg-light">
+        <app-product-editor
+          [productData]="selectedProduct"
+          (save)="onSaveProduct($event)"
+          (cancel)="closeModal()">
+        </app-product-editor>
       </div>
     </div>
   </div>

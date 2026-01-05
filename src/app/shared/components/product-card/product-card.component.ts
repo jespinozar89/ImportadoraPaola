@@ -35,17 +35,19 @@ export class ProductCardComponent {
     if (this.product && this.product.producto_id) {
       await this.favoriteService.toggleFavorite(this.product.producto_id);
       this.toast.success(
-          this.isProductFavorite() ?
-            'Producto añadido a favoritos' :
-            'Producto eliminado de favoritos'
+        this.isProductFavorite() ?
+          'Producto añadido a favoritos' :
+          'Producto eliminado de favoritos'
       );
     }
   }
 
   async addToCart(event: MouseEvent): Promise<void> {
-    event.stopPropagation();
-    await this.cartService.addToCart(this.product.producto_id);
-    this.toast.success('Producto añadido al carrito')
+    if (this.product.stock > 0) {
+      event.stopPropagation();
+      await this.cartService.addToCart(this.product.producto_id);
+      this.toast.success('Producto añadido al carrito')
+    }
   }
 
   viewDetails() {

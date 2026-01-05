@@ -1,158 +1,76 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Producto, ProductoCreateInput, ProductoUpdateInput } from '@/shared/models/producto.interface';
+import { ProductService } from '@/core/services/product.service';
+import { CategoriaService } from '@/core/services/categoria.service';
+import { HotToastService } from '@ngxpert/hot-toast';
+import { Categoria } from '@/shared/models/categoria.interface';
+import { firstValueFrom } from 'rxjs';
+import { ProductEditorComponent } from "../product-editor/product-editor.component";
+import { ConfirmModalComponent } from "@/shared/components/confirm-modal/confirm-modal.component";
+import { NgxPaginationModule } from "ngx-pagination";
 
-interface Product {
-  id: number;
-  name: string;
-  category: string;
-  image: string;
-  price: number;
-  stock: number;
-  status: 'disponible' | 'agotado';
-}
+declare var bootstrap: any;
 
 @Component({
   selector: 'app-inventory',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ProductEditorComponent, ConfirmModalComponent, NgxPaginationModule],
   templateUrl: './product-inventory.component.html',
   styleUrls: ['./product-inventory.component.scss']
 })
-export class ProductInventoryComponent {
+export class ProductInventoryComponent implements OnInit {
+
   selectedCategory = signal<string>('all');
+  searchTerm = signal<string>('');
 
-  categories = [
-    { value: 'all', label: 'Todas las Categorías' },
-    { value: 'lapices', label: 'Lápices' },
-    { value: 'cuadernos', label: 'Cuadernos' },
-    { value: 'block-dibujo', label: 'Block de Dibujo' },
-    { value: 'mochilas', label: 'Mochilas' },
-    { value: 'pegamentos', label: 'Pegamentos' },
-    { value: 'tijeras', label: 'Tijeras' },
-    { value: 'reglas', label: 'Reglas y Escuadras' },
-    { value: 'cartucheras', label: 'Cartucheras' },
-    { value: 'marcadores', label: 'Marcadores' },
-    { value: 'carpetas', label: 'Carpetas' }
-  ];
+  modalMessage: string = '';
+  selectedProduct: Producto | null = null;
+  categories: Categoria[] = [];
+  products: Producto[] = [];
 
-  products: Product[] = [
-    {
-      id: 1,
-      name: 'Lápiz Grafito HB Faber-Castell',
-      category: 'Lápices',
-      image: 'https://images.unsplash.com/photo-1587467512925-bbe900763f77?w=200&h=200&fit=crop',
-      price: 590,
-      stock: 150,
-      status: 'disponible'
-    },
-    {
-      id: 2,
-      name: 'Cuaderno Universitario 100 Hojas',
-      category: 'Cuadernos',
-      image: 'https://images.unsplash.com/photo-1604866830893-c13cafa515d5?w=200&h=200&fit=crop',
-      price: 2990,
-      stock: 85,
-      status: 'disponible'
-    },
-    {
-      id: 3,
-      name: 'Block de Dibujo Profesional A4',
-      category: 'Block de Dibujo',
-      image: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=200&h=200&fit=crop',
-      price: 4500,
-      stock: 0,
-      status: 'agotado'
-    },
-    {
-      id: 4,
-      name: 'Mochila Escolar Ergonómica',
-      category: 'Mochilas',
-      image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=200&h=200&fit=crop',
-      price: 18990,
-      stock: 42,
-      status: 'disponible'
-    },
-    {
-      id: 5,
-      name: 'Pegamento en Barra 21g',
-      category: 'Pegamentos',
-      image: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=200&h=200&fit=crop',
-      price: 1290,
-      stock: 200,
-      status: 'disponible'
-    },
-    {
-      id: 6,
-      name: 'Tijera Escolar Punta Roma',
-      category: 'Tijeras',
-      image: 'https://images.unsplash.com/photo-1589782087811-5654a9829751?w=200&h=200&fit=crop',
-      price: 2490,
-      stock: 68,
-      status: 'disponible'
-    },
-    {
-      id: 7,
-      name: 'Set Regla 30cm + Escuadras',
-      category: 'Reglas y Escuadras',
-      image: 'https://images.unsplash.com/photo-1596495577886-d920f1fb7238?w=200&h=200&fit=crop',
-      price: 3790,
-      stock: 0,
-      status: 'agotado'
-    },
-    {
-      id: 8,
-      name: 'Cartuchera Doble Compartimento',
-      category: 'Cartucheras',
-      image: 'https://images.unsplash.com/photo-1585366119957-e9730b6d0f60?w=200&h=200&fit=crop',
-      price: 5990,
-      stock: 95,
-      status: 'disponible'
-    },
-    {
-      id: 9,
-      name: 'Set Marcadores 12 Colores',
-      category: 'Marcadores',
-      image: 'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=200&h=200&fit=crop',
-      price: 6990,
-      stock: 120,
-      status: 'disponible'
-    },
-    {
-      id: 10,
-      name: 'Carpeta con Acoclip Tamaño Oficio',
-      category: 'Carpetas',
-      image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=200&h=200&fit=crop',
-      price: 1890,
-      stock: 145,
-      status: 'disponible'
-    },
-    {
-      id: 11,
-      name: 'Lápices de Colores x24 Unidades',
-      category: 'Lápices',
-      image: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=200&h=200&fit=crop',
-      price: 8990,
-      stock: 75,
-      status: 'disponible'
-    },
-    {
-      id: 12,
-      name: 'Cuaderno Espiral Tapa Dura',
-      category: 'Cuadernos',
-      image: 'https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=200&h=200&fit=crop',
-      price: 3490,
-      stock: 0,
-      status: 'agotado'
-    }
-  ];
+  p: number = 1;
+  itemsPerPage: number = 20;
 
-  get filteredProducts(): Product[] {
+  constructor(
+    private productService: ProductService,
+    private categoriaService: CategoriaService,
+    private toast: HotToastService
+  ) { }
+
+  async ngOnInit(): Promise<void> {
+
+    this.products = await this.productService.findAll();
+    this.categories = await firstValueFrom(this.categoriaService.findAll());
+  }
+
+  get filteredProducts(): Producto[] {
     const category = this.selectedCategory();
+    const term = this.searchTerm().toLowerCase();
+
     if (category === 'all') {
+      if (term) {
+        return this.products.filter(product =>
+          product.nombre.toLowerCase().includes(term) ||
+          product.producto_codigo.toLowerCase().includes(term)
+        );
+      }
       return this.products;
     }
+
+    if (term) {
+      return this.products
+        .filter(product =>
+          product.categoria_id === Number(category)
+        )
+        .filter(prod =>
+          prod.nombre.toLowerCase().includes(term) ||
+          prod.producto_codigo.toLowerCase().includes(term)
+        );
+    }
+
     return this.products.filter(product =>
-      this.normalizeString(product.category) === category
+      product.categoria_id === Number(category)
     );
   }
 
@@ -160,31 +78,80 @@ export class ProductInventoryComponent {
     return this.products.length;
   }
 
-  private normalizeString(str: string): string {
-    return str.toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/\s+/g, '-');
+  public normalizeString(str: string): string {
+    return str.replace(/_/g, ' ');
   }
 
   onCategoryChange(event: Event): void {
     const value = (event.target as HTMLSelectElement).value;
     this.selectedCategory.set(value);
+    this.onPageChange(1);
   }
 
   onCreateProduct(): void {
-    console.log('Abrir modal para crear producto');
+    this.selectedProduct = null;
   }
 
-  onEditProduct(product: Product): void {
-    console.log('Editar producto:', product);
+  onEditOrDeleteProduct(product: Producto): void {
+    this.selectedProduct = { ...product };
+    this.modalMessage = `¿Estás seguro de eliminar el producto "${product.nombre}"?`;
   }
 
-  onDeleteProduct(product: Product): void {
-    if (confirm(`¿Estás seguro de eliminar el producto "${product.name}"?`)) {
-      console.log('Eliminar producto:', product);
-
+  async onSaveProduct(data: any): Promise<void> {
+    if (data.producto_id) {
+      const updatedProduct: ProductoUpdateInput = {
+        categoria_id: data.categoria_id,
+        producto_codigo: data.producto_codigo,
+        nombre: data.nombre,
+        precio: data.precio,
+        stock: data.stock,
+        descripcion: data.descripcion,
+        imagen: data.imagen
+      };
+      await this.productService.update(data.producto_id, updatedProduct);
+      this.toast.success('Producto actualizado con éxito');
+    } else {
+      const createProduct: ProductoCreateInput = {
+        nombre: data.nombre,
+        producto_codigo: data.producto_codigo,
+        categoria_id: data.categoria_id,
+        precio: data.precio,
+        stock: data.stock,
+        descripcion: data.descripcion,
+        imagen: data.imagen
+      }
+      await this.productService.create(createProduct);
+      this.toast.success('Producto creado con éxito');
     }
+
+    this.products = await this.productService.findAll();
+    this.closeModal();
+  }
+
+  async onDeleteProduct(): Promise<void> {
+    if (this.selectedProduct?.producto_id) {
+      await this.productService.delete(this.selectedProduct.producto_id);
+      this.products = await this.productService.findAll();
+      this.selectedProduct = null;
+      this.toast.success('Producto eliminado con éxito');
+    }
+  }
+
+  closeModal() {
+    const modalElement = document.getElementById('editModal');
+
+    if (modalElement) {
+      const modalInstance = bootstrap.Modal.getInstance(modalElement);
+
+      if (modalInstance) {
+        modalInstance.hide();
+      } else {
+        const newModal = new bootstrap.Modal(modalElement);
+        newModal.hide();
+      }
+    }
+
+    this.selectedProduct = null;
   }
 
   formatPrice(price: number): string {
@@ -192,6 +159,15 @@ export class ProductInventoryComponent {
       style: 'currency',
       currency: 'CLP'
     }).format(price);
+  }
+
+  onPageChange(page: number): void {
+    this.p = page;
+  }
+
+  onSearch(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.searchTerm.set(value);
   }
 
   goBack(): void {

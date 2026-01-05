@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import {
   Producto,
@@ -24,7 +24,6 @@ export class ProductService {
     return firstValueFrom(this.http.post<Producto>(url, data));
   }
 
-
   async findAll(): Promise<Producto[]> {
     const url = this.baseUrl;
     return firstValueFrom(this.http.get<Producto[]>(url));
@@ -33,6 +32,18 @@ export class ProductService {
   async findById(id: number): Promise<Producto | null> {
     const url = `${this.baseUrl}/${id}`;
     return firstValueFrom(this.http.get<Producto>(url));
+  }
+
+  async findByCode(id: string): Promise<Producto | null> {
+    const url = `${this.baseUrl}/codigo/${id}`;
+    try {
+      return await firstValueFrom(this.http.get<Producto>(url));
+    } catch (error) {
+      if (error instanceof HttpErrorResponse && error.status === 404) {
+        return null; // no encontrado
+      }
+      throw error; // otros errores se relanzan
+    }
   }
 
   async update(id: number, data: ProductoUpdateInput): Promise<Producto> {

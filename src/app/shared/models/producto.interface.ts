@@ -7,6 +7,7 @@ export interface Producto {
   stock: number;
   producto_codigo: string;
   categoria_id: number;
+  categoria_nombre: string;
 }
 
 export interface ProductoCreateInput {

@@ -72,8 +72,12 @@
                     'producto'}}</span>
                 </td>
                 <td>
-                  <span class="category-status" [class.active]="category.status === 'active'"
-                    [class.inactive]="category.status === 'inactive'">
+                  <span class="status-badge"
+                        [class.disponible]="category.status === 'active'"
+                        [class.agotado]="category.status === 'inactive'">
+                    <i class="bi"
+                       [class.bi-check-circle-fill]="category.status === 'active'"
+                       [class.bi-x-circle-fill]="category.status === 'inactive'"></i>
                     {{ category.status === 'active' ? 'Activa' : 'Inactiva' }}
                   </span>
                 </td>
