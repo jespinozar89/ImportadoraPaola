@@ -54,7 +54,6 @@ export class AuthService {
 
     this.http.get<any>(`${this.apiUrl}/me`).subscribe({
       next: (userData) => {
-        console.log("userData", userData);
 
         this.currentUserSubject.next({
           ...userData,

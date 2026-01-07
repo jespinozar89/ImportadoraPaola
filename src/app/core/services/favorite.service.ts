@@ -116,7 +116,6 @@ export class FavoriteService {
     const localFavs = this._getLocalFavoritesArray();
 
     if (localFavs.length > 0) {
-      console.log(`Sincronizando ${localFavs.length} favoritos locales a la BD...`);
 
       const syncPromises = localFavs.map(id => this._addApi(userId, id).catch(err => {
         console.warn(`No se pudo sincronizar el producto ${id}:`, err);

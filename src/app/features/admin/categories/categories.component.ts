@@ -115,7 +115,6 @@ export class CategoriesComponent implements OnInit {
       cat.productCount > 0
     );
 
-    console.log("category",category);
     if(category.length > 0){
       this.toast.warning('No se puede eliminar esta categoría porque tiene productos asociados');
       return;

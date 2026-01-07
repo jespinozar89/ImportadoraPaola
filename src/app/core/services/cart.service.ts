@@ -103,10 +103,8 @@ export class CartService {
     if (!this.cartItems.has(productId)) return;
 
     if (this.authService.isAuthenticated()) {
-      console.log('Removing from remote cart BD: ', productId);
       await this.handleRemoteRemove(productId);
     } else {
-      console.log('Removing from remote cart local: ', productId);
       this.handleLocalRemove(productId);
     }
 
@@ -231,7 +229,6 @@ export class CartService {
    */
   private async syncLocalToDatabase(): Promise<void> {
     const localItems = this.getCartItemsLocal();
-    console.log('Sincronizando carrito local a BD:', localItems);
 
     const remoteItems = await lastValueFrom(this.http.get<CarritoResponse[]>(this.apiUrl));
     this.mapRemoteItemsToCart(remoteItems);

@@ -128,7 +128,6 @@ export class ProductEditorComponent implements OnInit, OnChanges {
       return;
     }
 
-    console.log(this.isEdit());
     const existProductCode = await this.productService.findByCode(this.product.producto_codigo);
     if(existProductCode && !this.isEdit()){
       this.toast.error('Ya existe un producto con ese código');
