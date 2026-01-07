@@ -83,9 +83,11 @@
               <tr *ngFor="let product of filteredProducts | paginate: { itemsPerPage: itemsPerPage, currentPage: p }" >
                 <td>
                   <div class="product-item">
-                    <img [src]="product.imagen || 'null.png'"
-                         [alt]="product.nombre"
-                         class="product-image">
+                    <a routerLink="/producto/{{ product.producto_id }}">
+                      <img [src]="product.imagen || 'null.png'"
+                          [alt]="product.nombre"
+                          class="product-image">
+                    </a>
                     <div class="product-info">
                       <div class="product-name">{{ product.nombre }}</div>
                       <div class="product-id">Codigo: {{ product.producto_codigo }}</div>

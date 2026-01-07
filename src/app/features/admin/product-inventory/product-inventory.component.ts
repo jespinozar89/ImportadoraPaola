@@ -1,6 +1,7 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from "@angular/router";
 import { Producto, ProductoCreateInput, ProductoUpdateInput } from '@/shared/models/producto.interface';
 import { ProductService } from '@/core/services/product.service';
 import { CategoriaService } from '@/core/services/categoria.service';
@@ -15,7 +16,7 @@ declare var bootstrap: any;
 
 @Component({
   selector: 'app-inventory',
-  imports: [CommonModule, FormsModule, ProductEditorComponent, ConfirmModalComponent, NgxPaginationModule],
+  imports: [CommonModule, FormsModule, ProductEditorComponent, ConfirmModalComponent, NgxPaginationModule,RouterLink],
   templateUrl: './product-inventory.component.html',
   styleUrls: ['./product-inventory.component.scss']
 })

@@ -71,7 +71,7 @@ export class ProductViewComponent implements OnInit {
   }
 
   async increment(): Promise<void> {
-    if (this.quantity >= 0) {
+    if (this.product && this.quantity >= 0 && this.product.stock > 0) {
       await this.cartService.addToCart(this.productId);
       await this.loadProduct(this.productId);
       this.toast.success('Producto sumado al carrito')
@@ -79,7 +79,7 @@ export class ProductViewComponent implements OnInit {
   }
 
   async decrement(): Promise<void> {
-    if (this.quantity >= 0) {
+    if (this.product && this.quantity >= 0 && this.product.stock > 0) {
       let menssage = 'Producto restado al carrito'
 
       await this.cartService.decreaseToCart(this.productId);

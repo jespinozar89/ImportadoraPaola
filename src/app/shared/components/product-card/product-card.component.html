@@ -1,33 +1,46 @@
-<div class="card h-100" (click)="viewDetails()" style="cursor: pointer;">
-  <!-- Ícono del corazón y Editar -->
+<div class="card h-100 d-flex flex-column" (click)="viewDetails()" style="cursor: pointer;">
+  <!-- Ícono del corazón -->
   <button class="position-absolute top-0 end-0 m-2 p-1 rounded shadow-sm favorite-btn"
-    (click)="toggleFavorite($event)">
+          (click)="toggleFavorite($event)">
     <i class="bi" [ngClass]="{
       'bi-heart': !isProductFavorite(),
       'bi-heart-fill text-danger': isProductFavorite()
     }"></i>
   </button>
-  <img [src]="product.imagen || 'null.png'" class="card-img-top" alt="{{ product.nombre }}">
-  <div class="card-body">
+
+  <!-- Imagen -->
+  <img [src]="product.imagen || 'null.png'" class="card-img-top product-image" alt="{{ product.nombre }}">
+
+  <!-- Contenido -->
+  <div class="card-body d-flex flex-column">
+    <!-- Título y descripción -->
     <h5 class="card-title">{{ product.nombre }}</h5>
     <p class="card-text">
       {{ product.descripcion.length > 120 ? (product.descripcion | slice:0:120) + '...' : product.descripcion }}
     </p>
-    <span class="status-badge"
-          [class.disponible]="product.stock > 0"
-          [class.agotado]="product.stock === 0">
-      <i class="bi"
-          [class.bi-check-circle-fill]="product.stock > 0"
-          [class.bi-x-circle-fill]="product.stock === 0"></i>
-      {{ product.stock > 0 ? 'Disponible' : 'Agotado' }}
-    </span>
-    <div class="d-flex justify-content-between align-items-center mt-3">
-      <span class="fw-bold fs-5 text-primary"> ${{ product.precio| number:'1.0-0':'es-CL' }}</span>
-      <button class="btn btn-sm btn-primary d-flex align-items-center gap-2 fw-bold"
-        [disabled]="product.stock === 0"
-        (click)="addToCart($event)">
-        <i class="bi bi-cart-fill"></i>
-        Añadir al carrito
-      </button>
+
+    <!-- Bloque final (estado + precio + botón) -->
+    <div class="mt-auto">
+      <span class="status-badge"
+            [class.disponible]="product.stock > 0"
+            [class.agotado]="product.stock === 0">
+        <i class="bi"
+           [class.bi-check-circle-fill]="product.stock > 0"
+           [class.bi-x-circle-fill]="product.stock === 0"></i>
+        {{ product.stock > 0 ? 'Disponible' : 'Agotado' }}
+      </span>
+
+      <div class="d-flex justify-content-between align-items-center mt-3">
+        <span class="fw-bold fs-5 text-primary">
+          ${{ product.precio | number:'1.0-0':'es-CL' }}
+        </span>
+        <button class="btn btn-sm btn-primary d-flex align-items-center gap-2 fw-bold"
+                [disabled]="product.stock === 0"
+                (click)="addToCart($event)">
+          <i class="bi bi-cart-fill"></i>
+          Añadir al carrito
+        </button>
+      </div>
     </div>
   </div>
+</div>
