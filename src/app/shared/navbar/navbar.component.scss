@@ -36,7 +36,7 @@
 
 .offcanvas-movil {
   @media (max-width: 576px) {
-    width: 280px; // o el valor que prefieras
+    width: 280px;
   }
 }
 
@@ -57,7 +57,7 @@
 .user-avatar {
   width: 30px;
   height: 30px;
-  border: 2px solid #4b6ef5; /* azul */
+  border: 2px solid #4b6ef5;
   border-radius: 50%;
 }
 
@@ -80,7 +80,7 @@
 
 .user-email {
   font-size: 13px;
-  color: #6b7280; /* gris */
+  color: #6b7280;
 }
 
 .user-profile {

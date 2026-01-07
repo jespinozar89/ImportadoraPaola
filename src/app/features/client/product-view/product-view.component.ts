@@ -37,8 +37,6 @@ export class ProductViewComponent implements OnInit {
     const idString = this.route.snapshot.paramMap.get('id');
     this.productId = idString ? +idString : 0;
 
-    //console.log('pagina actual:' + this.productService.lastPage());
-
     if (this.productId) {
       this.loadProduct(this.productId);
     } else {

@@ -40,9 +40,9 @@ export class ProductService {
       return await firstValueFrom(this.http.get<Producto>(url));
     } catch (error) {
       if (error instanceof HttpErrorResponse && error.status === 404) {
-        return null; // no encontrado
+        return null;
       }
-      throw error; // otros errores se relanzan
+      throw error;
     }
   }
 

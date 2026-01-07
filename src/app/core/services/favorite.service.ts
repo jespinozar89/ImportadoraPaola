@@ -17,7 +17,6 @@ export class FavoriteService {
 
   private favoriteIds = new Set<number>();
 
-  //Inyección de dependencias
   private http = inject(HttpClient);
   private authService = inject(AuthService);
 
