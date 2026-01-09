@@ -41,7 +41,8 @@
               id="categoryFilter"
               class="form-select"
               (change)="onCategoryChange($event)"
-              [value]="selectedCategory()">
+              (click)="onResetSearch()"
+              [(ngModel)]="selectedCategory">
               <option value="all">Todas las categorías</option>
               <option *ngFor="let cat of categories" [value]="cat.categoria_id">
                 {{ this.normalizeString(cat.nombre) }}

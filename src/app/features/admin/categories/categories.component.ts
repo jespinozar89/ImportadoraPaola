@@ -36,7 +36,7 @@ export class CategoriesComponent implements OnInit {
   constructor(
     private categoriaService: CategoriaService,
     private toast: HotToastService
-  ) {}
+  ) { }
 
   async ngOnInit(): Promise<void> {
     await this.loadCategory();
@@ -110,17 +110,18 @@ export class CategoriesComponent implements OnInit {
   }
 
   async onDeleteCategory(): Promise<void> {
-    const category = this.categories.filter(cat =>
-      cat.id === this.selectedCategory?.categoria_id &&
-      cat.productCount > 0
-    );
-
-    if(category.length > 0){
-      this.toast.warning('No se puede eliminar esta categoría porque tiene productos asociados');
-      return;
-    }
 
     if (this.selectedCategory?.categoria_id) {
+      const category = this.categories.filter(cat =>
+        cat.id === this.selectedCategory?.categoria_id &&
+        cat.productCount > 0
+      );
+
+      if (category.length > 0) {
+        this.toast.warning('No se puede eliminar esta categoría porque tiene productos asociados');
+        return;
+      }
+
       await firstValueFrom(this.categoriaService.delete(this.selectedCategory.categoria_id));
       await this.loadCategory();
       this.selectedCategory = null;
@@ -134,9 +135,9 @@ export class CategoriesComponent implements OnInit {
 
   private getNextColor(): string {
     const colors = [
-      '#667eea','#ff6b6b',
-      '#4facfe','#43e97b',
-      '#ffc837','#a8c0ff',
+      '#667eea', '#ff6b6b',
+      '#4facfe', '#43e97b',
+      '#ffc837', '#a8c0ff',
       '#ee9ca7'];
 
     return colors[this.indexColor++ % colors.length];

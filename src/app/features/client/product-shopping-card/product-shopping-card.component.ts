@@ -1,6 +1,6 @@
-import { Component, OnInit, DestroyRef } from '@angular/core';
+import { Component, OnInit, DestroyRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { lastValueFrom, Subscription } from 'rxjs';
+import { lastValueFrom } from 'rxjs';
 import { CartService } from '@/core/services/cart.service';
 import { FavoriteService } from '@/core/services/favorite.service';
 import { CarritoDetalladoDTO } from '@/shared/models/cart.interface';
@@ -8,6 +8,7 @@ import { RouterLink } from "@angular/router";
 import { HotToastService } from '@ngxpert/hot-toast';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
+declare var bootstrap: any;
 
 @Component({
   selector: 'app-product-shopping-card',
@@ -16,19 +17,18 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   templateUrl: './product-shopping-card.component.html',
   styleUrl: './product-shopping-card.component.scss'
 })
-export class ProductShoppingCardComponent implements OnInit {
+export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
 
   public cartItems: CarritoDetalladoDTO[] = [];
   public wishlistCount: number = 0;
-
-  private favoriteSubscription!: Subscription;
+  processingOrder: boolean = false;
 
   constructor(
     private cartService: CartService,
     private favoriteService: FavoriteService,
     private destroyRef: DestroyRef,
     private toast: HotToastService,
-  ) {}
+  ) { }
 
   async ngOnInit(): Promise<void> {
     try {
@@ -39,11 +39,17 @@ export class ProductShoppingCardComponent implements OnInit {
     }
 
     this.favoriteService.favoritesCount$
-    .pipe(takeUntilDestroyed(this.destroyRef))
-    .subscribe(count => {
-      this.wishlistCount = count;
-    });
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(count => {
+        this.wishlistCount = count;
+      });
   }
+
+  ngAfterViewInit() {
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(el => new bootstrap.Tooltip(el, { html: true }));
+  }
+
 
   public isFavorite(idProduct: number): boolean {
     return this.favoriteService.isFavorite(idProduct);
@@ -58,7 +64,7 @@ export class ProductShoppingCardComponent implements OnInit {
   }
 
   get tax(): number {
-    return 0.00;
+    return 5000;
   }
 
   get total(): number {
@@ -70,16 +76,31 @@ export class ProductShoppingCardComponent implements OnInit {
   // ----------------------------------------------------------------------
 
 
-  continueShopping(): void {
-    console.log('Continuar comprando');
+  async processOrder(): Promise<void> {
+    this.processingOrder = true;
+    try {
+      //await this.productService.procesarPedido();
+      await new Promise<void>(resolve => {
+        setTimeout(() => {
+          console.log('Han pasado 3 segundos, ejecutando acción...');
+          resolve();
+        }, 3000);
+      });
+
+      this.toast.success('Pedido procesado con éxito');
+    } catch (error) {
+      this.toast.error('Error al procesar el pedido');
+    } finally {
+      this.processingOrder = false;
+    }
   }
 
   async addFavoritesToCart(): Promise<void> {
     const favoriteIds = await this.favoriteService.getCurrentFavoriteIds();
 
-     const promises = favoriteIds
-    .filter(id => !this.cartItems.find(item => item.producto_id === id))
-    .map(id => this.cartService.addToCart(id));
+    const promises = favoriteIds
+      .filter(id => !this.cartItems.find(item => item.producto_id === id))
+      .map(id => this.cartService.addToCart(id));
 
     await Promise.all(promises);
 

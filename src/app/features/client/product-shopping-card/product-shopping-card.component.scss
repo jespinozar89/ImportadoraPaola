@@ -162,3 +162,13 @@
 .back-link:hover i {
   color: #fff;
 }
+
+.spin {
+  display: inline-block;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+

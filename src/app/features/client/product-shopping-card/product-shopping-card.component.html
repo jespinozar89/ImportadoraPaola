@@ -107,7 +107,15 @@
           </div>
 
           <div class="summary-row d-flex justify-content-between mb-3">
-            <span class="text-muted">Impuestos</span>
+            <span class="text-muted">
+              <i  class="bi bi-info-circle"
+                  data-bs-toggle="tooltip"
+                  data-bs-html="true"
+                  title="Este cargo corresponde al armado<br>- Organización de tu pedido<br>- Empaquetado de útiles">
+              </i>
+
+              Cargo por armado
+            </span>
             <span class="fw-bold">${{ tax | number:'1.0-0':'es-CL' }}</span>
           </div>
 
@@ -118,9 +126,24 @@
             <span class="fs-5 fw-bold">${{ total | number:'1.0-0':'es-CL' }}</span>
           </div>
 
-          <button class="btn btn-primary w-100 btn-lg" [disabled]="cartItems.length === 0">
+<div class="mt-2">
+  <label class="form-label d-flex align-items-center gap-2 border rounded px-3 py-2 cursor-pointer">
+    <i class="bi bi-paperclip"></i>
+    <span>Subir comprobante o imagen</span>
+    <input type="file" accept=".pdf,image/*" hidden>
+  </label>
+</div>
+
+
+
+
+          <button class="btn btn-primary w-100 btn-lg"
+                  [disabled]="cartItems.length === 0 || processingOrder"
+                  (click)="processOrder()">
+            <i *ngIf="processingOrder" class="bi bi-arrow-clockwise spin"></i>
             Procesar orden
           </button>
+
         </div>
       </div>
     </div>

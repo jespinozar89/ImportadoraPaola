@@ -16,7 +16,7 @@ declare var bootstrap: any;
 
 @Component({
   selector: 'app-inventory',
-  imports: [CommonModule, FormsModule, ProductEditorComponent, ConfirmModalComponent, NgxPaginationModule,RouterLink],
+  imports: [CommonModule, FormsModule, ProductEditorComponent, ConfirmModalComponent, NgxPaginationModule, RouterLink],
   templateUrl: './product-inventory.component.html',
   styleUrls: ['./product-inventory.component.scss']
 })
@@ -40,39 +40,33 @@ export class ProductInventoryComponent implements OnInit {
   ) { }
 
   async ngOnInit(): Promise<void> {
-
     this.products = await this.productService.findAll();
     this.categories = await firstValueFrom(this.categoriaService.findAll());
+    this.loadState();
   }
 
   get filteredProducts(): Producto[] {
     const category = this.selectedCategory();
-    const term = this.searchTerm().toLowerCase();
+    const term = this.normalizeText(this.searchTerm());
 
-    if (category === 'all') {
-      if (term) {
-        return this.products.filter(product =>
-          product.nombre.toLowerCase().includes(term) ||
-          product.producto_codigo.toLowerCase().includes(term)
-        );
-      }
-      return this.products;
-    }
+    return this.products.filter(product => {
+      const nombre = this.normalizeText(product.nombre);
+      const codigo = this.normalizeText(product.producto_codigo);
 
-    if (term) {
-      return this.products
-        .filter(product =>
-          product.categoria_id === Number(category)
-        )
-        .filter(prod =>
-          prod.nombre.toLowerCase().includes(term) ||
-          prod.producto_codigo.toLowerCase().includes(term)
-        );
-    }
+      const matchCategory = category === 'all' || product.categoria_id === Number(category);
+      const matchTerm = !term || nombre.includes(term) || codigo.includes(term);
 
-    return this.products.filter(product =>
-      product.categoria_id === Number(category)
-    );
+      return matchCategory && matchTerm;
+    });
+  }
+
+  normalizeText(value: string | null | undefined): string {
+    return (value || '')
+      .trim()                       // elimina espacios al inicio y final
+      .toLowerCase()                // pasa todo a minúsculas
+      .normalize('NFKD')            // normaliza caracteres Unicode (acentos, etc.)
+      .replace(/–/g, '-')           // reemplaza guiones raros por el estándar
+      .replace(/\s+/g, ' ');        // colapsa espacios múltiples
   }
 
   get totalProducts(): number {
@@ -164,11 +158,39 @@ export class ProductInventoryComponent implements OnInit {
 
   onPageChange(page: number): void {
     this.p = page;
+    this.saveState(this.selectedCategory(), this.searchTerm(), this.p);
   }
 
   onSearch(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
     this.searchTerm.set(value);
+    this.onPageChange(1);
+    this.saveState(this.selectedCategory(), this.searchTerm(), this.p);
+  }
+
+  onResetSearch() {
+    this.searchTerm.set('');
+  }
+
+  saveState(selectValue: string, inputText: string, currentPage: number): void {
+    const state = {
+      selectValue,
+      inputText,
+      currentPage
+    };
+
+    localStorage.setItem('productStateInventory', JSON.stringify(state));
+  }
+
+  loadState(): void {
+    const savedState = localStorage.getItem('productStateInventory');
+    if (savedState) {
+      const state = JSON.parse(savedState);
+
+      this.selectedCategory.set(state.selectValue);
+      this.searchTerm.set(state.inputText);
+      this.p = state.currentPage;
+    }
   }
 
   goBack(): void {

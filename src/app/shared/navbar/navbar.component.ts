@@ -130,6 +130,10 @@ export class NavbarComponent implements OnInit {
     this.productService.resetPage();
     this.selected = value;
     localStorage.setItem(this.SELECTED_MENU_KEY, value);
+
+    if(value && !value.includes('inventario')){
+      localStorage.removeItem("productStateInventory");
+    }
   }
 
   get activeCategorias() {
