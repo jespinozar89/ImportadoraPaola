@@ -27,6 +27,7 @@ export interface UserLogged {
   email: string;
   nombres: string;
   apellidos: string;
+  telefono?: string;
   rol?: string;
   token?: string;
 }

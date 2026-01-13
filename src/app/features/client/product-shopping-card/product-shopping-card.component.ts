@@ -7,6 +7,8 @@ import { CarritoDetalladoDTO } from '@/shared/models/cart.interface';
 import { RouterLink } from "@angular/router";
 import { HotToastService } from '@ngxpert/hot-toast';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { OrderService } from '@/core/services/order.service';
+import { CrearPedido } from '@/shared/models/order.interface';
 
 declare var bootstrap: any;
 
@@ -22,10 +24,13 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
   public cartItems: CarritoDetalladoDTO[] = [];
   public wishlistCount: number = 0;
   processingOrder: boolean = false;
+  fileName: string | null = null;
+  fileBase64: string | null = null;
 
   constructor(
     private cartService: CartService,
     private favoriteService: FavoriteService,
+    private orderService: OrderService,
     private destroyRef: DestroyRef,
     private toast: HotToastService,
   ) { }
@@ -55,6 +60,33 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
     return this.favoriteService.isFavorite(idProduct);
   }
 
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      this.fileName = file.name;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.fileBase64 = reader.result as string;
+      };
+
+      reader.readAsDataURL(file);
+    } else {
+      this.fileName = null;
+      this.fileBase64 = null;
+    }
+  }
+
+  onOpenModal(){
+    const modalElement = document.getElementById('compraExitosaModal');
+    if (modalElement) {
+      const modal = new bootstrap.Modal(modalElement);
+      modal.show();
+    }
+  }
+
+
   // ----------------------------------------------------------------------
   // CÁLCULOS SINCRONOS DEL RESUMEN DEL PEDIDO (Usan la propiedad cartItems)
   // ----------------------------------------------------------------------
@@ -79,15 +111,34 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
   async processOrder(): Promise<void> {
     this.processingOrder = true;
     try {
-      //await this.productService.procesarPedido();
+
+      if (!this.fileBase64) {
+        this.toast.warning('Por favor, adjunta un comprobante de pago');
+        return;
+      }
+
+      let orderData: CrearPedido = {
+        detalles: this.cartItems.map(item => ({
+          producto_id: item.producto_id,
+          cantidad: item.cantidad
+        })),
+        comprobante_pago: this.fileBase64 || null
+      };
+
+      const response = await this.orderService.create(orderData);
+
       await new Promise<void>(resolve => {
         setTimeout(() => {
-          console.log('Han pasado 3 segundos, ejecutando acción...');
           resolve();
         }, 3000);
       });
 
-      this.toast.success('Pedido procesado con éxito');
+      if(response.pedido_id){
+        this.clearCart();
+        this.onOpenModal();
+        this.toast.success('Pedido procesado con éxito');
+      }
+
     } catch (error) {
       this.toast.error('Error al procesar el pedido');
     } finally {
@@ -139,6 +190,13 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
     await this.cartService.removeFromCart(item.producto_id);
     await this.refetchCartData();
     this.toast.success('Producto eliminado del carrito')
+  }
+
+  async clearCart(): Promise<void> {
+    await this.cartService.clearCart();
+    await this.refetchCartData();
+    this.fileName = null;
+    this.fileBase64 = null;
   }
 
   private async refetchCartData(): Promise<void> {
