@@ -61,7 +61,7 @@ export const routes: Routes = [
         .then(m => m.OrderManagementComponent)
   },
   {
-    path: 'orderDetail',
+    path: 'orderDetail/:id',
     canActivate: [roleGuard],
     data: { roles: ['administrador'] },
     loadComponent: () =>

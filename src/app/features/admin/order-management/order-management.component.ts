@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
 import { RouterLink } from "@angular/router";
 import { OrderService } from '../../../core/services/order.service';
-import { Pedido } from '@/shared/models/order.interface';
+import { EstadoPedido, Pedido } from '@/shared/models/order.interface';
 import { FormsModule } from '@angular/forms';
 import { NgxPaginationModule } from "ngx-pagination";
 
@@ -31,7 +31,8 @@ export class OrderManagementComponent implements OnInit {
   statusConfig: any = {
     entregado: { icon: 'bi-check-circle-fill', label: 'Entregado', class: 'entregado' },
     cancelado: { icon: 'bi-x-circle-fill', label: 'Cancelado', class: 'cancelado' },
-    preparando: { icon: 'bi-hourglass-split', label: 'Preparando', class: 'preparando' },
+    enpreparacion: { icon: 'bi-hourglass-split', label: 'Preparando', class: 'preparando' },
+    listo: { icon: 'bi-box-seam', label: 'Listo para retiro', class: 'listo' },
     pendiente: { icon: 'bi-clock', label: 'Pendiente', class: 'pendiente' }
   };
 
@@ -40,6 +41,7 @@ export class OrderManagementComponent implements OnInit {
 
   ngOnInit() {
     this.loadOrders();
+    this.loadState();
   }
 
 
@@ -47,10 +49,9 @@ export class OrderManagementComponent implements OnInit {
     try {
       this.orders = await this.orderService.findAll();
       this.totalOrders = this.orders.length;
-      this.deliveredOrders = this.orders.filter(o => o.estado.toLocaleLowerCase() === 'entregado').length;
-      this.pendingOrders = this.orders.filter(o => o.estado.toLocaleLowerCase() === 'pendiente').length;
-      this.inProcessOrders = this.orders.filter(o => o.estado.toLocaleLowerCase() === 'preparando').length;
-      console.log(this.orders);
+      this.deliveredOrders = this.orders.filter(o => o.estado === EstadoPedido.Entregado).length;
+      this.pendingOrders = this.orders.filter(o => o.estado === EstadoPedido.Pendiente).length;
+      this.inProcessOrders = this.orders.filter(o => o.estado === EstadoPedido.EnPreparacion || o.estado === EstadoPedido.Listo).length;
     } catch (error) {
       console.error('Error al cargar los pedidos:', error);
     }

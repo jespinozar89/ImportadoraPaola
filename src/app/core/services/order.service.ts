@@ -45,4 +45,12 @@ export class OrderService {
     return await firstValueFrom(call$);
   }
 
+  /**
+   * Actualiza el estado de un pedido
+   */
+  async updateStatus(id: number, status: string): Promise<Pedido> {
+    const call$ = this.http.put<Pedido>(`${this.apiUrl}/${id}`, { estado: status });
+    return await firstValueFrom(call$);
+  }
+
 }

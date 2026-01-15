@@ -16,6 +16,12 @@
   color: #fff;
 }
 
+.btn .bi {
+  vertical-align: middle;
+  margin-right: 4px;
+  font-size: 1rem;
+}
+
 
 /* Main Content */
 .content-grid {
@@ -39,7 +45,8 @@
 .customer-avatar-large {
   width: 80px;
   height: 80px;
-  border-radius: 50%;
+  aspect-ratio: 1 / 1;        /* fuerza proporción cuadrada */
+  border-radius: 50%;         /* círculo perfecto */
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   display: flex;
   align-items: center;
@@ -47,9 +54,14 @@
   color: white;
   font-weight: 700;
   font-size: 2rem;
+  line-height: 1;             /* evita que el texto empuje verticalmente */
   border: 4px solid white;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;             /* evita que flex lo deforme */
+  overflow: hidden;           /* asegura que nada sobresalga */
+  text-transform: uppercase;
 }
+
 
 .customer-details h4 {
   margin: 0 0 0.5rem 0;
@@ -294,11 +306,13 @@
 }
 
 /* Action Button */
-.action-buttons {
+.action-buttons .acciones {
   display: flex;
-  justify-content: center;
-  margin-top: 2rem;
+  flex-direction: column;   /* botones uno debajo del otro */
+  align-items: center;      /* centra horizontalmente */
+  justify-content: center;  /* centra verticalmente si hay altura disponible */
 }
+
 
 .btn-complete {
   padding: 1rem 3rem;
@@ -349,32 +363,44 @@
   }
 }
 
-
-.status-badge-large {
-  background: white;
-  color: #667eea;
-  padding: 0.75rem 1.5rem;
-  border-radius: 30px;
+/* Status Badges */
+.status-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
   font-weight: 600;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 1rem;
 }
 
-.status-badge-large.entregado {
-  background: #d1e7dd;
-  color: #0f5132;
+.status-badge.pendiente {
+  background-color: #fff3cd;
+  color: #856404;
 }
 
-.status-badge-large.enviado {
-  background: #cfe2ff;
+.status-badge.preparando {
+  background-color: #cfe2ff;
   color: #084298;
 }
 
-.status-badge-large.pendiente {
-  background: #fff3cd;
-  color: #856404;
+.status-badge.listo {
+  background-color: #d1dce7;
+  color: #0a3622;
+}
+
+.status-badge.entregado {
+  background-color: #d1e7dd;
+  color: #0f5132;
+}
+
+.status-badge.cancelado {
+  background-color: #f8d7da;
+  color: #842029;
+}
+
+.status-badge i {
+  font-size: 0.9rem;
 }
 
 .stat-item {
@@ -467,5 +493,5 @@
 }
 
 .card-body-custom {
-  padding: 1.5rem;
+  padding: 0.5rem;
 }

@@ -1,33 +1,31 @@
 <div class="container mt-4">
-    <div class="back-link-container mb-3">
-    <a href="#" class="back-link d-inline-flex align-items-center fw-semibold px-3 py-2 rounded">
-      <i class="bi bi-arrow-left me-2"></i>
-      Volver a la lista de pedidos
-    </a>
+  <div class="back-link-container mb-3">
+    <a (click)="this.utilsService.goBack()"
+    class="back-link d-inline-flex align-items-center fw-semibold px-3 py-2 rounded">
+    <i class="bi bi-arrow-left me-2"></i>
+    Volver a lista pedidos
+  </a>
   </div>
   <div class="order-header">
     <div class="order-header-top">
       <div class="order-id-section">
-        <h1>Pedido {{ pedido.id }}</h1>
+        <h1>Pedido #ORD-{{ order?.pedido_id?.toString()?.padStart(4, '0') }}</h1>
         <div class="order-date">
           <i class="bi bi-calendar3"></i>
-          Realizado el {{ pedido.fecha }} a las {{ pedido.hora }}
+          Realizado el {{ order?.fecha_pedido | date:'dd MMMM yyyy':'':'es-CL'}} a las {{ order?.fecha_pedido |
+          date:'HH:mm':'':'es-CL' }}
         </div>
       </div>
-      <span class="status-badge-large" [ngClass]="pedido.estado">
-        <i [ngClass]="estadoIcono[pedido.estado]"></i>
-        {{ pedido.estado | titlecase }}
-      </span>
+      <ng-container *ngTemplateOutlet="statusBadge"></ng-container>
     </div>
-
     <div class="order-stats">
       <div class="stat-item">
-        <div class="stat-label">Total</div>
-        <div class="stat-value">{{ pedido.total | currency:'CLP' }}</div>
+        <div class="stat-label">SubTotal</div>
+        <div class="stat-value">${{ getSubtotal(order?.detalles!) | number:'1.0-0':'es-CL' }}</div>
       </div>
       <div class="stat-item">
         <div class="stat-label">Productos</div>
-        <div class="stat-value">{{ pedido.productos.length }}</div>
+        <div class="stat-value">{{ getProductQuantity()}}</div>
       </div>
     </div>
   </div>
@@ -41,6 +39,9 @@
           <h5>Productos del Pedido</h5>
         </div>
         <div class="card-body-custom">
+          <button class="btn btn-primary" (click)="downloadFile()">
+            <i class="bi bi-eye"></i> Ver comprobante pago
+          </button>
           <table class="products-table">
             <thead>
               <tr>
@@ -51,19 +52,19 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let p of pedido.productos">
+              <tr *ngFor="let p of order?.detalles">
                 <td>
                   <div class="product-info">
-                    <img [src]="p.imagen" alt="Producto" class="product-image" />
+                    <img [src]="p.producto?.imagen || 'null.png'" alt="Producto" class="product-image" />
                     <div class="product-details">
-                      <h6>{{ p.nombre }}</h6>
-                      <span class="product-sku">SKU: {{ p.sku }}</span>
+                      <h6>{{ p.producto?.nombre }}</h6>
+                      <span class="product-sku">Codigo: {{ p.producto?.producto_codigo }}</span>
                     </div>
                   </div>
                 </td>
-                <td>{{ p.precio | currency:'CLP' }}</td>
+                <td>${{ p.producto?.precio | number:'1.0-0':'es-CL' }}</td>
                 <td><span class="quantity-badge">x{{ p.cantidad }}</span></td>
-                <td><strong>{{ p.precio * p.cantidad | currency:'CLP' }}</strong></td>
+                <td><strong>${{ (p.producto?.precio || 0) * (p.cantidad || 0) | number:'1.0-0':'es-CL' }}</strong></td>
               </tr>
             </tbody>
           </table>
@@ -80,15 +81,16 @@
         </div>
         <div class="card-body-custom">
           <div class="customer-card">
-            <div class="customer-avatar-large">{{ pedido.cliente.iniciales }}</div>
+            <div class="customer-avatar-large">{{ order?.usuario?.nombres?.charAt(0) }}{{
+              order?.usuario?.apellidos?.charAt(0) }}</div>
             <div class="customer-details">
-              <h4>{{ pedido.cliente.nombre }}</h4>
+              <h4>{{ order?.usuario?.nombres }} {{ order?.usuario?.apellidos}}</h4>
               <div class="customer-contact">
                 <span class="contact-item">
-                  <i class="bi bi-envelope"></i> {{ pedido.cliente.email }}
+                  <i class="bi bi-envelope"></i> {{ order?.usuario?.email }}
                 </span>
                 <span class="contact-item">
-                  <i class="bi bi-telephone"></i> {{ pedido.cliente.telefono }}
+                  <i class="bi bi-telephone"></i> {{ formatPhone(order?.usuario?.telefono!) }}
                 </span>
               </div>
             </div>
@@ -104,31 +106,92 @@
         <div class="card-body-custom">
           <div class="summary-item">
             <span class="summary-label">Subtotal</span>
-            <span class="summary-value">{{ pedido.resumen.subtotal | currency:'CLP' }}</span>
+            <span class="summary-value">${{ getSubtotal(order?.detalles!)| number:'1.0-0':'es-CL' }}</span>
           </div>
           <div class="summary-item">
-            <span class="summary-label">Envío</span>
-            <span class="summary-value">Gratis</span>
-          </div>
-          <div class="summary-item">
-            <span class="summary-label">Descuento</span>
-            <span class="summary-value text-danger">-{{ pedido.resumen.descuento | currency:'CLP' }}</span>
-          </div>
-          <div class="summary-item">
-            <span class="summary-label">IVA (19%)</span>
-            <span class="summary-value">{{ pedido.resumen.iva | currency:'CLP' }}</span>
+            <span class="summary-label">Cargo Armado</span>
+            <span class="summary-value">$5.000</span>
           </div>
           <div class="summary-item summary-total">
             <span class="summary-label">Total</span>
-            <span class="summary-value">{{ pedido.resumen.total | currency:'CLP' }}</span>
+            <span class="summary-value">{{ getSubtotal(order?.detalles!) + 5000| number:'1.0-0':'es-CL' }}</span>
           </div>
-          <div class="action-buttons">
-            <button class="btn btn-success btn-complete">
-              <i class="bi bi-check-circle me-2 mb-3"></i> Completar Pedido
-            </button>
+          <!-- <div class="mt-4">
+            <label class="me-2"><strong>Estado actual:</strong></label>
+            <ng-container *ngTemplateOutlet="statusBadge"></ng-container>
+            <div class="action-buttons">
+              <div class="acciones mt-3">
+                <button class="btn btn-success btn-complete" (click)="advanceStatus()">
+                  <i class="bi bi-arrow-right-circle"></i> Pasar a: {{ nextStatus }}
+                </button>
+                <button class="btn btn-danger btn-complete mt-2 s-2" (click)="cancelOrder()">
+                  <i class="bi bi-x-circle"></i> Cancelar Pedido
+                </button>
+              </div> -->
+          <div class="mt-4">
+            <label class="fw-bold mb-2 me-2">Estado actual:</label>
+            <ng-container *ngTemplateOutlet="statusBadge"></ng-container>
+
+            <div class="form-group mt-3">
+              <label for="statusSelect">Cambiar estado:</label>
+              <select id="statusSelect" class="form-select" [(ngModel)]="selectedStatus">
+                <option value="Pendiente">Pendiente</option>
+                <option value="EnPreparacion">Preparando</option>
+                <option value="Listo">Listo para retiro</option>
+                <option value="Entregado">Entregado</option>
+                <option value="Cancelado">Cancelado</option>
+              </select>
+            </div>
+
+            <div class="actions mt-3 d-flex justify-content-center gap-2">
+              <button class="btn btn-primary" (click)="updateStatus()">
+                <i class="bi bi-arrow-repeat"></i> Actualizar Estado
+              </button>
+              <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#notifyModal">
+                <i class="bi bi-envelope"></i> Enviar correo
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<!-- Template -->
+<ng-template #statusBadge>
+  <span class="status-badge {{ statusConfig[order?.estado?.toLowerCase()!]?.class }}">
+    <i class="bi {{ statusConfig[order?.estado?.toLowerCase()!]?.icon }}"></i>
+    {{ statusConfig[order?.estado?.toLowerCase()!]?.label }}
+  </span>
+</ng-template>
+
+<!-- Modal -->
+<div class="modal fade" id="notifyModal" tabindex="-1" aria-labelledby="notifyModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="notifyModalLabel">Confirmar envío de correo</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+
+      <div class="modal-body">
+        <p>
+          Vas a enviar un correo al usuario informando que el estado del pedido cambió
+          de <strong>{{ previousState }}</strong> a <strong>{{ selectedStatus }}</strong>.
+        </p>
+        <p>¿Deseas continuar?</p>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" (click)="confirmNotify()" data-bs-dismiss="modal">
+          <i class="bi bi-send"></i> Enviar correo
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+

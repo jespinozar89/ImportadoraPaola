@@ -86,7 +86,8 @@ export class NavbarComponent implements OnInit {
           { prefix: '/inventory', label: 'inventario' },
           { prefix: '/form', label: 'Nuevo' },
           { prefix: '/orders', label: 'orders' },
-          { prefix: '/categories', label: 'Categorías' }
+          { prefix: '/orderDetail', label: 'DetalleOrden' },
+          { prefix: '/categories', label: 'Categorías' },
         ];
 
         const match = routesAdmin.find(r => urlComplete.startsWith(r.prefix));
@@ -133,6 +134,10 @@ export class NavbarComponent implements OnInit {
 
     if(value && !value.includes('inventario')){
       localStorage.removeItem("productStateInventory");
+    }
+
+    if(value && !value.includes('orders') && !value.includes('DetalleOrden')){
+      localStorage.removeItem("productStateOrders");
     }
   }
 
