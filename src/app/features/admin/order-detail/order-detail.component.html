@@ -116,18 +116,6 @@
             <span class="summary-label">Total</span>
             <span class="summary-value">{{ getSubtotal(order?.detalles!) + 5000| number:'1.0-0':'es-CL' }}</span>
           </div>
-          <!-- <div class="mt-4">
-            <label class="me-2"><strong>Estado actual:</strong></label>
-            <ng-container *ngTemplateOutlet="statusBadge"></ng-container>
-            <div class="action-buttons">
-              <div class="acciones mt-3">
-                <button class="btn btn-success btn-complete" (click)="advanceStatus()">
-                  <i class="bi bi-arrow-right-circle"></i> Pasar a: {{ nextStatus }}
-                </button>
-                <button class="btn btn-danger btn-complete mt-2 s-2" (click)="cancelOrder()">
-                  <i class="bi bi-x-circle"></i> Cancelar Pedido
-                </button>
-              </div> -->
           <div class="mt-4">
             <label class="fw-bold mb-2 me-2">Estado actual:</label>
             <ng-container *ngTemplateOutlet="statusBadge"></ng-container>

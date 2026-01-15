@@ -78,6 +78,7 @@
 .contact-item {
   display: flex;
   align-items: center;
+  word-break: break-all;
   gap: 0.5rem;
   color: #6c757d;
   font-size: 0.95rem;
