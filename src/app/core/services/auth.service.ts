@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap } from 'rxjs';
-import { CreateUserDTO, LoginPayload, AuthResponse, UserLogged } from '@/shared/models/auth.interface';
+import { Observable, BehaviorSubject, tap, firstValueFrom } from 'rxjs';
+import { CreateUserDTO, LoginPayload, AuthResponse, UserLogged, UpdateUserDTO } from '@/shared/models/auth.interface';
 import { environment } from '@/environments/environment';
+import { Router } from '@angular/router';
 
 declare var bootstrap: any;
 
@@ -18,7 +19,10 @@ export class AuthService {
   private currentUserSubject: BehaviorSubject<UserLogged | null>;
   public currentUser: Observable<UserLogged | null>;
 
-  constructor(private http: HttpClient) {
+  constructor(
+    private http: HttpClient,
+    private router: Router
+  ) {
     this.currentUserSubject = new BehaviorSubject<UserLogged | null>(null);
     this.currentUser = this.currentUserSubject.asObservable();
   }
@@ -39,6 +43,10 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, data);
   }
 
+  private async me(){
+    return firstValueFrom(this.http.get<any>(`${this.apiUrl}/me`));
+  }
+
   public login(data: LoginPayload): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, data).pipe(
       tap(response => {
@@ -47,29 +55,42 @@ export class AuthService {
     );
   }
 
-  public checkSession(): void {
+  public updatePerfil(data: UpdateUserDTO): Observable<AuthResponse> {
+    return this.http.put<AuthResponse>(`${this.apiUrl}/updatePerfil`, data);
+  }
+
+  public async checkSession() {
     const token = localStorage.getItem(this.USER_KEY);
 
     if (!token) return;
 
-    this.http.get<any>(`${this.apiUrl}/me`).subscribe({
-      next: (userData) => {
+    try{
 
-        this.currentUserSubject.next({
+      const userData = await this.me();
+
+      this.currentUserSubject.next({
           ...userData,
           token: token
         });
-      },
-      error: (err) => {
-        console.log("error", err);
-        this.logout();
-      }
-    });
+
+    }
+    catch(e){
+      this.logout();
+      console.log("error", e);
+    }
   }
 
   public logout(): void {
     localStorage.removeItem(this.USER_KEY);
     this.currentUserSubject.next(null);
+
+    this.router.navigate(['/']);
+
+    localStorage.removeItem('lastPage');
+    localStorage.removeItem('navbar_selected_menu_item');
+    localStorage.removeItem('local_favorites');
+    localStorage.removeItem('productStateInventory');
+    localStorage.removeItem('productStateOrders');
   }
 
   public getAuthToken(): string | null {
@@ -80,6 +101,19 @@ export class AuthService {
     const user = this.currentUserSubject.value;
 
     return user?.rol ?? null;
+  }
+
+  public getCurrentUserProfile() {
+    const user = this.currentUserSubject.value;
+
+    const userProfile = {
+      nombres: user?.nombres,
+      apellidos: user?.apellidos,
+      email: user?.email,
+      telefono: user?.telefono
+    }
+
+    return userProfile ?? null;
   }
 
   public openLoginModal() {

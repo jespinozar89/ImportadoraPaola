@@ -133,7 +133,8 @@
     <div *ngIf="currentUser()?.rol === 'cliente'">
       <h6 class="text-uppercase fw-bold text-muted mb-3 mt-4">Menu</h6>
       <ul class="list-group list-group-flush">
-         <li class="list-group-item px-0 py-2 ps-2 border-bottom">Perfil</li>
+         <li routerLink="/perfilFrom" (click)="selectItem('perfil'); closeOffcanvas()"
+          [class.active-item]="selected === 'perfil'"  class="list-group-item px-0 py-2 ps-2 border-bottom">Perfil</li>
         <li class="list-group-item px-0 py-2 ps-2 border-bottom">Mis Pedidos</li>
       </ul>
     </div>

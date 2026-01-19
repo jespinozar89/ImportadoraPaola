@@ -6,6 +6,15 @@ export interface CreateUserDTO {
   telefono?: string;
 }
 
+export interface UpdateUserDTO {
+  nombres: string;
+  apellidos: string;
+  email: string;
+  telefono: string;
+  password: string;
+  passwordNew: string;
+}
+
 export interface LoginPayload {
   email: string;
   password: string;
@@ -16,6 +25,7 @@ export interface AuthResponse {
   usuario: {
     id: number;
     email: string;
+    telefono: string;
     nombres: string;
     apellidos: string;
     rol?: string;
@@ -27,7 +37,7 @@ export interface UserLogged {
   email: string;
   nombres: string;
   apellidos: string;
-  telefono?: string;
+  telefono: string;
   rol?: string;
   token?: string;
 }

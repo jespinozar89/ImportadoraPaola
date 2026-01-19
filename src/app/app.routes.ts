@@ -22,6 +22,12 @@ export const routes: Routes = [
         .then(m => m.ProductViewComponent)
   },
   {
+    path: 'perfilFrom',
+    loadComponent: () =>
+      import('@/features/client/perfil-form/perfil-form.component')
+        .then(m => m.PerfilFormComponent)
+  },
+  {
     path: 'wishlist',
     loadComponent: () =>
       import('@/features/client/product-favorite/product-favorite.component')
@@ -30,7 +36,7 @@ export const routes: Routes = [
   {
     path: 'shop',
     canActivate: [roleGuard],
-    data: { roles: ['administrador','cliente'] },
+    data: { roles: ['administrador', 'cliente'] },
     loadComponent: () =>
       import('@/features/client/product-shopping-card/product-shopping-card.component')
         .then(m => m.ProductShoppingCardComponent)

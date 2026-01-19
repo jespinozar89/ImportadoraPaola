@@ -40,9 +40,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           authService.openLoginModal();
           router.navigate(['/']);
           toast.info('Sesión expirada. Inicia sesión nuevamente.');
-          console.log(error);
         }
-        return throwError(() => console.log(error));
+        return throwError(() => error.error);
       })
     );
   }

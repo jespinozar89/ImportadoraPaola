@@ -120,11 +120,6 @@ export class NavbarComponent implements OnInit {
 
   onLogout(): void {
     this.authService.logout();
-    this.router.navigate(['/']);
-
-    localStorage.removeItem('lastPage');
-    localStorage.removeItem('navbar_selected_menu_item');
-    localStorage.removeItem('local_favorites');
   }
 
   selectItem(value: string) {
