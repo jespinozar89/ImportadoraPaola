@@ -104,4 +104,34 @@ export class SignInComponent {
       signInInstance.hide();
     }
   }
+
+  onResetPassword(): void {
+  const signInModalEl = document.getElementById('signInModal');
+  const resetPasswordModalEl = document.getElementById('resetPasswordModal');
+
+  if (signInModalEl && resetPasswordModalEl) {
+    const signInInstance =
+      (window as any).bootstrap.Modal.getInstance(signInModalEl) ||
+      new (window as any).bootstrap.Modal(signInModalEl);
+
+    const resetPasswordInstance =
+      (window as any).bootstrap.Modal.getInstance(resetPasswordModalEl) ||
+      new (window as any).bootstrap.Modal(resetPasswordModalEl);
+
+    // Cuando se cierre el modal de inicio de sesión, abrir el de recuperación
+    signInModalEl.addEventListener(
+      'hidden.bs.modal',
+      () => {
+        const backdrop = document.querySelector('.modal-backdrop');
+        if (backdrop) backdrop.remove();
+        resetPasswordInstance.show();
+      },
+      { once: true }
+    );
+
+    // Ocultar el modal de inicio de sesión
+    signInInstance.hide();
+  }
+}
+
 }

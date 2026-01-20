@@ -28,6 +28,12 @@ export const routes: Routes = [
         .then(m => m.PerfilFormComponent)
   },
   {
+    path: 'resetPassword',
+    loadComponent: () =>
+      import('@/shared/components/reset-password/reset-password.component')
+        .then(m => m.ResetPasswordComponent)
+  },
+  {
     path: 'wishlist',
     loadComponent: () =>
       import('@/features/client/product-favorite/product-favorite.component')

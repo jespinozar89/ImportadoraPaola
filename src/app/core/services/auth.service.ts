@@ -59,6 +59,15 @@ export class AuthService {
     return this.http.put<AuthResponse>(`${this.apiUrl}/updatePerfil`, data);
   }
 
+  public generateResetToken(email: string): Observable<AuthResponse> {
+    return this.http.put<AuthResponse>(`${this.apiUrl}/generateResetToken`, { email })
+  }
+
+  public resetPassword(token: string, password: string): Observable<AuthResponse> {
+    return this.http.put<AuthResponse>(`${this.apiUrl}/resetPassword`, { token, password });
+  }
+
+
   public async checkSession() {
     const token = localStorage.getItem(this.USER_KEY);
 
