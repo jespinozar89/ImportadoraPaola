@@ -5,6 +5,7 @@ import { HotToastService } from '@ngxpert/hot-toast';
 import { UpdateUserDTO } from '@/shared/models/auth.interface';
 import { firstValueFrom } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import { UtilsService } from '@/shared/service/utils.service';
 
 declare var bootstrap: any;
 
@@ -12,6 +13,7 @@ declare var bootstrap: any;
   selector: 'app-perfil-form',
   templateUrl: './perfil-form.component.html',
   imports: [ReactiveFormsModule, CommonModule],
+  styleUrl: './perfil-form.component.scss'
 })
 export class PerfilFormComponent implements OnInit {
   perfilForm!: FormGroup;
@@ -22,7 +24,8 @@ export class PerfilFormComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private toast: HotToastService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    public utilsService: UtilsService
   ) { }
 
   async ngOnInit() {
@@ -99,6 +102,11 @@ export class PerfilFormComponent implements OnInit {
 
     if (this.perfilForm.value.telefono === '' || this.perfilForm.value.telefono === null) {
       this.toast.warning('Debe ingresar un teléfono');
+      return;
+    }
+
+    if(this.perfilForm.value.telefono.length < 9 || this.perfilForm.value.telefono.length > 9){
+      this.toast.warning('El teléfono debe tener 9 dígitos');
       return;
     }
 

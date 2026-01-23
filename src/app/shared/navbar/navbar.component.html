@@ -135,7 +135,8 @@
       <ul class="list-group list-group-flush">
          <li routerLink="/perfilFrom" (click)="selectItem('perfil'); closeOffcanvas()"
           [class.active-item]="selected === 'perfil'"  class="list-group-item px-0 py-2 ps-2 border-bottom">Perfil</li>
-        <li class="list-group-item px-0 py-2 ps-2 border-bottom">Mis Pedidos</li>
+        <li routerLink="/orderList" (click)="selectItem('orderList'); closeOffcanvas()"
+          [class.active-item]="selected === 'orderList'"  class="list-group-item px-0 py-2 ps-2 border-bottom">Mis Pedidos</li>
       </ul>
     </div>
     <!-- Categorías -->

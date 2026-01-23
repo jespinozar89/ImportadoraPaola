@@ -12,7 +12,7 @@
         <h1>Pedido #ORD-{{ order?.pedido_id?.toString()?.padStart(4, '0') }}</h1>
         <div class="order-date">
           <i class="bi bi-calendar3"></i>
-          Realizado el {{ order?.fecha_pedido | date:'dd MMMM yyyy':'':'es-CL'}} a las {{ order?.fecha_pedido |
+          Realizado el {{ order?.fecha_cambio_estado| date:'dd MMMM yyyy':'':'es-CL'}} a las {{ order?.fecha_pedido |
           date:'HH:mm':'':'es-CL' }}
         </div>
       </div>

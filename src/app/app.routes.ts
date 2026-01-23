@@ -40,6 +40,22 @@ export const routes: Routes = [
         .then(m => m.ProductFavoriteComponent)
   },
   {
+    path: 'orderList',
+    canActivate: [roleGuard],
+    data: { roles: ['cliente'] },
+    loadComponent: () =>
+      import('@/features/client/order-list/order-list.component')
+        .then(m => m.OrderListComponent)
+  },
+  {
+    path: 'orderDetailUser/:id',
+    canActivate: [roleGuard],
+    data: { roles: ['cliente'] },
+    loadComponent: () =>
+      import('@/features/client/order-detail-user/order-detail-user.component')
+        .then(m => m.OrderDetailUserComponent)
+  },
+  {
     path: 'shop',
     canActivate: [roleGuard],
     data: { roles: ['administrador', 'cliente'] },

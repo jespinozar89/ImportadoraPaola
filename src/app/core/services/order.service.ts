@@ -38,6 +38,14 @@ export class OrderService {
   }
 
   /**
+   * Obtiene un pedido por ID(cliente)
+   */
+  async findOrderByUserIdAndPedidoId(pedidoId: number): Promise<Pedido> {
+    const call$ = this.http.get<Pedido>(`${this.apiUrl}/mi-pedido/${pedidoId}`);
+    return await firstValueFrom(call$);
+  }
+
+  /**
    * Busca un pedido por ID
    */
   async findById(id: number): Promise<Pedido> {

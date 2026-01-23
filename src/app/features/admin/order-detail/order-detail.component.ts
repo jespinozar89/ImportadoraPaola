@@ -36,6 +36,7 @@ export class OrderDetailComponent implements OnInit {
 
   async ngOnInit() {
     const idString = this.route.snapshot.paramMap.get('id') || '0';
+    console.log("ordenDetallePROD: ",idString);
 
     try {
       const pedido = await this.orderService.findById(Number(idString));

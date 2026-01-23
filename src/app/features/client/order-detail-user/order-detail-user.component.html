@@ -1,0 +1,127 @@
+<div class="container">
+  <a (click)="this.utilsService.goBack()"
+    class="back-link d-inline-flex align-items-center fw-semibold px-3 py-2 rounded">
+    <i class="bi bi-arrow-left me-2"></i>
+    Volver a Pedidos
+  </a>
+</div>
+
+<div class="container mt-4">
+  <div class="card shadow-sm bg-light p-4">
+    <h5 class="mb-5">
+      <i class="bi bi-box-seam-fill p-1"></i>
+      Detalle de Pedido
+    </h5>
+
+    <div class="d-flex justify-content-center mb-4">
+      <div class="card shadow-sm border-0 rounded-3 col-12 col-md-6 col-lg-5">
+        <div class="card-header
+          bg-white border-0
+          pt-3 pb-2 mb-2
+          shadow-none
+          border-bottom-light
+          d-flex flex-column">
+          <div class="d-flex mb-1">
+            <span class="status-badge {{ statusConfig[order.estado.toLowerCase()]?.class }}">
+              <i class="bi {{ statusConfig[order.estado.toLowerCase()]?.icon }}"></i>
+              {{ statusConfig[order.estado.toLowerCase()]?.label }}
+            </span>
+          </div>
+          <div class="d-flex justify-content-between align-items-center">
+            <h6 class="text-muted fw-normal mb-0" style="font-size: 0.9rem;">
+              {{ order.fecha_pedido | date:"dd 'de' MMMM 'de' yyyy":"":"es-CL" }}
+            </h6>
+            <span class="text-muted d-flex align-items-center">
+              #ORD-{{ order.pedido_id.toString().padStart(4, '0') }}
+            </span>
+          </div>
+        </div>
+        <div class="list-group list-group-flush p-3">
+          <div class="list-group-item border-0 py-2">
+            <strong>Sucursal:</strong>
+            <span class="text-muted">
+              Av. Argentina #334, Valparaíso
+            </span>
+          </div>
+          <div *ngIf="order.estado === 'Entregado'" class="list-group-item border-0 py-2">
+            <strong>Recibido por:</strong>
+            <span class="text-muted">{{ fullName }}</span>
+          </div>
+          <div class="list-group-item border-0 py-2">
+            <strong>Fecha del pedido:</strong>
+            <span class="text-muted">
+              {{ order.fecha_pedido | date:"dd 'de' MMMM 'de' yyyy, HH:mm 'hrs'":"":"es-CL" }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-center mb-4">
+      <div class="card shadow-sm border-0 rounded-3 col-12 col-md-6 col-lg-5 bg-light">
+        <div class="card-header bg-white border-0 pt-3 pb-2 mb-2 border-bottom-light">
+          <h6 class="text-muted fw-bold mb-0">
+            <i class="bi bi-receipt-cutoff me-2"></i>
+            Resumen del Pedido
+          </h6>
+        </div>
+
+        <div class="card-body px-4 py-3">
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-secondary">Subtotal</span>
+            <span class="fw-semibold">{{subtotal | number:'1.0-0':'es-CL'}}</span>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-secondary">Cargo por armado</span>
+            <span class="fw-semibold">$5.000</span>
+          </div>
+          <hr class="my-3">
+          <div class="d-flex justify-content-between">
+            <span class="fw-bold text-dark">Total</span>
+            <span class="fw-bold text-dark">{{subtotal + 5000 | number:'1.0-0':'es-CL'}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="d-flex justify-content-center mb-4">
+  <div class="card shadow-sm border-0 rounded-3 col-12 col-md-6 col-lg-5">
+    <div class="card-header bg-white border-0 pt-3 pb-2 mb-2 border-bottom-light">
+      <h6 class="text-muted fw-bold mb-0">
+        <i class="bi bi-card-text me-2"></i> Detalle
+      </h6>
+    </div>
+    <div class="list-group list-group-flush p-2">
+      <ng-container *ngFor="let detalle of order.detalles">
+        <div class="list-group-item border-0 py-3 d-flex align-items-center justify-content-between border-bottom-light">
+          <div class="d-flex align-items-center flex-grow-1">
+            <div class="flex-shrink-0 border rounded p-1 bg-white" style="width: 70px; height: 70px;">
+              <a routerLink="/producto/{{ detalle?.producto?.producto_id }}">
+                <img [src]="detalle?.producto?.imagen || 'null.png'" class="img-fluid object-fit-contain w-100 h-100" alt="prod">
+              </a>
+            </div>
+            <div class="ms-3">
+              <div class="text-secondary small mb-0" style="font-size: 0.85rem;">
+                x{{ detalle.cantidad }}
+              </div>
+              <div class="text-dark fw-bold" style="font-size: 0.95rem;">
+                {{ detalle?.producto?.nombre }}
+              </div>
+              <div class="text-dark fw-bold" style="font-size: 0.95rem;">
+                ${{ detalle?.producto?.precio| number:'1.0-0':'es-CL' }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+
+  </div>
+</div>
+
+
+
+
+  </div>
+</div>

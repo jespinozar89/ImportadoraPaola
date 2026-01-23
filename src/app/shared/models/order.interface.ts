@@ -4,7 +4,8 @@ import { Producto } from "./producto.interface";
 export interface Pedido {
   pedido_id: number;
   usuario_id: number;
-  fecha_pedido: string | Date;
+  fecha_pedido: Date;
+  fecha_cambio_estado: Date;
   estado: EstadoPedido;
   total: string | number;
   comprobante_pago: string | null;
