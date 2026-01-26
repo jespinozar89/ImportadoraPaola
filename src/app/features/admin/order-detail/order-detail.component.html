@@ -12,7 +12,7 @@
         <h1>Pedido #ORD-{{ order?.pedido_id?.toString()?.padStart(4, '0') }}</h1>
         <div class="order-date">
           <i class="bi bi-calendar3"></i>
-          Realizado el {{ order?.fecha_cambio_estado| date:'dd MMMM yyyy':'':'es-CL'}} a las {{ order?.fecha_pedido |
+          Realizado el {{ order?.fecha_pedido| date:'dd MMMM yyyy':'':'es-CL'}} a las {{ order?.fecha_pedido |
           date:'HH:mm':'':'es-CL' }}
         </div>
       </div>
@@ -21,7 +21,7 @@
     <div class="order-stats">
       <div class="stat-item">
         <div class="stat-label">SubTotal</div>
-        <div class="stat-value">${{ getSubtotal(order?.detalles!) | number:'1.0-0':'es-CL' }}</div>
+        <div class="stat-value">${{ order?.total | number:'1.0-0':'es-CL' }}</div>
       </div>
       <div class="stat-item">
         <div class="stat-label">Productos</div>
@@ -106,7 +106,7 @@
         <div class="card-body-custom">
           <div class="summary-item">
             <span class="summary-label">Subtotal</span>
-            <span class="summary-value">${{ getSubtotal(order?.detalles!)| number:'1.0-0':'es-CL' }}</span>
+            <span class="summary-value">${{ order?.total| number:'1.0-0':'es-CL' }}</span>
           </div>
           <div class="summary-item">
             <span class="summary-label">Cargo Armado</span>
@@ -114,7 +114,7 @@
           </div>
           <div class="summary-item summary-total">
             <span class="summary-label">Total</span>
-            <span class="summary-value">{{ getSubtotal(order?.detalles!) + 5000| number:'1.0-0':'es-CL' }}</span>
+            <span class="summary-value">{{ getTotal() | number:'1.0-0':'es-CL' }}</span>
           </div>
           <div class="mt-4">
             <label class="fw-bold mb-2 me-2">Estado actual:</label>

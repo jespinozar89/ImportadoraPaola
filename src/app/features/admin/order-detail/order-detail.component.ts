@@ -48,13 +48,10 @@ export class OrderDetailComponent implements OnInit {
     }
   }
 
-  getSubtotal(productos: DetallePedido[] | null | undefined): number {
-    if (!productos || productos.length === 0) {
-      return 0;
-    }
-    return productos.reduce((acc, p) => acc + (p.producto?.precio ?? 0) * p.cantidad, 0);
+  getTotal(){
+    const total = this.order?.total || 0;
+    return +total + 5000;
   }
-
 
   getProductQuantity() {
     return this.order?.detalles?.reduce((acc, p) => acc + p.cantidad, 0);

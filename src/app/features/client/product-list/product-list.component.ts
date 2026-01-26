@@ -7,6 +7,8 @@ import { ProductService, Producto } from '@/core/services/product.service';
 import { AuthService } from '@/core/services/auth.service';
 import { UtilsService } from '@/shared/service/utils.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CategoriaService } from '../../../core/services/categoria.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-product-list',
@@ -25,6 +27,7 @@ export class ProductListComponent implements OnInit {
 
   constructor(private route: ActivatedRoute,
     private productService: ProductService,
+    private categoriaService: CategoriaService,
     private authService: AuthService,
     private destroyRef: DestroyRef,
     private utilsService: UtilsService
@@ -55,6 +58,15 @@ export class ProductListComponent implements OnInit {
     try {
       const idString = params.get('id');
       const nameString = params.get('nombre');
+
+      if(idString && nameString && !isNaN(Number(idString))){
+        console.log("idString:",idString);
+        console.log("nameString:",nameString);
+        const category = await firstValueFrom(this.categoriaService.findById(Number(idString)));
+        if(category && category.estado === 'Inactivo'){
+          return;
+        }
+      }
 
       const nameCategoryString = nameString ? nameString.toUpperCase() : 'TODO';
       this.nameCategory = this.utilsService.getCategoriaNombre(nameCategoryString);

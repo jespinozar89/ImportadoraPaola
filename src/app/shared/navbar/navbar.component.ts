@@ -90,7 +90,19 @@ export class NavbarComponent implements OnInit {
           { prefix: '/categories', label: 'Categorías' },
         ];
 
-        const match = routesAdmin.find(r => urlComplete.startsWith(r.prefix));
+        let match = routesAdmin.find(r => urlComplete.startsWith(r.prefix));
+        if (match) {
+          this.selectItem(match.label);
+          return;
+        }
+
+        //Client
+        const routesClient = [
+          { prefix: '/perfilFrom', label: 'perfil' },
+          { prefix: '/orderList', label: 'orderList' },
+        ];
+
+        match = routesClient.find(r => urlComplete.startsWith(r.prefix));
         if (match) {
           this.selectItem(match.label);
           return;

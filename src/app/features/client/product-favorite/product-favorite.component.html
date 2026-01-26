@@ -1,4 +1,4 @@
-<div class="container">
+<div class="popIn-animations container">
   <a (click)="this.utilsService.goBack()" class="back-link d-inline-flex align-items-center fw-semibold px-3 py-2 rounded">
     <i class="bi bi-arrow-left me-2"></i>
     Continuar comprando
@@ -6,24 +6,24 @@
 </div>
 
 <div *ngIf="totalFavorites > 0; else emptyState">
-  <div class="container mt-4">
+  <div class="popIn-animations container mt-4">
     <div class="mb-3">
       <h6 class="fw-bold text-dark mb-1">Lista de Deseos</h6>
       <p class="text-secondary small mb-0">{{ totalFavorites }} producto{{ totalFavorites !== 1 ? 's' : '' }}</p>
     </div>
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+    <div class="popIn-animations row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
       <div class="col" *ngFor="let product of products">
         <app-product-card [product]="product"></app-product-card>
       </div>
     </div>
   </div>
-  <div class="text-center mt-3 mb-3">
+  <div class="popIn-animations text-center mt-3 mb-3">
     <a href="#" (click)="clearFavoritesList($event)" class="text-danger fw-semibold">Limpiar lista de deseos</a>
   </div>
 </div>
 
 <ng-template #emptyState>
-  <div class="container py-4">
+  <div class="popIn-animations container py-4">
     <div class="d-flex flex-column align-items-center justify-content-center">
       <i class="bi bi-heart fs-3 p-3 rounded-circle" style="background-color: #e5e5e5;"></i>
       <h4 class="fw-bold mb-2 mt-3">Tu lista de favoritos está vacía</h4>

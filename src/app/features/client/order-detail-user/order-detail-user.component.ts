@@ -47,10 +47,6 @@ export class OrderDetailUserComponent implements OnInit {
            this.authService.getCurrentUserProfile()?.apellidos;
   }
 
-  get subtotal(): number {
-    return this.order?.detalles?.reduce((acc, item) => acc + (item.producto?.precio || 0) * item.cantidad, 0) || 0;
-  }
-
 
 
 

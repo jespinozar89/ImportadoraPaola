@@ -1,10 +1,10 @@
-<div class="container mt-4">
+<div class="popIn-animations container mt-4">
   <div class="mb-3">
     <h6 class="fw-bold text-dark mb-1">{{nameCategory}}</h6>
     <p class="text-secondary small mb-0">{{totalProducts}} productos encontrados</p>
   </div>
 
-  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+  <div class="popIn-animations row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
     <div class="col card-hover" *ngFor="let product of products | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
       <app-product-card [product]="product"></app-product-card>
     </div>

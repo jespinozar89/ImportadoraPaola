@@ -120,7 +120,8 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
       let orderData: CrearPedido = {
         detalles: this.cartItems.map(item => ({
           producto_id: item.producto_id,
-          cantidad: item.cantidad
+          cantidad: item.cantidad,
+          precio_unitario: item.precio
         })),
         comprobante_pago: this.fileBase64 || null
       };
