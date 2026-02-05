@@ -30,6 +30,7 @@ export class ProductEditorComponent implements OnInit, OnChanges {
   product: Producto = {
     categoria_id: 0,
     categoria_nombre: '',
+    estado: 'Activo',
     producto_id: 0,
     producto_codigo: '',
     nombre: '',
@@ -150,6 +151,7 @@ export class ProductEditorComponent implements OnInit, OnChanges {
     this.product = {
       categoria_id: 0,
       categoria_nombre: '',
+      estado: 'Activo',
       producto_id: 0,
       producto_codigo: '',
       nombre: '',

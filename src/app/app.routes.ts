@@ -104,6 +104,14 @@ export const routes: Routes = [
       import('@/features/admin/categories/categories.component')
         .then(m => m.CategoriesComponent)
   },
+  {
+    path: 'bulkUpload',
+    canActivate: [roleGuard],
+    data: { roles: ['administrador'] },
+    loadComponent: () =>
+      import('@/features/admin/bulk-upload/bulk-upload.component')
+        .then(m => m.BulkUploadComponent)
+  },
   // ruta por defecto
   { path: '**', redirectTo: '' }
 ];

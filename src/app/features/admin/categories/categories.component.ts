@@ -7,6 +7,7 @@ import { CategoriaModalComponent } from "../categories-form/categories-form.comp
 import { CreateCategoriaDTO, UpdateCategoriaDTO } from '@/shared/models/categoria.interface';
 import { ConfirmModalComponent } from "@/shared/components/confirm-modal/confirm-modal.component";
 import { HotToastService } from '@ngxpert/hot-toast';
+import { UtilsService } from '@/shared/service/utils.service';
 
 interface Category {
   id: number;
@@ -35,7 +36,8 @@ export class CategoriesComponent implements OnInit {
 
   constructor(
     private categoriaService: CategoriaService,
-    private toast: HotToastService
+    private toast: HotToastService,
+    public utilsService: UtilsService
   ) { }
 
   async ngOnInit(): Promise<void> {

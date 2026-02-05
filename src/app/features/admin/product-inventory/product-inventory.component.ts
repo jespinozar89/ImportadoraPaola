@@ -11,6 +11,7 @@ import { firstValueFrom } from 'rxjs';
 import { ProductEditorComponent } from "../product-editor/product-editor.component";
 import { ConfirmModalComponent } from "@/shared/components/confirm-modal/confirm-modal.component";
 import { NgxPaginationModule } from "ngx-pagination";
+import { UtilsService } from '@/shared/service/utils.service';
 
 declare var bootstrap: any;
 
@@ -36,7 +37,8 @@ export class ProductInventoryComponent implements OnInit {
   constructor(
     private productService: ProductService,
     private categoriaService: CategoriaService,
-    private toast: HotToastService
+    private toast: HotToastService,
+    private utilsService: UtilsService
   ) { }
 
   async ngOnInit(): Promise<void> {
@@ -194,6 +196,6 @@ export class ProductInventoryComponent implements OnInit {
   }
 
   goBack(): void {
-    console.log('Volver al panel');
+    this.utilsService.goToUrl();
   }
 }

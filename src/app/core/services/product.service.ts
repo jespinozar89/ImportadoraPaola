@@ -2,6 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import {
+  BulkUpload,
   Producto,
   ProductoCreateInput,
   ProductoUpdateInput
@@ -54,6 +55,14 @@ export class ProductService {
   async delete(id: number): Promise<Producto> {
     const url = `${this.baseUrl}/${id}`;
     return firstValueFrom(this.http.delete<Producto>(url));
+  }
+
+  async bulkUpload(file: File): Promise<BulkUpload> {
+    const url = `${this.baseUrl}/carga-masiva`;
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return await firstValueFrom(this.http.post<BulkUpload>(url, formData));
   }
 
   resetPage() {

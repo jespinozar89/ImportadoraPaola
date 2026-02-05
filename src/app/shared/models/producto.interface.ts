@@ -8,6 +8,7 @@ export interface Producto {
   producto_codigo: string;
   categoria_id: number;
   categoria_nombre: string;
+  estado: string;
 }
 
 export interface ProductoCreateInput {
@@ -28,4 +29,13 @@ export interface ProductoUpdateInput {
   stock?: number;
   producto_codigo?: string;
   categoria_id?: number;
+}
+
+export interface BulkUpload {
+  status: string;
+  message: string;
+  data: {
+    procesados: number;
+    insertados: number;
+  };
 }

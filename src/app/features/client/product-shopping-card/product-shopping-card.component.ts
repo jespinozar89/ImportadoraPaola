@@ -9,6 +9,7 @@ import { HotToastService } from '@ngxpert/hot-toast';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { OrderService } from '@/core/services/order.service';
 import { CrearPedido } from '@/shared/models/order.interface';
+import { UtilsService } from '@/shared/service/utils.service';
 
 declare var bootstrap: any;
 
@@ -33,6 +34,7 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
     private orderService: OrderService,
     private destroyRef: DestroyRef,
     private toast: HotToastService,
+    public utilsService: UtilsService
   ) { }
 
   async ngOnInit(): Promise<void> {
@@ -131,7 +133,7 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
       await new Promise<void>(resolve => {
         setTimeout(() => {
           resolve();
-        }, 3000);
+        }, 2000);
       });
 
       if(response.pedido_id){

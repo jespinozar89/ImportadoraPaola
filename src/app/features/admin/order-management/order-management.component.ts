@@ -5,6 +5,7 @@ import { OrderService } from '../../../core/services/order.service';
 import { EstadoPedido, Pedido } from '@/shared/models/order.interface';
 import { FormsModule } from '@angular/forms';
 import { NgxPaginationModule } from "ngx-pagination";
+import { UtilsService } from '@/shared/service/utils.service';
 
 @Component({
   selector: 'app-order-management',
@@ -36,7 +37,10 @@ export class OrderManagementComponent implements OnInit {
     pendiente: { icon: 'bi-clock', label: 'Pendiente', class: 'pendiente' }
   };
 
-  constructor(private orderService: OrderService) { }
+  constructor(
+    private orderService: OrderService,
+    public utilsService: UtilsService
+  ) { }
 
 
   ngOnInit() {

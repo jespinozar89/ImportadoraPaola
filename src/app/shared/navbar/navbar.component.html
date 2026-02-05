@@ -119,7 +119,8 @@
         <li routerLink="/form" (click)="selectItem('Nuevo'); closeOffcanvas()"
           [class.active-item]="selected === 'Nuevo'" class="list-group-item px-0 py-2 ps-2 border-bottom">Nuevo Producto
         </li>
-         <li class="list-group-item px-0 py-2 ps-2 border-bottom">Carga Masiva
+         <li routerLink="/bulkUpload" (click)="selectItem('bulkUpload'); closeOffcanvas()"
+          [class.active-item]="selected === 'bulkUpload'"class="list-group-item px-0 py-2 ps-2 border-bottom">Carga Masiva
         </li>
         <li routerLink="/orders" (click)="selectItem('orders'); closeOffcanvas()"
           [class.active-item]="selected === 'orders'" class="list-group-item px-0 py-2 ps-2 border-bottom">Pedidos

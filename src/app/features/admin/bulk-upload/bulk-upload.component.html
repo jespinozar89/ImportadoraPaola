@@ -1,0 +1,37 @@
+<div class="container mt-4">
+  <!-- Back Link -->
+  <div class="back-link-container mb-3">
+    <a (click)="utilsService.goToUrl()" class="back-link d-inline-flex align-items-center fw-semibold px-3 py-2 rounded">
+      <i class="bi bi-arrow-left me-2"></i>
+      Volver a Productos
+    </a>
+  </div>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-title">
+      <i class="bi bi-cloud-upload"></i>
+      <h1>Carga Masiva</h1>
+    </div>
+  </div>
+
+  <div class="card p-4 shadow-sm">
+    <div class="mb-3">
+      <label for="csvFile" class="form-label fw-bold">Archivo CSV</label>
+      <input type="file"
+             class="form-control"
+             id="csvFile"
+             (change)="onFileSelected($event)"
+             accept=".csv"
+             #fileInput />
+      <div *ngIf="fileName" class="form-text mt-1">Archivo seleccionado: {{ fileName }}</div>
+    </div>
+
+    <button class="btn btn-primary" [disabled]="!csvBlob || processingBulkUpload" (click)="cargarArchivo()">
+      <i *ngIf="processingBulkUpload" class="bi bi-arrow-clockwise spin"></i>
+      <i *ngIf="!processingBulkUpload" class="bi bi-cloud-upload"></i>
+      Cargar Archivo
+    </button>
+  </div>
+</div>
+

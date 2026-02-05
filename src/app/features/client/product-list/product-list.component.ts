@@ -70,7 +70,9 @@ export class ProductListComponent implements OnInit {
 
       const nameCategoryString = nameString ? nameString.toUpperCase() : 'TODO';
       this.nameCategory = this.utilsService.getCategoriaNombre(nameCategoryString);
-      const data = await this.productService.findAll();
+      let data = await this.productService.findAll();
+
+      data = data.filter(product => product.estado === 'Activo');
 
       if (nameString != 'BuscarProducto' && idString) {
         const idNumber = +idString;

@@ -5,6 +5,7 @@ import { ProductEditorComponent } from "../product-editor/product-editor.compone
 import { ProductService } from '@/core/services/product.service';
 import { Producto, ProductoCreateInput } from '@/shared/models/producto.interface';
 import { HotToastService } from '@ngxpert/hot-toast';
+import { UtilsService } from '@/shared/service/utils.service';
 
 interface Product {
   category: string;
@@ -26,7 +27,9 @@ export class ProductFormComponent {
 
   constructor(
     private productService: ProductService,
-    private toast: HotToastService) {}
+    private toast: HotToastService,
+    private utilsService: UtilsService
+  ) {}
 
   async handleCreateProduct(newProduct: Producto) {
 
@@ -46,6 +49,6 @@ export class ProductFormComponent {
   }
 
   goBack(): void {
-    console.log('Volver a productos');
+    this.utilsService.goToUrl();
   }
 }
