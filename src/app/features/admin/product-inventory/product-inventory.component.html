@@ -81,7 +81,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let product of filteredProducts | paginate: { itemsPerPage: itemsPerPage, currentPage: p }" >
+              <tr *ngFor="let product of products | paginate: { itemsPerPage: itemsPerPage, currentPage: p, totalItems: totalProducts }" >
                 <td>
                   <div class="product-item">
                     <a routerLink="/producto/{{ product.producto_id }}">
@@ -96,7 +96,7 @@
                   </div>
                 </td>
                 <td>
-                  <span class="category-badge">{{ this.normalizeString(product.categoria_nombre) }}</span>
+                  <span class="category-badge">{{ this.normalizeString(product.categoria?.nombre || '') }}</span>
                 </td>
                 <td>
                   <span class="product-price">{{ formatPrice(product.precio) }}</span>
@@ -133,7 +133,7 @@
               </tr>
 
               <!-- Empty State -->
-              <tr *ngIf="filteredProducts.length === 0">
+              <tr *ngIf="totalProducts === 0">
                 <td colspan="6">
                   <div class="empty-state">
                     <i class="bi bi-inbox"></i>

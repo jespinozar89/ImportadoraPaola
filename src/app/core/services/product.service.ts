@@ -3,6 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import {
   BulkUpload,
+  PaginatedResult,
   Producto,
   ProductoCreateInput,
   ProductoUpdateInput
@@ -25,9 +26,13 @@ export class ProductService {
     return firstValueFrom(this.http.post<Producto>(url, data));
   }
 
-  async findAll(): Promise<Producto[]> {
+  async findAll(page: number, limit: number, filtros: any = {}): Promise<PaginatedResult<Producto>> {
     const url = this.baseUrl;
-    return firstValueFrom(this.http.get<Producto[]>(url));
+    const params = { page, limit, ...filtros };
+
+    return firstValueFrom(
+      this.http.get<PaginatedResult<Producto>>(url,{params})
+    );
   }
 
   async findById(id: number): Promise<Producto | null> {

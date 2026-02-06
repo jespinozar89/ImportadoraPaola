@@ -5,13 +5,21 @@
   </div>
 
   <div class="popIn-animations row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
-    <div class="col card-hover" *ngFor="let product of products | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
+    <div *ngFor="let product of products |
+                 paginate: {
+                  itemsPerPage: itemsPerPage,
+                  currentPage: p,
+                  totalItems: totalProducts,
+                  id: 'server'
+                }"
+          class="col card-hover">
       <app-product-card [product]="product"></app-product-card>
     </div>
   </div>
 
   <div class="mt-4 d-flex justify-content-center">
     <pagination-controls
+      id="server"
       (pageChange)="onPageChange($event)"
       previousLabel="Ant."
       nextLabel="Sig.">

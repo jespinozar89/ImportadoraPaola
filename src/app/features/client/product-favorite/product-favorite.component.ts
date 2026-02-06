@@ -1,4 +1,3 @@
-import { ProductService } from '@/core/services/product.service';
 import { Component, DestroyRef, OnInit } from '@angular/core';
 import { FavoriteService } from '@/core/services/favorite.service';
 import { CommonModule } from '@angular/common';
@@ -18,7 +17,6 @@ export class ProductFavoriteComponent implements OnInit {
   products: Producto[] = [];
 
   constructor(private favoriteService: FavoriteService,
-              private productService: ProductService,
               private destroyRef: DestroyRef,
               public utilsService: UtilsService
   ) {}
@@ -43,12 +41,8 @@ export class ProductFavoriteComponent implements OnInit {
     }
 
     try {
-      const allProducts = await this.productService.findAll();
-
-      this.products = allProducts.filter(product =>
-        favoriteIds.includes(product.producto_id)
-      );
-
+      const data = await this.favoriteService.getFavoriteProductsByUser();
+      this.products = data;
     } catch (error) {
       console.error('Error al cargar la lista de favoritos:', error);
       this.products = [];

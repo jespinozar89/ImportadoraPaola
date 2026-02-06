@@ -2,7 +2,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from "@angular/router";
-import { Producto, ProductoCreateInput, ProductoUpdateInput } from '@/shared/models/producto.interface';
+import { PaginatedResult, Producto, ProductoCreateInput, ProductoUpdateInput } from '@/shared/models/producto.interface';
 import { ProductService } from '@/core/services/product.service';
 import { CategoriaService } from '@/core/services/categoria.service';
 import { HotToastService } from '@ngxpert/hot-toast';
@@ -33,6 +33,7 @@ export class ProductInventoryComponent implements OnInit {
 
   p: number = 1;
   itemsPerPage: number = 20;
+  totalProducts: number = 0;
 
   constructor(
     private productService: ProductService,
@@ -42,47 +43,43 @@ export class ProductInventoryComponent implements OnInit {
   ) { }
 
   async ngOnInit(): Promise<void> {
-    this.products = await this.productService.findAll();
-    this.categories = await firstValueFrom(this.categoriaService.findAll());
     this.loadState();
+    this.categories = await firstValueFrom(this.categoriaService.findAll());
+    await this.loadProducts();
   }
 
-  get filteredProducts(): Producto[] {
-    const category = this.selectedCategory();
-    const term = this.normalizeText(this.searchTerm());
+  async loadProducts(): Promise<void> {
+    let data: PaginatedResult<any>;
+    let category: string;
 
-    return this.products.filter(product => {
-      const nombre = this.normalizeText(product.nombre);
-      const codigo = this.normalizeText(product.producto_codigo);
+    if(this.selectedCategory() === 'all'){
+      category = '';
+    }
+    else{
+      category = this.selectedCategory();
+    }
 
-      const matchCategory = category === 'all' || product.categoria_id === Number(category);
-      const matchTerm = !term || nombre.includes(term) || codigo.includes(term);
-
-      return matchCategory && matchTerm;
-    });
-  }
-
-  normalizeText(value: string | null | undefined): string {
-    return (value || '')
-      .trim()                       // elimina espacios al inicio y final
-      .toLowerCase()                // pasa todo a minúsculas
-      .normalize('NFKD')            // normaliza caracteres Unicode (acentos, etc.)
-      .replace(/–/g, '-')           // reemplaza guiones raros por el estándar
-      .replace(/\s+/g, ' ');        // colapsa espacios múltiples
-  }
-
-  get totalProducts(): number {
-    return this.products.length;
+    data = await this.productService.findAll(
+      this.p,
+      this.itemsPerPage,
+      {
+        search: this.searchTerm().trim(),
+        categoria_id: category
+      }
+    );
+    this.products = data.data;
+    this.totalProducts = data.meta.total;
   }
 
   public normalizeString(str: string): string {
     return str.replace(/_/g, ' ');
   }
 
-  onCategoryChange(event: Event): void {
+  async onCategoryChange(event: Event) {
     const value = (event.target as HTMLSelectElement).value;
     this.selectedCategory.set(value);
     this.onPageChange(1);
+    await this.loadProducts();
   }
 
   onCreateProduct(): void {
@@ -121,14 +118,14 @@ export class ProductInventoryComponent implements OnInit {
       this.toast.success('Producto creado con éxito');
     }
 
-    this.products = await this.productService.findAll();
+    await this.loadProducts();
     this.closeModal();
   }
 
   async onDeleteProduct(): Promise<void> {
     if (this.selectedProduct?.producto_id) {
       await this.productService.delete(this.selectedProduct.producto_id);
-      this.products = await this.productService.findAll();
+      await this.loadProducts();
       this.selectedProduct = null;
       this.toast.success('Producto eliminado con éxito');
     }
@@ -158,16 +155,18 @@ export class ProductInventoryComponent implements OnInit {
     }).format(price);
   }
 
-  onPageChange(page: number): void {
+  async onPageChange(page: number) {
     this.p = page;
     this.saveState(this.selectedCategory(), this.searchTerm(), this.p);
+    await this.loadProducts();
   }
 
-  onSearch(event: Event): void {
+  async onSearch(event: Event) {
     const value = (event.target as HTMLInputElement).value;
     this.searchTerm.set(value);
     this.onPageChange(1);
     this.saveState(this.selectedCategory(), this.searchTerm(), this.p);
+    await this.loadProducts();
   }
 
   onResetSearch() {

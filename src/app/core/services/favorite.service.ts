@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { AuthService } from '@/core/services/auth.service';
 import { environment } from '@/environments/environment';
 import { AddFavoritoDTO, Favorito } from '@/shared/models/favorite.interface';
+import { Producto } from '@/shared/models/producto.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -55,7 +56,24 @@ export class FavoriteService {
   }
 
   public getCurrentFavoriteIds(): number[] {
-      return Array.from(this.favoriteIds);
+    return Array.from(this.favoriteIds);
+  }
+
+  public async getFavoriteProductsByUser(): Promise<Producto[]> {
+
+    const products = await this._findAllByUserApi();
+
+    return products.map(item => ({
+      producto_id: item.producto?.producto_id || item.producto_id,
+      categoria_id: item.producto?.categoria_id || 0,
+      producto_codigo: item.producto?.producto_codigo || '',
+      nombre: item.producto?.nombre || '',
+      precio: item.producto?.precio || 0,
+      stock: item.producto?.stock || 0,
+      descripcion: item.producto?.descripcion || '',
+      imagen: item.producto?.imagen || '',
+    }));
+
   }
 
 

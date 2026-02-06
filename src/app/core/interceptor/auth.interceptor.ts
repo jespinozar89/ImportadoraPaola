@@ -16,7 +16,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     { url: '/api/auth/register', method: 'POST' },
     { url: '/api/auth/login', method: 'POST' },
     { url: '/api/categorias', method: 'GET' },
-    { url: '/api/productos', method: 'GET' }
   ];
 
   const isExcluded = excludedUrls.some(config =>

@@ -1,3 +1,5 @@
+import { Categoria } from "./categoria.interface";
+
 export interface Producto {
   producto_id: number;
   nombre: string;
@@ -7,8 +9,7 @@ export interface Producto {
   stock: number;
   producto_codigo: string;
   categoria_id: number;
-  categoria_nombre: string;
-  estado: string;
+  categoria?: Categoria;
 }
 
 export interface ProductoCreateInput {
@@ -29,6 +30,15 @@ export interface ProductoUpdateInput {
   stock?: number;
   producto_codigo?: string;
   categoria_id?: number;
+}
+
+export interface PaginatedResult<T> {
+  data: T[];
+  meta: {
+    total: number;
+    page: number;
+    last_page: number;
+  };
 }
 
 export interface BulkUpload {

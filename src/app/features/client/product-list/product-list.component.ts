@@ -7,8 +7,7 @@ import { ProductService, Producto } from '@/core/services/product.service';
 import { AuthService } from '@/core/services/auth.service';
 import { UtilsService } from '@/shared/service/utils.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CategoriaService } from '../../../core/services/categoria.service';
-import { firstValueFrom } from 'rxjs';
+import { PaginatedResult } from '@/shared/models/producto.interface';
 
 @Component({
   selector: 'app-product-list',
@@ -19,15 +18,17 @@ import { firstValueFrom } from 'rxjs';
 export class ProductListComponent implements OnInit {
 
   products: Producto[] = [];
-  totalProducts = 0;
   nameCategory: string = 'TODO';
 
   p: number = 1;
   itemsPerPage: number = 20;
+  totalProducts = 0;
+
+  idString: string = '';
+  nameString: string = '';
 
   constructor(private route: ActivatedRoute,
     private productService: ProductService,
-    private categoriaService: CategoriaService,
     private authService: AuthService,
     private destroyRef: DestroyRef,
     private utilsService: UtilsService
@@ -54,44 +55,31 @@ export class ProductListComponent implements OnInit {
       });
   }
 
-  async loadProducts(params: ParamMap): Promise<void> {
+  async loadProducts(params: ParamMap | null): Promise<void> {
     try {
-      const idString = params.get('id');
-      const nameString = params.get('nombre');
 
-      if(idString && nameString && !isNaN(Number(idString))){
-        console.log("idString:",idString);
-        console.log("nameString:",nameString);
-        const category = await firstValueFrom(this.categoriaService.findById(Number(idString)));
-        if(category && category.estado === 'Inactivo'){
-          return;
-        }
+      if (params) {
+        this.idString = params?.get('id') || '';
+        this.nameString = params?.get('nombre') || '';
       }
 
-      const nameCategoryString = nameString ? nameString.toUpperCase() : 'TODO';
+      const nameCategoryString = this.nameString ? this.nameString.toUpperCase() : 'TODO';
       this.nameCategory = this.utilsService.getCategoriaNombre(nameCategoryString);
-      let data = await this.productService.findAll();
 
-      data = data.filter(product => product.estado === 'Activo');
+      let filtros: any = { estado: 'Activo' };
 
-      if (nameString != 'BuscarProducto' && idString) {
-        const idNumber = +idString;
-        this.products = data.filter(product => product.categoria_id === idNumber);
-        this.totalProducts = this.products.length;
+      if (this.nameString === 'BuscarProducto' && this.idString) {
+        const searchTerm = this.idString.replace('_', ' ').toLowerCase();
+        this.nameCategory = `Resultados para: ${searchTerm}`;
+        filtros = { search: searchTerm, estado: 'Activo' };
+      } else if (this.nameString !== 'BuscarProducto' && this.idString) {
+        filtros = { categoria_id: +this.idString, estado: 'Activo' };
       }
-      else if (nameString === 'BuscarProducto' && idString) {
-        const searchTerm = idString.replace('_', ' ').toLowerCase();
-        this.nameCategory = "Resultados para: " + searchTerm;
-        this.products = data.filter(product =>
-          product.nombre.toLowerCase().includes(searchTerm) ||
-          product.producto_codigo.toLowerCase().includes(searchTerm)
-        );
-        this.totalProducts = this.products.length;
-      }
-      else {
-        this.products = data;
-        this.totalProducts = data.length;
-      }
+
+      const data = await this.productService.findAll(this.p, this.itemsPerPage, filtros);
+
+      this.products = data.data;
+      this.totalProducts = data.meta.total;
 
     } catch (error) {
       console.error('Error al cargar la lista de productos:', error);
@@ -102,6 +90,7 @@ export class ProductListComponent implements OnInit {
     this.p = page;
     this.productService.lastPage.set(page);
     localStorage.setItem('lastPage', page.toString());
+    this.loadProducts(null);
   }
 
 
