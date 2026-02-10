@@ -29,7 +29,7 @@
           </div>
           <div class="d-flex justify-content-between align-items-center">
             <h6 class="text-muted fw-normal mb-0" style="font-size: 0.9rem;">
-              {{ order.fecha_pedido | date:"dd 'de' MMMM 'de' yyyy":"":"es-CL" }}
+              {{ order.fecha_cambio_estado | date:"dd 'de' MMMM 'de' yyyy":"":"es-CL" }}
             </h6>
             <span class="text-muted d-flex align-items-center">
               #ORD-{{ order.pedido_id.toString().padStart(4, '0') }}

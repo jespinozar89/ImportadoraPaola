@@ -1,5 +1,5 @@
 import { OrderService } from '@/core/services/order.service';
-import { DetallePedido, EstadoPedido, Pedido } from '@/shared/models/order.interface';
+import { EstadoPedido, Pedido } from '@/shared/models/order.interface';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -36,7 +36,7 @@ export class OrderDetailComponent implements OnInit {
 
   async ngOnInit() {
     const idString = this.route.snapshot.paramMap.get('id') || '0';
-    console.log("ordenDetallePROD: ",idString);
+    console.log("ordenDetallePROD: ", idString);
 
     try {
       const pedido = await this.orderService.findById(Number(idString));
@@ -48,7 +48,7 @@ export class OrderDetailComponent implements OnInit {
     }
   }
 
-  getTotal(){
+  getTotal() {
     const total = this.order?.total || 0;
     return +total + 5000;
   }
@@ -125,9 +125,15 @@ export class OrderDetailComponent implements OnInit {
       return;
     }
 
-    this.previousState = this.selectedStatus;
-    //servicio pendiente para enviar correos.
-    this.toast.success('Notificación enviada');
+    try {
+      this.previousState = this.selectedStatus;
+      this.orderService.EmailStatus(this.order!.pedido_id, this.selectedStatus);
+      this.toast.success('Notificación enviada');
+    } catch (error) {
+      console.log(error);
+      this.toast.error('Error al enviar la notificación');
+    }
+
   }
 
 

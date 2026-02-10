@@ -61,4 +61,12 @@ export class OrderService {
     return await firstValueFrom(call$);
   }
 
+  /**
+   * Envia un correo con el estado actual del pedido
+   */
+  async EmailStatus(id: number, status: string): Promise<any> {
+    const call$ = this.http.post<Pedido>(`${this.apiUrl}/correo-status`, {id: id,estado: status });
+    return await firstValueFrom(call$);
+  }
+
 }

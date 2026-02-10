@@ -36,10 +36,13 @@ export class ForgotPasswordComponent {
       console.log(result);
       this.toast.success('Si el correo existe, recibirás un enlace pronto');
     } catch (error: any) {
-      const msg = error?.message || 'Error al procesar la solicitud';
-      this.toast.error(msg);
+      console.log(error);
+      this.toast.success(
+        'En caso de que tu correo exista en nuestro sistema,'+
+        ' te enviaremos un enlace en breve.'
+      );
     } finally {
-      this.isLoading = false;
+      this.closeModal();
     }
   }
 
@@ -60,6 +63,22 @@ export class ForgotPasswordComponent {
       }, { once: true });
 
       signUpInstance.hide();
+      this.isLoading = false;
+      this.forgotForm.reset();
     }
   }
+
+  closeModal(): void {
+    const resetModalEl = document.getElementById('resetPasswordModal');
+
+    if (resetModalEl) {
+      const resetInstance = (window as any).bootstrap.Modal.getInstance(resetModalEl)
+        || new (window as any).bootstrap.Modal(resetModalEl);
+
+      resetInstance.hide();
+      this.isLoading = false;
+      this.forgotForm.reset();
+    }
+  }
+
 }
