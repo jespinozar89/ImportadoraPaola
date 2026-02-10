@@ -10,6 +10,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { OrderService } from '@/core/services/order.service';
 import { CrearPedido } from '@/shared/models/order.interface';
 import { UtilsService } from '@/shared/service/utils.service';
+import { environment } from '@/environments/environment';
+import { BankInfo } from '@/shared/models/bank-info.interface';
+
 
 declare var bootstrap: any;
 
@@ -24,6 +27,8 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
 
   public cartItems: CarritoDetalladoDTO[] = [];
   public wishlistCount: number = 0;
+  setupFee: number = 0;
+  bankInfo!: BankInfo;
   processingOrder: boolean = false;
   fileName: string | null = null;
   fileBase64: string | null = null;
@@ -39,6 +44,8 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
 
   async ngOnInit(): Promise<void> {
     try {
+      this.bankInfo = environment.bankInfo;
+      this.setupFee = Number(environment.orderSetupFee) || 0;
       this.cartItems = await lastValueFrom(this.cartService.getDetailedCart());
 
     } catch (error) {
@@ -98,7 +105,7 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
   }
 
   get tax(): number {
-    return 5000;
+    return this.setupFee;
   }
 
   get total(): number {

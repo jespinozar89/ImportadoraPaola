@@ -73,12 +73,12 @@
           </div>
           <div class="d-flex justify-content-between mb-2">
             <span class="text-secondary">Cargo por armado</span>
-            <span class="fw-semibold">$5.000</span>
+            <span class="fw-semibold">${{ setupFee | number:'1.0-0':'es-CL' }}</span>
           </div>
           <hr class="my-3">
           <div class="d-flex justify-content-between">
             <span class="fw-bold text-dark">Total</span>
-            <span class="fw-bold text-dark">{{ +order.total + 5000 | number:'1.0-0':'es-CL'}}</span>
+            <span class="fw-bold text-dark">{{ getTotal() | number:'1.0-0':'es-CL'}}</span>
           </div>
         </div>
       </div>

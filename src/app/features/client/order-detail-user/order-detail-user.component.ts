@@ -5,6 +5,7 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { UtilsService } from '@/shared/service/utils.service';
+import { environment } from '@/environments/environment';
 
 @Component({
   selector: 'app-order-detail-user',
@@ -15,6 +16,7 @@ import { UtilsService } from '@/shared/service/utils.service';
 export class OrderDetailUserComponent implements OnInit {
 
   order!: Pedido;
+  setupFee: number = 0;
 
   statusConfig: any = {
     entregado: { icon: 'bi-check-circle-fill', label: 'Entregado', class: 'entregado' },
@@ -33,6 +35,7 @@ export class OrderDetailUserComponent implements OnInit {
 
   async ngOnInit() {
     try{
+      this.setupFee = Number(environment.orderSetupFee) || 0;
       const idString = this.route.snapshot.paramMap.get('id') || '0';
       this.order = await this.orderService.findOrderByUserIdAndPedidoId(Number(idString));
     }
@@ -45,6 +48,11 @@ export class OrderDetailUserComponent implements OnInit {
   get fullName(){
     return this.authService.getCurrentUserProfile()?.nombres +' ' +
            this.authService.getCurrentUserProfile()?.apellidos;
+  }
+
+  getTotal() {
+    const total = this.order?.total || 0;
+    return +total + this.setupFee;
   }
 
 

@@ -5,7 +5,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { HotToastService } from '@ngxpert/hot-toast';
-import { UtilsService } from '../../../shared/service/utils.service';
+import { UtilsService } from '@/shared/service/utils.service';
+import { environment } from '@/environments/environment';
 
 @Component({
   selector: 'app-order-detail',
@@ -18,6 +19,7 @@ export class OrderDetailComponent implements OnInit {
   order: Pedido | null = null;
   selectedStatus: EstadoPedido = EstadoPedido.Pendiente;
   previousState: EstadoPedido = EstadoPedido.Pendiente;
+  setupFee: number = 0;
 
   statusConfig: any = {
     entregado: { icon: 'bi-check-circle-fill', label: 'Entregado', class: 'entregado' },
@@ -36,7 +38,7 @@ export class OrderDetailComponent implements OnInit {
 
   async ngOnInit() {
     const idString = this.route.snapshot.paramMap.get('id') || '0';
-    console.log("ordenDetallePROD: ", idString);
+    this.setupFee = Number(environment.orderSetupFee) || 0;
 
     try {
       const pedido = await this.orderService.findById(Number(idString));
@@ -50,7 +52,7 @@ export class OrderDetailComponent implements OnInit {
 
   getTotal() {
     const total = this.order?.total || 0;
-    return +total + 5000;
+    return +total + this.setupFee;
   }
 
   getProductQuantity() {

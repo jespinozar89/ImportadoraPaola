@@ -143,15 +143,16 @@
               <div>
                 <strong>Importante:</strong> Este comprobante corresponde al
                 <span class="fw-semibold">cargo por armado del pedido escolar</span>,
-                el cual tiene un valor de <span class="fw-semibold">$5.000</span>.
+                el cual tiene un valor de <span class="fw-semibold">${{ setupFee | number:'1.0-0':'es-CL' }}</span>.
                 <br>
                 Este monto debe ser depositado en la siguiente cuenta:
                 <ul class="mb-2 mt-2">
-                  <li><strong>Banco:</strong> Banco de Chile</li>
-                  <li><strong>Cuenta Corriente:</strong> 123456789</li>
-                  <li><strong>Nombre:</strong> Importadora Paola</li>
-                  <li><strong>RUT:</strong> 76.123.456-7</li>
-                  <li><strong>Correo:</strong> pagos&#64;importadoraPaola.cl</li>
+                  <li><strong>Banco:</strong> {{bankInfo.bankName}}</li>
+                  <li><strong>Cuenta:</strong> {{bankInfo.bankAccountNumber}}</li>
+                  <li><strong>Tipo:</strong> {{bankInfo.bankAccountType}}</li>
+                  <li><strong>Nombre:</strong> {{bankInfo.bankName}}</li>
+                  <li><strong>RUT:</strong> {{bankInfo.bankAccountRut}}</li>
+                  <li><strong>Correo:</strong> {{bankInfo.bankAccountEmail}}</li>
                 </ul>
                 El resto del total del pedido se pagará <span class="fw-semibold">en caja de forma presencial</span>
                 antes del retiro.
