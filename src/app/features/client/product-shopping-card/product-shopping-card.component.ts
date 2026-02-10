@@ -131,12 +131,6 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
 
       const response = await this.orderService.create(orderData);
 
-      await new Promise<void>(resolve => {
-        setTimeout(() => {
-          resolve();
-        }, 2000);
-      });
-
       if(response.pedido_id){
         this.clearCart();
         this.onOpenModal();
