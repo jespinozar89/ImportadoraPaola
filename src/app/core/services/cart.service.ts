@@ -88,7 +88,12 @@ export class CartService {
           await this.handleRemoteAddOrUpdate(productId, newCantidad);
         }
       } else {
-        this.handleLocalAddOrUpdate(productId, newCantidad);
+        if(newCantidad === 0){
+          this.handleLocalRemove(productId);
+        }
+        else {
+          this.handleLocalAddOrUpdate(productId, newCantidad);
+        }
       }
     }
 

@@ -58,7 +58,7 @@ export class ProductEditorComponent implements OnInit, OnChanges {
 
       this.product = { ...this.productData }
 
-      if(this.product.stock > 0){
+      if (this.product.stock > 0) {
         this.product.stock = 1;
       }
 
@@ -68,7 +68,7 @@ export class ProductEditorComponent implements OnInit, OnChanges {
         this.hasImage.set(true);
       }
     }
-    else{
+    else {
       this.resetForm();
     }
   }
@@ -116,19 +116,44 @@ export class ProductEditorComponent implements OnInit, OnChanges {
     if (!this.hasImage()) input.click();
   }
 
+  validateProduct(product: any): string | null {
+    const errores: string[] = [];
+
+    if (!product.imagen) {
+      errores.push("Imagen");
+    }
+    if (product.categoria_id === 0) {
+      errores.push("Categoría");
+    }
+    if (!product.nombre) {
+      errores.push("Nombre");
+    }
+    if (!product.producto_codigo) {
+      errores.push("Código del producto");
+    }
+    if (!product.precio) {
+      errores.push("Precio");
+    }
+    if (!product.descripcion) {
+      errores.push("Descripción");
+    }
+
+    if (errores.length > 0) {
+      return `Por favor, completa los siguientes campos obligatorios:<br>${errores.join("<br>")}`;
+    }
+
+    return null;
+  }
+
   async onSubmit(): Promise<void> {
-    if (this.product.categoria_id === 0 ||
-      !this.product.nombre ||
-      !this.product.precio ||
-      !this.product.imagen ||
-      !this.product.descripcion
-    ) {
-      this.toast.error('Por favor, completa los campos obligatorios');
+    const errorMsg = this.validateProduct(this.product);
+    if (errorMsg) {
+      this.toast.error(errorMsg);
       return;
     }
 
     const existProductCode = await this.productService.findByCode(this.product.producto_codigo);
-    if(existProductCode && !this.isEdit()){
+    if (existProductCode && !this.isEdit()) {
       this.toast.error('Ya existe un producto con ese código');
       return;
     }

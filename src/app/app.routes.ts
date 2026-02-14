@@ -23,6 +23,8 @@ export const routes: Routes = [
   },
   {
     path: 'perfilFrom',
+    canActivate: [roleGuard],
+    data: { roles: ['cliente'] },
     loadComponent: () =>
       import('@/features/client/perfil-form/perfil-form.component')
         .then(m => m.PerfilFormComponent)

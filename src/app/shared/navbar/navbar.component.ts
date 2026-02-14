@@ -166,6 +166,20 @@ export class NavbarComponent implements OnInit {
     }
   }
 
+  goToWishlist() {
+    if (this.authService.isAuthenticated()) {
+      this.router.navigate(['/wishlist']);
+    }
+    else {
+      const modalElement = document.getElementById('signInModal');
+      if (modalElement) {
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+      }
+      this.toast.info('Por favor, inicia sesión para acceder sus lista de favoritos.');
+    }
+  }
+
   onSearch(): void {
     const term = this.searchTerm().replace(' ', '_');
     if (!term) return;
