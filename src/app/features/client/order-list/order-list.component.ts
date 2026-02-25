@@ -13,8 +13,9 @@ import { UtilsService } from '@/shared/service/utils.service';
 })
 export class OrderListComponent implements OnInit {
 
-  orderList: Pedido[] = [];
+  orderList: Pedido[]= [];
   searchTerm = signal<string>('');
+  isLoading = true;
 
   statusConfig: any = {
     entregado: { icon: 'bi-check-circle-fill', label: 'Entregado', class: 'entregado' },
@@ -34,6 +35,10 @@ export class OrderListComponent implements OnInit {
     try {
 
       this.orderList = await this.orderService.findMyOrders();
+      if (this.orderList.length == 0) {
+        this.isLoading = false;
+      }
+
     }
     catch (error) {
       console.log(error);

@@ -33,13 +33,12 @@ export class ForgotPasswordComponent {
     this.isLoading = true;
     try {
       const result = await firstValueFrom(this.authService.generateResetToken(this.forgotForm.value.email));
-      console.log(result);
       this.toast.success('Si el correo existe, recibirás un enlace pronto');
     } catch (error: any) {
       console.log(error);
       this.toast.success(
-        'En caso de que tu correo exista en nuestro sistema,'+
-        ' te enviaremos un enlace en breve.'
+        'En caso de que tu correo exista en nuestro sistema, '+
+        'te enviaremos un enlace en breve.'
       );
     } finally {
       this.closeModal();

@@ -1,10 +1,10 @@
 <div class="container mt-4">
   <div class="back-link-container mb-3">
     <a (click)="this.utilsService.goBack()"
-    class="back-link d-inline-flex align-items-center fw-semibold px-3 py-2 rounded">
-    <i class="bi bi-arrow-left me-2"></i>
-    Volver a lista pedidos
-  </a>
+      class="back-link d-inline-flex align-items-center fw-semibold px-3 py-2 rounded">
+      <i class="bi bi-arrow-left me-2"></i>
+      Volver a lista pedidos
+    </a>
   </div>
   <div class="order-header">
     <div class="order-header-top">
@@ -20,7 +20,7 @@
     </div>
     <div class="order-stats">
       <div class="stat-item">
-        <div class="stat-label">SubTotal</div>
+        <div class="stat-label">Total</div>
         <div class="stat-value">${{ order?.total | number:'1.0-0':'es-CL' }}</div>
       </div>
       <div class="stat-item">
@@ -104,14 +104,14 @@
           <h5>Resumen del Pedido</h5>
         </div>
         <div class="card-body-custom">
-          <div class="summary-item">
+          <!-- <div class="summary-item">
             <span class="summary-label">Subtotal</span>
             <span class="summary-value">${{ order?.total| number:'1.0-0':'es-CL' }}</span>
           </div>
           <div class="summary-item">
             <span class="summary-label">Cargo Armado</span>
             <span class="summary-value">${{ setupFee | number:'1.0-0':'es-CL' }}</span>
-          </div>
+          </div> -->
           <div class="summary-item summary-total">
             <span class="summary-label">Total</span>
             <span class="summary-value">{{ getTotal() | number:'1.0-0':'es-CL' }}</span>
@@ -161,25 +161,31 @@
 
       <div class="modal-header">
         <h5 class="modal-title" id="notifyModalLabel">Confirmar envío de correo</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        <button type="button" class="btn-close" (click)="closeModal()" aria-label="Cerrar"></button>
       </div>
-
       <div class="modal-body">
         <p>
           Vas a enviar un correo al usuario informando que el estado del pedido cambió
           de <strong>{{ previousState }}</strong> a <strong>{{ selectedStatus }}</strong>.
         </p>
         <p>¿Deseas continuar?</p>
+        <!-- Input para adjuntar archivo -->
+        <div class="input-group mb-3">
+          <span class="input-group-text"> <i class="bi bi-paperclip"></i> </span>
+          <input type="file" id="fileInput" accept=".pdf,.png,.jpg,.jpeg" (change)="onFileSelected($event)" hidden>
+          <input type="text" class="form-control " placeholder="Adjuntar Boleta (Opcional)" [value]="fileName || ''"
+            readonly aria-label="Selected file" aria-describedby="button-addon2">
+          <button class="btn btn-outline-secondary" type="button" id="button-addon2" (click)="triggerFileInput()">
+            Examinar
+          </button>
+        </div>
       </div>
-
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
         <button type="button" class="btn btn-primary" (click)="confirmNotify()" data-bs-dismiss="modal">
           <i class="bi bi-send"></i> Enviar correo
         </button>
       </div>
-
     </div>
   </div>
 </div>
-

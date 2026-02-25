@@ -8,6 +8,8 @@ import { HotToastService } from '@ngxpert/hot-toast';
 import { UtilsService } from '@/shared/service/utils.service';
 import { environment } from '@/environments/environment';
 
+declare var bootstrap: any;
+
 @Component({
   selector: 'app-order-detail',
   imports: [CommonModule, FormsModule],
@@ -20,6 +22,9 @@ export class OrderDetailComponent implements OnInit {
   selectedStatus: EstadoPedido = EstadoPedido.Pendiente;
   previousState: EstadoPedido = EstadoPedido.Pendiente;
   setupFee: number = 0;
+  fileBase64: string | null = null;
+  fileName: string | null = null;
+
 
   statusConfig: any = {
     entregado: { icon: 'bi-check-circle-fill', label: 'Entregado', class: 'entregado' },
@@ -50,9 +55,27 @@ export class OrderDetailComponent implements OnInit {
     }
   }
 
+  triggerFileInput() { const input = document.getElementById('fileInput') as HTMLInputElement; input?.click(); }
+
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    this.fileName = file.name;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      this.fileBase64 = result.split(",")[1];
+    };
+    reader.readAsDataURL(file);
+  }
+
+
   getTotal() {
     const total = this.order?.total || 0;
-    return +total + this.setupFee;
+    return +total;
   }
 
   getProductQuantity() {
@@ -129,13 +152,19 @@ export class OrderDetailComponent implements OnInit {
 
     try {
       this.previousState = this.selectedStatus;
-      this.orderService.EmailStatus(this.order!.pedido_id, this.selectedStatus);
+      this.orderService.EmailStatus(
+        this.order!.pedido_id,
+        this.selectedStatus,
+        this.fileName,
+        this.fileBase64
+      );
       this.toast.success('Notificación enviada');
     } catch (error) {
       console.log(error);
       this.toast.error('Error al enviar la notificación');
     }
 
+    this.resetFile();
   }
 
 
@@ -177,4 +206,19 @@ export class OrderDetailComponent implements OnInit {
 
     return `${mainName} ${mainSurname} ${secondSurnameInitial}`.trim();
   }
+
+  resetFile(){
+    this.fileBase64 = null;
+    this.fileName = null;
+  }
+
+  closeModal() {
+  const modalElement = document.getElementById('notifyModal');
+  if (modalElement) {
+    const modalInstance = bootstrap.Modal.getInstance(modalElement);
+    modalInstance?.hide();
+    this.resetFile();
+  }
+}
+
 }

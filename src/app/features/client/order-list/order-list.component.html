@@ -8,20 +8,15 @@
 <div class="popIn-animations container mt-4">
   <div class="card shadow-sm bg-light p-4">
     <h5 class="mb-5">
-        <i class="bi bi-box-seam-fill p-1"></i>
-        Mis Pedidos
-      </h5>
+      <i class="bi bi-box-seam-fill p-1"></i>
+      Mis Pedidos
+    </h5>
     <div class="col-12 col-md-6 col-lg-8 mb-4 mx-auto">
       <div class="input-group">
-        <input type="text"
-               class="form-control search-input border-start-0"
-               placeholder="Buscar por producto o N° de pedido"
-               (input)="onSearch($event)"
-               [value]="searchTerm()" />
-        <button type="button"
-                class="input-group-text bg-white border-end-0"
-                (click)="onResetSearch()">
-           <i class="bi bi-arrow-clockwise"></i>
+        <input type="text" class="form-control search-input border-start-0"
+          placeholder="Buscar por producto o N° de pedido" (input)="onSearch($event)" [value]="searchTerm()" />
+        <button type="button" class="input-group-text bg-white border-end-0" (click)="onResetSearch()">
+          <i class="bi bi-arrow-clockwise"></i>
         </button>
       </div>
     </div>
@@ -95,5 +90,18 @@
         </div>
       </div>
     </div>
+
+    <div *ngIf="!isLoading && filteredOrders.length === 0" class="empty-state">
+      <i class="bi bi-inbox"></i>
+      <p>Aún no tienes pedidos realizados. ¡Anímate a hacer tu primera compra!</p>
+    </div>
+
+    <div *ngIf="isLoading && filteredOrders.length === 0" class="empty-state">
+      <i class="bi bi-arrow-repeat spin"></i>
+      <p>Cargando tus pedidos...</p>
+    </div>
+
+
+
   </div>
 </div>

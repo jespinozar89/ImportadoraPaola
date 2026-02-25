@@ -62,10 +62,11 @@ export class ProductService {
     return firstValueFrom(this.http.delete<Producto>(url));
   }
 
-  async bulkUpload(file: File): Promise<BulkUpload> {
+  async bulkUpload(file: File,categoryId: number): Promise<BulkUpload> {
     const url = `${this.baseUrl}/carga-masiva`;
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('categoryId', categoryId.toString());
 
     return await firstValueFrom(this.http.post<BulkUpload>(url, formData));
   }

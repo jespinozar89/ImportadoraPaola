@@ -59,7 +59,11 @@ export class SignInComponent {
       error: (err) => {
         this.isLoading.set(false);
         console.error('Login error:', err);
-        this.toast.error(err.error?.message || 'Error al iniciar sesión. Verifica tus credenciales.');
+        if(err.error?.message.includes('PANIC')){
+          this.toast.error('Ocurrió un error inesperado. Por favor intenta nuevamente más tarde.');
+        }else{
+          this.toast.error(err.error?.message);
+        }
       }
     });
   }

@@ -6,6 +6,8 @@ import { EstadoPedido, Pedido } from '@/shared/models/order.interface';
 import { FormsModule } from '@angular/forms';
 import { NgxPaginationModule } from "ngx-pagination";
 import { UtilsService } from '@/shared/service/utils.service';
+import { ExportService } from '@/core/services/export.service';
+import { HotToastService } from '@ngxpert/hot-toast';
 
 @Component({
   selector: 'app-order-management',
@@ -21,6 +23,7 @@ export class OrderManagementComponent implements OnInit {
   deliveredOrders: number = 0;
   pendingOrders: number = 0;
   inProcessOrders: number = 0;
+  isLoading = true;
 
 
   searchTerm = signal<string>('');
@@ -39,6 +42,8 @@ export class OrderManagementComponent implements OnInit {
 
   constructor(
     private orderService: OrderService,
+    private exportService: ExportService,
+    private toast: HotToastService,
     public utilsService: UtilsService
   ) { }
 
@@ -52,12 +57,22 @@ export class OrderManagementComponent implements OnInit {
   async loadOrders() {
     try {
       this.orders = await this.orderService.findAll();
+
+      if(!this.orders){
+        this.orders = [];
+        this.isLoading = false;
+        return;
+      }
+
+      this.isLoading = false;
       this.totalOrders = this.orders.length;
       this.deliveredOrders = this.orders.filter(o => o.estado === EstadoPedido.Entregado).length;
       this.pendingOrders = this.orders.filter(o => o.estado === EstadoPedido.Pendiente).length;
       this.inProcessOrders = this.orders.filter(o => o.estado === EstadoPedido.EnPreparacion || o.estado === EstadoPedido.Listo).length;
+
     } catch (error) {
       console.error('Error al cargar los pedidos:', error);
+      this.isLoading = false;
     }
   }
 
@@ -71,6 +86,10 @@ export class OrderManagementComponent implements OnInit {
   get filteredOrders(): Pedido[] {
     const status = this.selectedStatus().toLowerCase() || 'all';
     const term = this.searchTerm().toLowerCase().trim();
+
+    if(!this.orders){
+      return [];
+    }
 
     return this.orders.filter(o => {
       const nombres = o.usuario?.nombres?.toLowerCase() || '';
@@ -98,6 +117,15 @@ export class OrderManagementComponent implements OnInit {
     const value = (event.target as HTMLSelectElement).value;
     this.selectedStatus.set(value);
     this.onPageChange(1);
+  }
+
+  async exportCsv(id: number) {
+    const order = await this.orderService.findById(id);
+    if (!order){
+      this.toast.error('No se encontró el pedido');
+      return;
+    }
+    this.exportService.downloadCsvClientList(order);
   }
 
   saveState(selectValue: string, inputText: string, currentPage: number): void {

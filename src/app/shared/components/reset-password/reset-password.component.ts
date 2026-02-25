@@ -59,7 +59,7 @@ export class ResetPasswordComponent {
       return;
     }
 
-    if(this.resetForm.value.password.length < 6 || this.resetForm.value.confirmPassword.length < 6){
+    if (this.resetForm.value.password.length < 6 || this.resetForm.value.confirmPassword.length < 6) {
       this.toast.warning('Las contraseñas deben tener al menos 6 caracteres');
       return;
     }
@@ -69,14 +69,14 @@ export class ResetPasswordComponent {
       return;
     }
 
-
-
     try {
       await firstValueFrom(this.authService.resetPassword(this.token, this.resetForm.value.password));
       this.toast.success('Contraseña actualizada con éxito. Ya puedes iniciar sesión.');
-      this.router.navigate(['/']);
     } catch (error: any) {
       this.toast.error(error?.error?.message || 'Token expirado o inválido');
+    }
+    finally {
+      this.router.navigate(['/']);
     }
   }
 

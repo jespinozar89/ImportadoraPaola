@@ -1,7 +1,8 @@
 <div class="container mt-4">
   <div class="form-header mb-4">
     <div class="back-link-container mb-3">
-      <a (click)="utilsService.goToUrl()" class="back-link d-inline-flex align-items-center fw-semibold px-3 py-2 rounded">
+      <a (click)="utilsService.goToUrl()"
+        class="back-link d-inline-flex align-items-center fw-semibold px-3 py-2 rounded">
         <i class="bi bi-arrow-left me-2"></i>
         Volver a Productos
       </a>
@@ -39,19 +40,14 @@
       <div class="table-header">
         <h5 class="mb-0">Lista de Pedidos Recientes</h5>
         <div class="search-box">
-          <input type="text" class="form-control"
-                 placeholder="Buscar por nombre o id pedido..."
-                 (input)="onSearch($event)"
-                  [value]="searchTerm()">
+          <input type="text" class="form-control" placeholder="Buscar por nombre o id pedido..."
+            (input)="onSearch($event)" [value]="searchTerm()">
         </div>
         <!-- Select para ordenar por estado -->
         <div class="d-flex align-items-center gap-2">
           <label for="estadoSelect" class="form-label mb-0">Ordenar por Estado:</label>
-          <select id="estadoSelect"
-                  class="form-select form-select-sm"
-                  (change)="onStatusChange($event)"
-                  (click)="this.searchTerm.set('');"
-                  [(ngModel)]="selectedStatus">
+          <select id="estadoSelect" class="form-select form-select-sm" (change)="onStatusChange($event)"
+            (click)="this.searchTerm.set('');" [(ngModel)]="selectedStatus">
             <option value="all">Todos</option>
             <option value="Pendiente">Pendiente</option>
             <option value="EnPreparacion">Preparando</option>
@@ -70,7 +66,7 @@
               <th>ID Pedido</th>
               <th>Cliente</th>
               <th>Fecha</th>
-              <th>SubTotal</th>
+              <th>Total</th>
               <th>Estado</th>
               <th>Acciones</th>
             </tr>
@@ -122,9 +118,30 @@
 
               <!-- Acción -->
               <td>
-                <button [routerLink]="['/orderDetail', order.pedido_id]" class="btn btn-view btn-action">
-                  <i class="bi bi-eye"></i> Ver Detalle
+                <button [routerLink]="['/orderDetail', order.pedido_id]" class="btn btn-view btn-action me-2">
+                  <i class="bi bi-eye"></i>
                 </button>
+                <button class="btn  btn-success btn-action" (click)="exportCsv(order.pedido_id)">
+                  <i class="bi bi-file-earmark-excel"></i>
+                </button>
+              </td>
+            </tr>
+            <!-- Empty State -->
+            <tr *ngIf="!isLoading && orders.length === 0">
+              <td colspan="6">
+                <div class="empty-state">
+                  <i class="bi bi-inbox"></i>
+                  <p>No se encontraron pedidos</p>
+                </div>
+              </td>
+            </tr>
+            <!-- Loading State -->
+            <tr *ngIf="isLoading">
+              <td colspan="6">
+                <div class="empty-state">
+                  <i class="bi bi-arrow-repeat spin"></i>
+                  <p>Cargando tus pedidos...</p>
+                </div>
               </td>
             </tr>
 
@@ -135,10 +152,7 @@
       <!-- Table Footer with Pagination -->
       <div class="table-footer">
         <div class="mt-4 d-flex justify-content-center">
-          <pagination-controls
-            (pageChange)="onPageChange($event)"
-            previousLabel="Ant."
-            nextLabel="Sig.">
+          <pagination-controls (pageChange)="onPageChange($event)" previousLabel="Ant." nextLabel="Sig.">
           </pagination-controls>
         </div>
       </div>

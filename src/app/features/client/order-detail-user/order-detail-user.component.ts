@@ -52,7 +52,7 @@ export class OrderDetailUserComponent implements OnInit {
 
   getTotal() {
     const total = this.order?.total || 0;
-    return +total + this.setupFee;
+    return +total;
   }
 
 

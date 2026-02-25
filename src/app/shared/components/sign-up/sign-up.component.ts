@@ -87,7 +87,11 @@ export class SignUpModalComponent {
       error: (err) => {
         this.isLoading.set(false);
         console.error('Error registro:', err);
-        this.toast.error(err.error?.message || 'Error al crear la cuenta. Inténtalo de nuevo.');
+        if(err.error?.message.includes('PANIC')){
+          this.toast.error('Ocurrió un error inesperado. Por favor intenta nuevamente más tarde.');
+        }else{
+          this.toast.error(err.error?.message);
+        }
       }
     });
   }

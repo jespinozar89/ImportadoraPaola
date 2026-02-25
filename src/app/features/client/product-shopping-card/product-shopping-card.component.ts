@@ -109,7 +109,7 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
   }
 
   get total(): number {
-    return this.subtotal + this.tax;
+    return this.subtotal;
   }
 
   // ----------------------------------------------------------------------
@@ -153,6 +153,11 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
 
   async addFavoritesToCart(): Promise<void> {
     const favoriteIds = await this.favoriteService.getCurrentFavoriteIds();
+
+    if (favoriteIds.length === 0) {
+      this.toast.warning('No hay productos favoritos para agregar al carrito');
+      return;
+    }
 
     const promises = favoriteIds
       .filter(id => !this.cartItems.find(item => item.producto_id === id))
