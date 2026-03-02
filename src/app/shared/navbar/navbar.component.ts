@@ -77,43 +77,15 @@ export class NavbarComponent implements OnInit {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe((event: NavigationEnd) => {
+
         const urlComplete = event.url;
-        const segments = urlComplete.split('/').filter(s => s.length > 0);
-        const url = segments.length > 0 ? segments[1] : 'Todo';
+        const parts = urlComplete.split("/");
+        const lastValue = parts[parts.length - 1] || 'Todo';
 
-        //Admin
-        const routesAdmin = [
-          { prefix: '/inventory', label: 'inventario' },
-          { prefix: '/form', label: 'Nuevo' },
-          { prefix: '/orders', label: 'orders' },
-          { prefix: '/orderDetail', label: 'DetalleOrden' },
-          { prefix: '/categories', label: 'Categorías' },
-        ];
-
-        let match = routesAdmin.find(r => urlComplete.startsWith(r.prefix));
-        if (match) {
-          this.selectItem(match.label);
-          return;
+        if (!urlComplete.startsWith('/producto/')) {
+          this.selectItem(lastValue);
         }
 
-        //Client
-        const routesClient = [
-          { prefix: '/perfilFrom', label: 'perfil' },
-          { prefix: '/orderList', label: 'orderList' },
-        ];
-
-        match = routesClient.find(r => urlComplete.startsWith(r.prefix));
-        if (match) {
-          this.selectItem(match.label);
-          return;
-        }
-
-        this.selected = url;
-        if (!urlComplete.startsWith('/categorias/') &&
-          !urlComplete.startsWith('/producto/') &&
-          urlComplete !== '/') {
-          this.selectItem(url);
-        }
       });
 
   }
@@ -139,11 +111,11 @@ export class NavbarComponent implements OnInit {
     this.selected = value;
     localStorage.setItem(this.SELECTED_MENU_KEY, value);
 
-    if(value && !value.includes('inventario')){
+    if (value && !value.includes('inventario')) {
       localStorage.removeItem("productStateInventory");
     }
 
-    if(value && !value.includes('orders') && !value.includes('DetalleOrden')){
+    if (value && !value.includes('orders') && !value.includes('DetalleOrden')) {
       localStorage.removeItem("productStateOrders");
     }
   }

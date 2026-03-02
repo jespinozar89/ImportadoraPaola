@@ -112,12 +112,12 @@
     <div *ngIf="currentUser()?.rol === 'administrador'">
       <h6 class="text-uppercase fw-bold text-muted mb-3 mt-4">Administración</h6>
       <ul class="list-group list-group-flush">
-        <li routerLink="/inventory" (click)="selectItem('inventario'); closeOffcanvas()"
-          [class.active-item]="selected === 'inventario'" class="list-group-item px-0 py-2 ps-2 border-bottom">
+        <li routerLink="/inventory" (click)="selectItem('inventory'); closeOffcanvas()"
+          [class.active-item]="selected === 'inventory'" class="list-group-item px-0 py-2 ps-2 border-bottom">
           Inventario
           de Productos</li>
-        <li routerLink="/form" (click)="selectItem('Nuevo'); closeOffcanvas()"
-          [class.active-item]="selected === 'Nuevo'" class="list-group-item px-0 py-2 ps-2 border-bottom">Nuevo Producto
+        <li routerLink="/form" (click)="selectItem('form'); closeOffcanvas()"
+          [class.active-item]="selected === 'form'" class="list-group-item px-0 py-2 ps-2 border-bottom">Nuevo Producto
         </li>
          <li routerLink="/bulkUpload" (click)="selectItem('bulkUpload'); closeOffcanvas()"
           [class.active-item]="selected === 'bulkUpload'"class="list-group-item px-0 py-2 ps-2 border-bottom">Carga Masiva
@@ -125,8 +125,8 @@
         <li routerLink="/orders" (click)="selectItem('orders'); closeOffcanvas()"
           [class.active-item]="selected === 'orders'" class="list-group-item px-0 py-2 ps-2 border-bottom">Pedidos
           Recibidos</li>
-        <li routerLink="/categories" (click)="selectItem('Categorías'); closeOffcanvas()"
-          [class.active-item]="selected === 'Categorías'" class="list-group-item px-0 py-2 ps-2 border-bottom">
+        <li routerLink="/categories" (click)="selectItem('categories'); closeOffcanvas()"
+          [class.active-item]="selected === 'categories'" class="list-group-item px-0 py-2 ps-2 border-bottom">
           Categorías</li>
       </ul>
     </div>
@@ -134,8 +134,8 @@
     <div *ngIf="currentUser()?.rol === 'cliente'">
       <h6 class="text-uppercase fw-bold text-muted mb-3 mt-4">Menu</h6>
       <ul class="list-group list-group-flush">
-         <li routerLink="/perfilFrom" (click)="selectItem('perfil'); closeOffcanvas()"
-          [class.active-item]="selected === 'perfil'"  class="list-group-item px-0 py-2 ps-2 border-bottom">Perfil</li>
+         <li routerLink="/perfilFrom" (click)="selectItem('perfilFrom'); closeOffcanvas()"
+          [class.active-item]="selected === 'perfilFrom'"  class="list-group-item px-0 py-2 ps-2 border-bottom">Perfil</li>
         <li routerLink="/orderList" (click)="selectItem('orderList'); closeOffcanvas()"
           [class.active-item]="selected === 'orderList'"  class="list-group-item px-0 py-2 ps-2 border-bottom">Mis Pedidos</li>
       </ul>
@@ -147,7 +147,8 @@
         class="list-group-item px-0 py-2 ps-2 border-bottom">Todo</li>
       <li *ngFor="let categoria of activeCategorias"
           routerLink="categorias/{{ categoria.descripcion }}/{{ categoria.categoria_id }}"
-          (click)="selectItem(categoria.nombre); closeOffcanvas()" [class.active-item]="selected === categoria.nombre"
+          (click)="selectItem(categoria.categoria_id.toString()); closeOffcanvas()"
+          [class.active-item]="selected === categoria.categoria_id.toString()"
           class="list-group-item px-0 py-2 ps-2 border-bottom">
         {{ this.utilsService.getCategoriaNombre(categoria.nombre) }}
       </li>
