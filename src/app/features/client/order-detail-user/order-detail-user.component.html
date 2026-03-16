@@ -21,7 +21,7 @@
           shadow-none
           border-bottom-light
           d-flex flex-column">
-          <div class="d-flex mb-1">
+          <div *ngIf="order?.estado" class="d-flex mb-1">
             <span class="status-badge {{ statusConfig[order.estado.toLowerCase()]?.class }}">
               <i class="bi {{ statusConfig[order.estado.toLowerCase()]?.icon }}"></i>
               {{ statusConfig[order.estado.toLowerCase()]?.label }}
@@ -31,7 +31,7 @@
             <h6 class="text-muted fw-normal mb-0" style="font-size: 0.9rem;">
               {{ order.fecha_cambio_estado | date:"dd 'de' MMMM 'de' yyyy":"":"es-CL" }}
             </h6>
-            <span class="text-muted d-flex align-items-center">
+            <span *ngIf="order?.pedido_id" class="text-muted d-flex align-items-center">
               #ORD-{{ order.pedido_id.toString().padStart(4, '0') }}
             </span>
           </div>

@@ -13,7 +13,12 @@ bootstrapApplication(AppComponent, {
   ...appConfig,
   providers: [
     ...appConfig.providers,
-    provideHotToastConfig(),
-    provideRouter(routes), provideHotToastConfig()
+    provideRouter(routes),
+    provideHotToastConfig({
+      position: 'top-center',
+      style: {
+        marginTop: '70px'
+      }
+    })
   ]
 }).catch(err => console.error(err));

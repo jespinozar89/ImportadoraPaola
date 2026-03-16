@@ -1,0 +1,21 @@
+<!-- klap-modal.component.html -->
+<div class="modal fade" id="klapModal" tabindex="-1" aria-labelledby="klapModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="klapModalLabel">Pasarela de Pago Klap</h5>
+        <button type="button" class="btn-close" (click)="checkOrderStatus(this.orderResponse?.order_id!,true);" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <iframe *ngIf="redirectUrl" [src]="redirectUrl" width="100%" height="500px" frameborder="0"></iframe>
+      </div>
+      <!-- <div class="modal-footer">
+        <div *ngIf="paymentStatus">
+          <span *ngIf="paymentStatus === 'confirmado'" class="text-success">✅ Pago exitoso</span>
+          <span *ngIf="paymentStatus === 'rechazado'" class="text-danger">❌ Pago rechazado</span>
+        </div>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div> -->
+    </div>
+  </div>
+</div>

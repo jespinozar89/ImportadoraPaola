@@ -15,7 +15,8 @@ import { environment } from '@/environments/environment';
 })
 export class OrderDetailUserComponent implements OnInit {
 
-  order!: Pedido;
+  order: Pedido = {} as Pedido;
+  bankInfo = {};
   setupFee: number = 0;
 
   statusConfig: any = {

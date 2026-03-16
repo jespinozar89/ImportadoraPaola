@@ -1,6 +1,6 @@
-import { Component, OnInit, DestroyRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, DestroyRef, AfterViewInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { lastValueFrom } from 'rxjs';
+import { firstValueFrom, lastValueFrom, timer } from 'rxjs';
 import { CartService } from '@/core/services/cart.service';
 import { FavoriteService } from '@/core/services/favorite.service';
 import { CarritoDetalladoDTO } from '@/shared/models/cart.interface';
@@ -12,21 +12,28 @@ import { CrearPedido } from '@/shared/models/order.interface';
 import { UtilsService } from '@/shared/service/utils.service';
 import { environment } from '@/environments/environment';
 import { BankInfo } from '@/shared/models/bank-info.interface';
-
+import { KlapModalComponent } from "@/shared/components/klap-modal/klap-modal.component";
+import { Order, OrderResponse } from '@/shared/models/klap.interface';
+import { AuthService } from '../../../core/services/auth.service';
 
 declare var bootstrap: any;
 
 @Component({
   selector: 'app-product-shopping-card',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, KlapModalComponent],
   templateUrl: './product-shopping-card.component.html',
   styleUrl: './product-shopping-card.component.scss'
 })
 export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
 
+  @ViewChild('klapModal') klapModal!: KlapModalComponent;
+
   public cartItems: CarritoDetalladoDTO[] = [];
   public wishlistCount: number = 0;
+  private orderHandled = false;
+
+  orderData: Order = {} as Order;
   setupFee: number = 0;
   bankInfo!: BankInfo;
   processingOrder: boolean = false;
@@ -37,6 +44,7 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
     private cartService: CartService,
     private favoriteService: FavoriteService,
     private orderService: OrderService,
+    private authService: AuthService,
     private destroyRef: DestroyRef,
     private toast: HotToastService,
     public utilsService: UtilsService
@@ -87,7 +95,7 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
     }
   }
 
-  onOpenModal(){
+  onOpenModal() {
     const modalElement = document.getElementById('compraExitosaModal');
     if (modalElement) {
       const modal = new bootstrap.Modal(modalElement);
@@ -119,40 +127,50 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
 
   async processOrder(): Promise<void> {
     this.processingOrder = true;
+    this.orderHandled = false;
     try {
 
-      if (!this.fileBase64) {
-        this.toast.warning('Por favor, adjunta un comprobante de pago');
-        return;
+      const userData = this.authService.getCurrentUserProfile();
+
+      const user = {
+        email: userData.email!,
+        rut: null,
+        first_name: userData.nombres!,
+        last_name: userData.apellidos!,
+        phone: userData.telefono!,
+        address_line: null,
+        address_city: null,
+        address_state: null,
+        country: 'CL',
+        postal_code: null
       }
 
-      let orderData: CrearPedido = {
-        detalles: this.cartItems.map(item => ({
-          producto_id: item.producto_id,
-          nombre: item.nombre,
-          cantidad: item.cantidad,
-          precio_unitario: item.precio
-        })),
-        comprobante_pago: this.fileBase64 || null
+      const items = this.cartItems.map(item => ({
+        name: item.nombre,
+        code: item.producto_id.toString(),
+        price: item.precio * item.cantidad,
+        unit_price: item.precio,
+        quantity: item.cantidad
+      }));
+
+      const total = items.reduce((acc, item) => acc + item.price, 0);
+
+      this.orderData = {
+        referenceId: 'REF-' + Date.now(),
+        user,
+        items,
+        total
       };
 
-      const response = await this.orderService.create(orderData);
-
-      if(response.pedido_id){
-        this.clearCart();
-        this.onOpenModal();
-        this.toast.success('Pedido procesado con éxito');
-      }
+      this.openKlapModal();
 
     } catch (error) {
       this.toast.error('Error al procesar el pedido');
-    } finally {
-      this.processingOrder = false;
     }
   }
 
   async addFavoritesToCart(): Promise<void> {
-    const favoriteIds = await this.favoriteService.getCurrentFavoriteIds();
+    const favoriteIds = this.favoriteService.getCurrentFavoriteIds();
 
     if (favoriteIds.length === 0) {
       this.toast.warning('No hay productos favoritos para agregar al carrito');
@@ -214,6 +232,77 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
       this.cartItems = await lastValueFrom(this.cartService.getDetailedCart());
     } catch (error) {
       console.error('Error al recargar el carrito:', error);
+    }
+  }
+
+  openKlapModal() {
+    this.klapModal.openModal(this.orderData);
+  }
+
+  closeKlapModal() {
+    this.klapModal.closeModal();
+  }
+
+  async createOrder(klapOrderId: string): Promise<number> {
+
+    try {
+      let orderData: CrearPedido = {
+        detalles: this.cartItems.map(item => ({
+          producto_id: item.producto_id,
+          nombre: item.nombre,
+          cantidad: item.cantidad,
+          precio_unitario: item.precio
+        })),
+        klap_order_id: klapOrderId || null
+      };
+
+      const response = await this.orderService.create(orderData);
+
+      if (response.pedido_id) {
+        return response.pedido_id;
+      }
+
+      return 0;
+    } catch (error) {
+      console.error('Error al crear el pedido:', error);
+      return 0;
+    }
+  }
+
+  async handleOrderResult(res: OrderResponse) {
+    if (this.orderHandled) return;
+
+    if (res.status === 'completed') {
+      this.orderHandled = true;
+
+      this.toast.success('Procesando tu pedido... Por favor, espera unos segundos.');
+      await firstValueFrom(timer(3000));
+      const resp = await this.createOrder(res.order_id);
+
+      if (resp > 0) {
+        this.processingOrder = false;
+        this.closeKlapModal();
+        await this.clearCart();
+        this.onOpenModal();
+        this.toast.success('Pedido procesado con éxito');
+      }
+      else {
+        this.processingOrder = false;
+        this.toast.error('Error al procesar el pedido');
+      }
+    }
+    else if (res.status === 'rejected') {
+      this.orderHandled = true;
+      setTimeout(() => {
+        this.processingOrder = false;
+        this.closeKlapModal();
+        this.toast.warning('No pudimos procesar tu pedido. Por favor, inténtalo de nuevo.');
+      }, 3000);
+    }
+    else if (res.status.includes('forcedClose')) {
+      this.orderHandled = true;
+      this.processingOrder = false;
+      this.toast.warning('Tu solicitud ha sido cancelada.');
     }
   }
 }

@@ -21,7 +21,7 @@ export interface DetallePedido {
 }
 
 export interface CrearPedido {
-  comprobante_pago: string | null;
+  klap_order_id: string | null;
   detalles: DetallePedido[];
 }
 

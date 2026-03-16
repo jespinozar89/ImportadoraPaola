@@ -55,7 +55,10 @@ export class OrderDetailComponent implements OnInit {
     }
   }
 
-  triggerFileInput() { const input = document.getElementById('fileInput') as HTMLInputElement; input?.click(); }
+  triggerFileInput() {
+    const input = document.getElementById('fileInput') as HTMLInputElement;
+    input?.click();
+  }
 
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -207,18 +210,18 @@ export class OrderDetailComponent implements OnInit {
     return `${mainName} ${mainSurname} ${secondSurnameInitial}`.trim();
   }
 
-  resetFile(){
+  resetFile() {
     this.fileBase64 = null;
     this.fileName = null;
   }
 
   closeModal() {
-  const modalElement = document.getElementById('notifyModal');
-  if (modalElement) {
-    const modalInstance = bootstrap.Modal.getInstance(modalElement);
-    modalInstance?.hide();
-    this.resetFile();
+    const modalElement = document.getElementById('notifyModal');
+    if (modalElement) {
+      const modalInstance = bootstrap.Modal.getInstance(modalElement);
+      modalInstance?.hide();
+      this.resetFile();
+    }
   }
-}
 
 }

@@ -59,7 +59,10 @@ export class SignInComponent {
       error: (err) => {
         this.isLoading.set(false);
         console.error('Login error:', err);
-        if(err.error?.message.includes('PANIC')){
+        if(
+          err.error?.message.toLowerCase().includes("panic") ||
+          err.error?.message.toLowerCase().includes("prisma")
+        ){
           this.toast.error('Ocurrió un error inesperado. Por favor intenta nuevamente más tarde.');
         }else{
           this.toast.error(err.error?.message);
