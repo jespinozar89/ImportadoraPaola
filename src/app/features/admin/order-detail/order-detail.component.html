@@ -116,6 +116,27 @@
             <span class="summary-label">Total</span>
             <span class="summary-value">{{ getTotal() | number:'1.0-0':'es-CL' }}</span>
           </div>
+
+          <div class="mt-3 p-3 border rounded bg-light text-dark small">
+            <div class="d-flex align-items-start gap-2">
+              <i class="bi bi-exclamation-triangle-fill text-danger fs-5 mt-1"></i>
+              <div>
+                <strong>Advertencia:</strong>
+                La cancelación de una orden no solo anula el pedido del cliente,
+                sino que también <span class="fw-semibold">genera automáticamente un reembolso</span>
+                al usuario en la <span class="fw-semibold">tarjeta utilizada para el pago</span>.
+                <br>
+                <p class="mt-2 mb-2">
+                  Este proceso es irreversible una vez confirmado.
+                  Por favor asegúrese de que realmente desea cancelar la orden antes de continuar.
+                </p>
+                <p>
+                  El reembolso puede tardar algunos días hábiles en reflejarse en su cuenta bancaria.
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div class="mt-4">
             <label class="fw-bold mb-2 me-2">Estado actual:</label>
             <ng-container *ngTemplateOutlet="statusBadge"></ng-container>
@@ -131,7 +152,7 @@
               </select>
             </div>
 
-            <div class="actions mt-3 d-flex justify-content-center gap-2">
+            <div class="actions mt-3 d-flex justify-content-center gap-2 mb-2">
               <button class="btn btn-primary" (click)="updateStatus()">
                 <i class="bi bi-arrow-repeat"></i> Actualizar Estado
               </button>
@@ -161,7 +182,7 @@
 
       <div class="modal-header">
         <h5 class="modal-title" id="notifyModalLabel">Confirmar envío de correo</h5>
-        <button type="button" class="btn-close" (click)="closeModal()" aria-label="Cerrar"></button>
+        <button type="button" class="btn-close" (click)="closeNotifyModal()" aria-label="Cerrar"></button>
       </div>
       <div class="modal-body">
         <p>
@@ -181,11 +202,49 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+        <button type="button" class="btn btn-secondary" (click)="closeNotifyModal()">Cancelar</button>
         <button type="button" class="btn btn-primary" (click)="confirmNotify()" data-bs-dismiss="modal">
           <i class="bi bi-send"></i> Enviar correo
         </button>
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="cancelOrderModal" tabindex="-1" aria-labelledby="cancelOrderModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <!-- Header -->
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="cancelOrderModalLabel">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          Cancelar Pedido
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar" [disabled]="processingCancelOrder"></button>
+      </div>
+
+      <!-- Body -->
+      <div class="modal-body text-center">
+        <p class="fs-5">
+          Estás a punto de cancelar un pedido.<br>
+          El cliente recibirá de vuelta el <strong>total de su pago realizado</strong>.
+        </p>
+        <p class="text-muted">¿Deseas continuar con la cancelación?</p>
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer justify-content-center">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" [disabled]="processingCancelOrder">
+          <i class="bi bi-x-circle me-2"></i> No, mantener pedido
+        </button>
+        <button type="button" class="btn btn-danger" (click)="cancelOrder()" [disabled]="processingCancelOrder">
+          <i *ngIf="!processingCancelOrder" class="bi bi-trash me-2"></i>
+          <i *ngIf="processingCancelOrder" class="bi bi-arrow-clockwise spin"></i>
+          Sí, cancelar pedido
+        </button>
+      </div>
+
     </div>
   </div>
 </div>

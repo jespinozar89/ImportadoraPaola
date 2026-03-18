@@ -5,6 +5,24 @@ export interface Order {
   total: number;
 }
 
+export interface OrderRefund {
+  reference_id: string;
+  order_id: string;
+  type: string
+  amount: number;
+  refundable_amount: number;
+  status: string;
+  mc_code: string;
+}
+
+
+export interface OrderStatus {
+  status: string;
+  order_id: string;
+  reference_id: string;
+  total: number;
+}
+
 export interface OrderResponse {
   status: string;
   order_id: string;

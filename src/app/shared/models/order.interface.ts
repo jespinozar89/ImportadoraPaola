@@ -8,7 +8,7 @@ export interface Pedido {
   fecha_cambio_estado: Date;
   estado: EstadoPedido;
   total: string | number;
-  comprobante_pago: string | null;
+  klap_order_id: string | null;
   usuario?: UserLogged
   detalles?: DetallePedido[];
 }

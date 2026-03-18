@@ -16,9 +16,11 @@ bootstrapApplication(AppComponent, {
     provideRouter(routes),
     provideHotToastConfig({
       position: 'top-center',
+      dismissible: true,
+      duration: 4000,
       style: {
-        marginTop: '70px'
+        marginTop: '80px'
       }
-    })
+    }),
   ]
 }).catch(err => console.error(err));

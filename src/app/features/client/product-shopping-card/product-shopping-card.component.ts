@@ -166,6 +166,8 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
 
     } catch (error) {
       this.toast.error('Error al procesar el pedido');
+      this.closeKlapModal();
+      this.processingOrder = false;
     }
   }
 

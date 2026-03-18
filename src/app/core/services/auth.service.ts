@@ -43,7 +43,7 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, data);
   }
 
-  private async me(){
+  private async me() {
     return firstValueFrom(this.http.get<any>(`${this.apiUrl}/me`));
   }
 
@@ -73,17 +73,17 @@ export class AuthService {
 
     if (!token) return;
 
-    try{
+    try {
 
       const userData = await this.me();
 
       this.currentUserSubject.next({
-          ...userData,
-          token: token
-        });
+        ...userData,
+        token: token
+      });
 
     }
-    catch(e){
+    catch (e) {
       this.logout();
       console.log("error", e);
     }
@@ -126,6 +126,13 @@ export class AuthService {
   }
 
   public openLoginModal() {
+    document.querySelectorAll('.modal.show').forEach((el) => {
+      const modalInstance = bootstrap.Modal.getInstance(el);
+      if (modalInstance) {
+        modalInstance.hide();
+      }
+    });
+
     const modalElement = document.getElementById('signInModal');
     if (modalElement) {
       const modal = new bootstrap.Modal(modalElement);

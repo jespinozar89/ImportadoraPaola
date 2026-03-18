@@ -7,6 +7,7 @@ import { ActivatedRoute } from '@angular/router';
 import { HotToastService } from '@ngxpert/hot-toast';
 import { UtilsService } from '@/shared/service/utils.service';
 import { environment } from '@/environments/environment';
+import { KlapService } from '@/core/services/klap.service';
 
 declare var bootstrap: any;
 
@@ -21,6 +22,7 @@ export class OrderDetailComponent implements OnInit {
   order: Pedido | null = null;
   selectedStatus: EstadoPedido = EstadoPedido.Pendiente;
   previousState: EstadoPedido = EstadoPedido.Pendiente;
+  processingCancelOrder: boolean = false;
   setupFee: number = 0;
   fileBase64: string | null = null;
   fileName: string | null = null;
@@ -36,9 +38,10 @@ export class OrderDetailComponent implements OnInit {
 
   constructor(
     private orderService: OrderService,
-    public utilsService: UtilsService,
+    private klapService: KlapService,
     private toast: HotToastService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    public utilsService: UtilsService,
   ) { }
 
   async ngOnInit() {
@@ -46,13 +49,16 @@ export class OrderDetailComponent implements OnInit {
     this.setupFee = Number(environment.orderSetupFee) || 0;
 
     try {
-      const pedido = await this.orderService.findById(Number(idString));
-      this.order = pedido;
-      this.selectedStatus = pedido.estado;
-      this.previousState = pedido.estado;
+      await this.loaderOrder(Number(idString));
+      this.selectedStatus = this.order?.estado!;
+      this.previousState = this.order?.estado!;
     } catch (error) {
       console.error('Error al cargar el pedido:', error);
     }
+  }
+
+  async loaderOrder(id: number) {
+    this.order = await this.orderService.findById(id);
   }
 
   triggerFileInput() {
@@ -89,13 +95,13 @@ export class OrderDetailComponent implements OnInit {
 
     let fileName: string = 'comprobante.pdf';
 
-    if (!this.order?.comprobante_pago) {
+    if (!this.order?.klap_order_id) {
       this.toast.error('No se encontró el comprobante de pago');
       return;
     }
 
     try {
-      const arr = this.order?.comprobante_pago?.split(',');
+      const arr = this.order?.klap_order_id?.split(',');
       const mime = arr[0].match(/:(.*?);/)?.[1] || 'application/octet-stream';
       const bstr = atob(arr[1]);
       let n = bstr.length;
@@ -123,12 +129,75 @@ export class OrderDetailComponent implements OnInit {
   }
 
   async updateStatus() {
-    if (this.selectedStatus === this.order?.estado) return;
+    await this.loaderOrder(this.order?.pedido_id || 0);
 
-    await this.orderService.updateStatus(this.order!.pedido_id, this.selectedStatus);
-    this.toast.success('Estado del pedido actualizado');
-    this.previousState = this.order!.estado;
-    this.order!.estado = this.selectedStatus;
+    if (this.selectedStatus === this.order?.estado){
+      this.toast.warning(
+        'El pedido ya se encuentra en estado '
+        +this.selectedStatus+
+        '. Por favor, seleccione un estado diferente para continuar.');
+      return;
+    }
+
+    if(this.order?.estado === EstadoPedido.Entregado && this.selectedStatus === EstadoPedido.Cancelado){
+      this.toast.warning('El pedido ya ha sido entregado y no puede ser cancelado.');
+      return;
+    }
+
+    if(this.order?.estado === EstadoPedido.Cancelado){
+      this.toast.warning('El pedido ya fue cancelado, no puede realizar cambios');
+      return;
+    }
+
+    if (this.selectedStatus === EstadoPedido.Cancelado) {
+      this.openCancelOrderModal();
+    }
+    else {
+      await this.orderService.updateStatus(this.order!.pedido_id, this.selectedStatus);
+      this.toast.success('Estado del pedido actualizado');
+      this.previousState = this.order!.estado;
+      this.order!.estado = this.selectedStatus;
+    }
+
+    await this.loaderOrder(this.order?.pedido_id || 0);
+  }
+
+  async cancelOrder() {
+    this.processingCancelOrder = true;
+    const messageError = 'Error al cancelar el pedido, por favor contactar al administrador.';
+    const toastId = this.toast.loading('Estamos procesando la cancelación, por favor espera unos segundos...');
+
+    try {
+      const orderData = await this.klapService.getOrderStatus(this.order?.klap_order_id || '');
+
+      if (orderData.status !== 'completed') {
+        this.toast.warning(messageError);
+        return;
+      }
+
+      const response = await this.klapService.refundOrder(orderData.order_id, orderData.reference_id, orderData.total);
+
+      if (response.status === 'refunded') {
+        const orderStatus = await this.orderService.updateStatus(this.order?.pedido_id || 0, 'Cancelado');
+        if (orderStatus.estado === 'Cancelado') {
+          this.previousState = this.order!.estado;
+          this.order!.estado = this.selectedStatus;
+          this.toast.success('Pedido cancelado con éxito.');
+          return;
+        }
+      }
+
+      this.toast.warning(messageError);
+    }
+    catch (error) {
+      console.log(error);
+      this.toast.warning(messageError);
+    }
+    finally {
+      this.closeCancelOrderModal();
+      toastId.close();
+      this.processingCancelOrder = false;
+    }
   }
 
   confirmNotify() {
@@ -169,8 +238,6 @@ export class OrderDetailComponent implements OnInit {
 
     this.resetFile();
   }
-
-
 
   formatPhone(phone: string): string {
     if (!phone) {
@@ -215,7 +282,25 @@ export class OrderDetailComponent implements OnInit {
     this.fileName = null;
   }
 
-  closeModal() {
+  public openCancelOrderModal() {
+    const modalElement = document.getElementById('cancelOrderModal');
+    if (modalElement) {
+      const modal = new bootstrap.Modal(modalElement);
+      modal.show();
+    }
+  }
+
+  public closeCancelOrderModal() {
+    const modalElement = document.getElementById('cancelOrderModal');
+    if (modalElement) {
+      const modalInstance = bootstrap.Modal.getInstance(modalElement);
+      if (modalInstance) {
+        modalInstance.hide();
+      }
+    }
+  }
+
+  closeNotifyModal() {
     const modalElement = document.getElementById('notifyModal');
     if (modalElement) {
       const modalInstance = bootstrap.Modal.getInstance(modalElement);
