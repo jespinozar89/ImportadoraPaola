@@ -189,17 +189,17 @@
           Vas a enviar un correo al usuario informando que el estado del pedido cambió
           de <strong>{{ previousState }}</strong> a <strong>{{ selectedStatus }}</strong>.
         </p>
-        <p>¿Deseas continuar?</p>
         <!-- Input para adjuntar archivo -->
+        <!-- <p>¿Deseas continuar?</p>
         <div class="input-group mb-3">
           <span class="input-group-text"> <i class="bi bi-paperclip"></i> </span>
           <input type="file" id="fileInput" accept=".pdf,.png,.jpg,.jpeg" (change)="onFileSelected($event)" hidden>
-          <input type="text" class="form-control " placeholder="Adjuntar Boleta (Opcional)" [value]="fileName || ''"
+           <input type="text" class="form-control " placeholder="Adjuntar Boleta (Opcional)" [value]="fileName || ''"
             readonly aria-label="Selected file" aria-describedby="button-addon2">
           <button class="btn btn-outline-secondary" type="button" id="button-addon2" (click)="triggerFileInput()">
             Examinar
           </button>
-        </div>
+        </div>-->
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" (click)="closeNotifyModal()">Cancelar</button>

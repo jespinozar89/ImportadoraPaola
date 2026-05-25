@@ -50,6 +50,7 @@ export class KlapModalComponent implements OnDestroy {
       this.startPolling(this.orderResponse.order_id);
     } catch (error) {
       console.error('Error creando orden:', error);
+      throw error;
     }
   }
 
@@ -61,7 +62,7 @@ export class KlapModalComponent implements OnDestroy {
       if ((this.paymentStatus === 'pending' || this.paymentStatus === 'rejected') && isForceClose) {
         this.orderResult.emit({
           ...this.orderResponse!,
-          status: this.paymentStatus+"-forcedClose"
+          status: this.paymentStatus + "-forcedClose"
         });
         clearInterval(this.pollingInterval);
         return;
@@ -88,7 +89,9 @@ export class KlapModalComponent implements OnDestroy {
     const modalElement = document.getElementById('klapModal');
     if (modalElement) {
       const modal = (window as any).bootstrap.Modal.getInstance(modalElement);
-      modal.hide();
+      if (modal) {
+        modal.hide();
+      }
     }
   }
 }

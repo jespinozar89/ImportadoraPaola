@@ -162,12 +162,12 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
         total
       };
 
-      this.openKlapModal();
+      await this.openKlapModal();
 
     } catch (error) {
       this.toast.error('Error al procesar el pedido');
-      this.closeKlapModal();
       this.processingOrder = false;
+      this.closeKlapModal();
     }
   }
 
@@ -237,8 +237,8 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
     }
   }
 
-  openKlapModal() {
-    this.klapModal.openModal(this.orderData);
+  async openKlapModal() {
+      await this.klapModal.openModal(this.orderData);
   }
 
   closeKlapModal() {
@@ -273,6 +273,7 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
 
   async handleOrderResult(res: OrderResponse) {
     if (this.orderHandled) return;
+    console.log('handleOrderResult', res);
 
     if (res.status === 'completed') {
       this.orderHandled = true;
@@ -301,10 +302,11 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
         this.toast.warning('No pudimos procesar tu pedido. Por favor, inténtalo de nuevo.');
       }, 3000);
     }
-    else if (res.status.includes('forcedClose')) {
+    else if (res.status.includes('forcedClose') || res.status === 'refund') {
       this.orderHandled = true;
       this.processingOrder = false;
       this.toast.warning('Tu solicitud ha sido cancelada.');
+      this.closeKlapModal();
     }
   }
 }
