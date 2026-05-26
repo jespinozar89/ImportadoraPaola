@@ -1,0 +1,51 @@
+/* 1. Fondo claro que mantiene la armonía con el fondo general del sitio */
+.footer-paola {
+  background-color: #f8f9fa; /* Un gris muy tenue y limpio */
+  color: #334155;            /* Texto oscuro pero suave para que sea legible */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  border-top: 1px solid #e2e8f0; /* Fina línea divisoria superior */
+}
+
+/* 2. Títulos de columnas usando exactamente tu color azul institucional */
+.footer-title {
+  color: #0d6efd; /* El azul exacto de tus botones "Añadir al carrito" */
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+/* 3. Textos informativos y números de contacto */
+.footer-info p {
+  color: #475569; /* Gris oscuro elegante para el texto */
+  font-size: 0.95rem;
+  letter-spacing: 0.3px;
+}
+
+/* Color de los iconos al lado de los textos (teléfono, sobre, etc.) */
+.footer-info i {
+  color: #0d6efd; /* Sutil toque azul en los iconos para dar identidad */
+}
+
+/* 4. Iconos de Redes Sociales (Ajustados para fondo claro) */
+.footer-social-icons a {
+  color: #475569; /* Iconos oscuros por defecto */
+  font-size: 1.6rem;
+  text-decoration: none;
+  transition: color 0.2s ease, transform 0.2s ease;
+  display: inline-block;
+}
+
+/* Al pasar el cursor por encima de las redes */
+.footer-social-icons a:hover {
+  color: #0d6efd; /* Se iluminan con tu azul de marca */
+  transform: scale(1.08);
+}
+
+/* 5. Línea divisoria inferior y sección de Copyright */
+.footer-bottom {
+  border-color: #e2e8f0 !important; /* Línea divisoria clara */
+}
+
+.footer-bottom p {
+  color: #64748b !important; /* Texto de copyright sutil */
+}
