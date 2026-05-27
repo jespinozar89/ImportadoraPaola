@@ -7,7 +7,6 @@ import { ProductService, Producto } from '@/core/services/product.service';
 import { AuthService } from '@/core/services/auth.service';
 import { UtilsService } from '@/shared/service/utils.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { PaginatedResult } from '@/shared/models/producto.interface';
 
 @Component({
   selector: 'app-product-list',

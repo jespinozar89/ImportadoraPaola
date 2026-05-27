@@ -2,7 +2,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from "@angular/router";
-import { PaginatedResult, Producto, ProductoCreateInput, ProductoUpdateInput } from '@/shared/models/producto.interface';
+import { Producto, ProductoCreateInput, ProductoUpdateInput } from '@/shared/models/producto.interface';
 import { ProductService } from '@/core/services/product.service';
 import { CategoriaService } from '@/core/services/categoria.service';
 import { HotToastService } from '@ngxpert/hot-toast';
@@ -12,6 +12,7 @@ import { ProductEditorComponent } from "../product-editor/product-editor.compone
 import { ConfirmModalComponent } from "@/shared/components/confirm-modal/confirm-modal.component";
 import { NgxPaginationModule } from "ngx-pagination";
 import { UtilsService } from '@/shared/service/utils.service';
+import { PaginatedResult } from '@/shared/models/paginated.interface';
 
 declare var bootstrap: any;
 

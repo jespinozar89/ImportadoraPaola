@@ -20,7 +20,9 @@
         </button>
       </div>
     </div>
-    <div *ngFor="let order of filteredOrders" class="d-flex justify-content-center mb-4">
+    <div
+      *ngFor="let order of orderList | paginate: { itemsPerPage: itemsPerPage, currentPage: p, totalItems: totalOrders }"
+      class="d-flex justify-content-center mb-4">
       <div class="card shadow-sm border-0 rounded-3 col-12 col-md-6 col-lg-8">
         <a [routerLink]="['/orderDetailUser', order.pedido_id]" class="card-header
           bg-white border-0
@@ -91,14 +93,22 @@
       </div>
     </div>
 
-    <div *ngIf="!isLoading && filteredOrders.length === 0" class="empty-state">
+    <div *ngIf="!isLoading && orderList.length === 0" class="empty-state">
       <i class="bi bi-inbox"></i>
       <p>Aún no tienes pedidos realizados. ¡Anímate a hacer tu primera compra!</p>
     </div>
 
-    <div *ngIf="isLoading && filteredOrders.length === 0" class="empty-state">
+    <div *ngIf="isLoading && orderList.length === 0" class="empty-state">
       <i class="bi bi-arrow-repeat spin"></i>
       <p>Cargando tus pedidos...</p>
+    </div>
+
+    <div class="mt-4 d-flex justify-content-center">
+      <pagination-controls
+        (pageChange)="onPageChange($event)"
+        previousLabel="Ant."
+        nextLabel="Sig.">
+      </pagination-controls>
     </div>
 
 

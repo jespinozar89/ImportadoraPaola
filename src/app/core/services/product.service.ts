@@ -3,12 +3,12 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import {
   BulkUpload,
-  PaginatedResult,
   Producto,
   ProductoCreateInput,
   ProductoUpdateInput
 } from '@/shared/models/producto.interface';
 import { environment } from '@/environments/environment';
+import { PaginatedResult } from '@/shared/models/paginated.interface';
 
 @Injectable({
   providedIn: 'root'

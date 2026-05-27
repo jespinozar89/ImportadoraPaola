@@ -1,5 +1,6 @@
 import { environment } from '@/environments/environment';
 import { CrearPedido, Pedido } from '@/shared/models/order.interface';
+import { PaginatedResult } from '@/shared/models/paginated.interface';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
@@ -11,7 +12,7 @@ export class OrderService {
 
   private readonly apiUrl = `${environment.apiUrl}/pedidos`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   /**
    * Crea un nuevo pedido
@@ -32,10 +33,26 @@ export class OrderService {
   /**
    * Obtiene los pedidos del usuario en sesión
    */
-  async findMyOrders(): Promise<Pedido[]> {
-    const call$ = this.http.get<Pedido[]>(`${this.apiUrl}/mis-pedidos`);
-    return await firstValueFrom(call$);
+  // async findMyOrders(): Promise<Pedido[]> {
+  //   const call$ = this.http.get<Pedido[]>(`${this.apiUrl}/mis-pedidos`);
+  //   return await firstValueFrom(call$);
+  // }
+  async findMyOrders(
+    page: number, limit: number, search?: string
+  ): Promise<PaginatedResult<Pedido>> {
+  const url = `${this.apiUrl}/mis-pedidos`;
+
+  // Creamos el objeto de parámetros. Si search es undefined, Angular no lo incluirá en la URL.
+  const params: any = { page, limit };
+
+  if (search && search.trim() !== '') {
+    params.search = search;
   }
+
+  return firstValueFrom(
+    this.http.get<PaginatedResult<Pedido>>(url, { params })
+  );
+}
 
   /**
    * Obtiene un pedido por ID(cliente)
@@ -72,12 +89,12 @@ export class OrderService {
   ): Promise<any> {
 
     const call$ = this.http.post<Pedido>(`${this.apiUrl}/correo-status`,
-    {
-      id: id,
-      estado: status,
-      adjuntoNombre: fileName,
-      adjuntoBase64: base64Content
-    });
+      {
+        id: id,
+        estado: status,
+        adjuntoNombre: fileName,
+        adjuntoBase64: base64Content
+      });
     return await firstValueFrom(call$);
   }
 

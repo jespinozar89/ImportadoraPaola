@@ -32,15 +32,6 @@ export interface ProductoUpdateInput {
   categoria_id?: number;
 }
 
-export interface PaginatedResult<T> {
-  data: T[];
-  meta: {
-    total: number;
-    page: number;
-    last_page: number;
-  };
-}
-
 export interface BulkUpload {
   status: string;
   message: string;
