@@ -72,7 +72,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let order of filteredOrders | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
+            <tr *ngFor="let order of orders | paginate: { itemsPerPage: itemsPerPage, currentPage: p,totalItems: totalOrders}">
               <!-- ID del pedido -->
               <td>
                 <span class="order-id">#ORD-{{ order.pedido_id.toString().padStart(4, '0') }}</span>

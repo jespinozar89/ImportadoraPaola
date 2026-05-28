@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, effect, signal } from '@angular/core';
 import { RouterLink } from "@angular/router";
 import { OrderService } from '../../../core/services/order.service';
 import { EstadoPedido, Pedido } from '@/shared/models/order.interface';
@@ -15,20 +15,19 @@ import { HotToastService } from '@ngxpert/hot-toast';
   templateUrl: './order-management.component.html',
   styleUrl: './order-management.component.scss'
 })
-export class OrderManagementComponent implements OnInit {
+export class OrderManagementComponent {
   estadoSeleccionado = '';
   orders: Pedido[] = [];
   ordersFilter: Pedido[] = [];
-  totalOrders: number = 0;
   deliveredOrders: number = 0;
   pendingOrders: number = 0;
   inProcessOrders: number = 0;
   isLoading = true;
 
-
   searchTerm = signal<string>('');
   selectedStatus = signal<string>('all');
 
+  totalOrders: number = 0;
   p: number = 1;
   itemsPerPage: number = 20;
 
@@ -45,33 +44,38 @@ export class OrderManagementComponent implements OnInit {
     private exportService: ExportService,
     private toast: HotToastService,
     public utilsService: UtilsService
-  ) { }
+  ) {
+    effect(() => {
+      this.loadState();
 
+      const term = this.searchTerm();
+      const status = this.selectedStatus();
 
-  ngOnInit() {
-    this.loadOrders();
-    this.loadState();
+      this.saveState(status, term, this.p);
+      this.loadOrders();
+    });
   }
 
-
   async loadOrders() {
+    this.isLoading = true;
     try {
-      this.orders = await this.orderService.findAll();
+      const backendStatus = this.selectedStatus() === 'all' ? 'todos' : this.selectedStatus();
+      const term = this.searchTerm().trim();
 
-      if(!this.orders){
-        this.orders = [];
-        this.isLoading = false;
-        return;
-      }
+      const response = await this.orderService.findAll(this.p, this.itemsPerPage, {estado: backendStatus, search: term});
 
-      this.isLoading = false;
-      this.totalOrders = this.orders.length;
-      this.deliveredOrders = this.orders.filter(o => o.estado === EstadoPedido.Entregado).length;
-      this.pendingOrders = this.orders.filter(o => o.estado === EstadoPedido.Pendiente).length;
-      this.inProcessOrders = this.orders.filter(o => o.estado === EstadoPedido.EnPreparacion || o.estado === EstadoPedido.Listo).length;
+      this.orders = response.data || [];
+      this.totalOrders = response.meta.total || 0;
+      var totalByStatus = response.meta.totalsByStatus;
+
+      this.deliveredOrders = totalByStatus?.Entregado || 0;
+      this.pendingOrders = totalByStatus?.Pendiente || 0;
+      this.inProcessOrders = (totalByStatus?.EnPreparacion || 0) + (totalByStatus?.Listo || 0);
 
     } catch (error) {
       console.error('Error al cargar los pedidos:', error);
+      this.orders = [];
+    } finally {
       this.isLoading = false;
     }
   }
@@ -83,34 +87,11 @@ export class OrderManagementComponent implements OnInit {
     this.saveState(this.selectedStatus(), this.searchTerm(), this.p);
   }
 
-  get filteredOrders(): Pedido[] {
-    const status = this.selectedStatus().toLowerCase() || 'all';
-    const term = this.searchTerm().toLowerCase().trim();
-
-    if(!this.orders){
-      return [];
-    }
-
-    return this.orders.filter(o => {
-      const nombres = o.usuario?.nombres?.toLowerCase() || '';
-      const apellidos = o.usuario?.apellidos?.toLowerCase() || '';
-      const fullName = `${nombres} ${apellidos}`.trim();
-
-      const matchStatus = status === 'all' || o.estado.toLowerCase() === status;
-
-      if (!term) return matchStatus;
-
-      const terms = term.split(/\s+/);
-
-      const matchTerm = terms.every(t => fullName.includes(t)) || o.pedido_id === Number(term);
-
-      return matchStatus && matchTerm;
-    });
-  }
-
   onPageChange(page: number): void {
+    console.log("page: ",page);
     this.p = page;
     this.saveState(this.selectedStatus(), this.searchTerm(), this.p);
+    this.loadOrders();
   }
 
   onStatusChange(event: Event): void {
@@ -135,10 +116,13 @@ export class OrderManagementComponent implements OnInit {
       currentPage
     };
 
+    console.log("state: ",state);
+
     localStorage.setItem('productStateOrders', JSON.stringify(state));
   }
 
   loadState(): void {
+    console.log("loadstate: ",localStorage.getItem('productStateOrders'))
     const savedState = localStorage.getItem('productStateOrders');
     if (savedState) {
       const state = JSON.parse(savedState);

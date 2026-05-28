@@ -25,24 +25,30 @@ export class OrderService {
   /**
    * Obtiene todos los pedidos (Admin)
    */
-  async findAll(): Promise<Pedido[]> {
-    const call$ = this.http.get<Pedido[]>(this.apiUrl);
-    return await firstValueFrom(call$);
-  }
+  async findAll(
+    page: number, limit: number, filtros: { estado?: string; search?: string } = {}
+  ): Promise<PaginatedResult<Pedido>> {
+  const url = this.apiUrl;
+
+  const params = {
+    page,
+    limit,
+    estado: filtros.estado || 'todos',
+    ...(filtros.search ? { search: filtros.search } : {})
+  };
+
+  return firstValueFrom(
+    this.http.get<PaginatedResult<Pedido>>(url, { params })
+  );
+}
 
   /**
    * Obtiene los pedidos del usuario en sesión
    */
-  // async findMyOrders(): Promise<Pedido[]> {
-  //   const call$ = this.http.get<Pedido[]>(`${this.apiUrl}/mis-pedidos`);
-  //   return await firstValueFrom(call$);
-  // }
   async findMyOrders(
     page: number, limit: number, search?: string
   ): Promise<PaginatedResult<Pedido>> {
   const url = `${this.apiUrl}/mis-pedidos`;
-
-  // Creamos el objeto de parámetros. Si search es undefined, Angular no lo incluirá en la URL.
   const params: any = { page, limit };
 
   if (search && search.trim() !== '') {
