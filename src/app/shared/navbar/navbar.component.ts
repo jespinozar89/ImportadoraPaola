@@ -115,10 +115,7 @@ export class NavbarComponent implements OnInit {
       localStorage.removeItem("productStateInventory");
     }
 
-    console.log("value: ",value);
-    console.log("productStateOrders: ",localStorage.getItem("productStateOrders"));
     if (value && !value.includes('orders') && !value.includes('DetalleOrden')) {
-      console.log("eliminar item Productstateorders");
       localStorage.removeItem("productStateOrders");
     }
   }

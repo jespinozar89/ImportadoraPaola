@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, effect, signal } from '@angular/core';
 import { RouterLink } from "@angular/router";
 import { OrderService } from '../../../core/services/order.service';
-import { EstadoPedido, Pedido } from '@/shared/models/order.interface';
+import { Pedido } from '@/shared/models/order.interface';
 import { FormsModule } from '@angular/forms';
 import { NgxPaginationModule } from "ngx-pagination";
 import { UtilsService } from '@/shared/service/utils.service';
@@ -88,7 +88,6 @@ export class OrderManagementComponent {
   }
 
   onPageChange(page: number): void {
-    console.log("page: ",page);
     this.p = page;
     this.saveState(this.selectedStatus(), this.searchTerm(), this.p);
     this.loadOrders();
@@ -116,13 +115,10 @@ export class OrderManagementComponent {
       currentPage
     };
 
-    console.log("state: ",state);
-
     localStorage.setItem('productStateOrders', JSON.stringify(state));
   }
 
   loadState(): void {
-    console.log("loadstate: ",localStorage.getItem('productStateOrders'))
     const savedState = localStorage.getItem('productStateOrders');
     if (savedState) {
       const state = JSON.parse(savedState);

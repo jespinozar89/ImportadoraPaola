@@ -273,7 +273,6 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
 
   async handleOrderResult(res: OrderResponse) {
     if (this.orderHandled) return;
-    console.log('handleOrderResult', res);
 
     if (res.status === 'completed') {
       this.orderHandled = true;
