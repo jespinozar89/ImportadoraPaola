@@ -5,6 +5,7 @@ import { CategoriaService } from '@/core/services/categoria.service';
 import { firstValueFrom } from 'rxjs';
 import { Categoria } from '@/shared/models/categoria.interface';
 import { Producto } from '@/shared/models/producto.interface';
+import { ImagenProducto } from '@/shared/models/producto.interface';
 import { ProductService } from '@/core/services/product.service';
 import { HotToastService } from '@ngxpert/hot-toast';
 
@@ -22,8 +23,6 @@ export class ProductEditorComponent implements OnInit, OnChanges {
   @Output() save = new EventEmitter<Producto>();
   @Output() cancel = new EventEmitter<void>();
 
-  imagePreview = signal<string>('');
-  hasImage = signal<boolean>(false);
   isEdit = signal<boolean>(false);
   categories: Categoria[] = [];
 
@@ -35,7 +34,7 @@ export class ProductEditorComponent implements OnInit, OnChanges {
     precio: 0,
     stock: 1,
     descripcion: '',
-    imagen: ''
+    imagenes: []
   };
 
   stockOptions = [
@@ -55,72 +54,90 @@ export class ProductEditorComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['productData'] && this.productData) {
-
-      this.product = { ...this.productData }
+      this.product = {
+        ...this.productData,
+        imagenes: this.productData.imagenes ? [...this.productData.imagenes] : []
+      };
 
       if (this.product.stock > 0) {
         this.product.stock = 1;
       }
 
       this.isEdit.set(true);
-      if (this.product?.imagen) {
-        this.imagePreview.set(this.product.imagen);
-        this.hasImage.set(true);
-      }
-    }
-    else {
+    } else {
       this.resetForm();
     }
   }
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-    if (input.files && input.files[0]) this.processFile(input.files[0]);
+    if (input.files && input.files.length > 0) {
+      this.processFiles(Array.from(input.files));
+      input.value = '';
+    }
   }
 
   onDragOver(event: DragEvent): void {
-    event.preventDefault(); event.stopPropagation();
+    event.preventDefault();
+    event.stopPropagation();
   }
 
   onDrop(event: DragEvent): void {
-    event.preventDefault(); event.stopPropagation();
-    if (event.dataTransfer?.files?.[0]) {
-      const file = event.dataTransfer.files[0];
-      if (file.type.startsWith('image/')) this.processFile(file);
-    }
-  }
-
-  private processFile(file: File): void {
-    if (file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        this.imagePreview.set(result);
-        this.hasImage.set(true);
-        if (this.product) this.product.imagen = result;
-      };
-      reader.readAsDataURL(file);
-    }
-  }
-
-  removeImage(event: Event): void {
+    event.preventDefault();
     event.stopPropagation();
-    this.imagePreview.set('');
-    this.hasImage.set(false);
-    if (this.product) {
-      this.product.imagen = '';
+    if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
+      const files = Array.from(event.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+      if (files.length > 0) {
+        this.processFiles(files);
+      }
+    }
+  }
+
+  private processFiles(files: File[]): void {
+    files.forEach((file) => {
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const result = e.target?.result as string;
+          const esPrimera = this.product.imagenes.length === 0;
+
+          const nuevaImagen: ImagenProducto = {
+            imagen_id: 0,
+            url: result,
+            es_principal: esPrimera
+          };
+
+          this.product.imagenes.push(nuevaImagen);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
+  setPrincipalImage(index: number): void {
+    this.product.imagenes.forEach((img, i) => {
+      img.es_principal = i === index;
+    });
+  }
+
+  removeImage(index: number, event: Event): void {
+    event.stopPropagation();
+    const [removed] = this.product.imagenes.splice(index, 1);
+
+    if (removed?.es_principal && this.product.imagenes.length > 0) {
+      this.product.imagenes[0].es_principal = true;
     }
   }
 
   triggerFileInput(input: HTMLInputElement): void {
-    if (!this.hasImage()) input.click();
+    input.click();
   }
 
-  validateProduct(product: any): string | null {
+  validateProduct(product: Producto): string | null {
     const errores: string[] = [];
 
-    if (!product.imagen) {
-      errores.push("Imagen");
+    if (!product.imagenes || product.imagenes.length === 0) {
+      errores.push("Al menos una imagen");
     }
     if (product.categoria_id === 0) {
       errores.push("Categoría");
@@ -153,14 +170,13 @@ export class ProductEditorComponent implements OnInit, OnChanges {
     }
 
     const existProductCode = await this.productService.findByCode(this.product.producto_codigo);
-    if (existProductCode && !this.isEdit()) {
+    if (existProductCode && (!this.isEdit() || existProductCode.producto_id !== this.product.producto_id)) {
       this.toast.error('Ya existe un producto con ese código');
       return;
     }
 
     this.product.categoria_id = Number(this.product.categoria_id);
     this.product.stock = Number(this.product.stock);
-
 
     this.save.emit(this.product);
     this.resetForm();
@@ -179,11 +195,9 @@ export class ProductEditorComponent implements OnInit, OnChanges {
       precio: 0,
       stock: 1,
       descripcion: '',
-      imagen: ''
+      imagenes: []
     };
 
-    this.imagePreview.set('');
-    this.hasImage.set(false);
     this.isEdit.set(false);
   }
 }

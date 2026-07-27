@@ -18,6 +18,8 @@ import { HotToastService } from '@ngxpert/hot-toast';
 export class ProductViewComponent implements OnInit {
 
   product: Producto | null = null;
+  selectedImageIndex: number = 0;
+  currentImageFit: 'cover' | 'contain' = 'cover';
   productId!: number;
   quantity: number = 0;
   categoryName: string = '';
@@ -33,7 +35,6 @@ export class ProductViewComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-
     const idString = this.route.snapshot.paramMap.get('id');
     this.productId = idString ? +idString : 0;
 
@@ -114,6 +115,45 @@ export class ProductViewComponent implements OnInit {
       this.toast.error('Error al copiar el enlace');
       console.error('Error al copiar enlace:', err);
     });
+  }
+
+  get activeImageUrl(): string {
+    if (this.product?.imagenes && this.product.imagenes.length > 0) {
+      return this.product.imagenes[this.selectedImageIndex]?.url || 'null.png';
+    }
+    return 'null.png';
+  }
+
+  selectImage(index: number): void {
+    this.selectedImageIndex = index;
+  }
+
+  prevImage(): void {
+    if (!this.product?.imagenes?.length) return;
+    if (this.selectedImageIndex > 0) {
+      this.selectedImageIndex--;
+    } else {
+      this.selectedImageIndex = this.product.imagenes.length - 1;
+    }
+  }
+
+  nextImage(): void {
+    if (!this.product?.imagenes?.length) return;
+    if (this.selectedImageIndex < this.product.imagenes.length - 1) {
+      this.selectedImageIndex++;
+    } else {
+      this.selectedImageIndex = 0;
+    }
+  }
+
+  onActiveImageLoad(event: Event): void {
+    const img = event.target as HTMLImageElement;
+
+    if (img.naturalWidth && img.naturalHeight) {
+      const isVertical = img.naturalHeight > img.naturalWidth * 1.1;
+
+      this.currentImageFit = isVertical ? 'contain' : 'cover';
+    }
   }
 
 

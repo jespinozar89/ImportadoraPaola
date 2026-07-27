@@ -99,7 +99,7 @@
               <div class="d-flex align-items-center flex-grow-1">
                 <div class="flex-shrink-0 border rounded p-1 bg-white" style="width: 70px; height: 70px;">
                   <a routerLink="/producto/{{ detalle?.producto?.producto_id }}">
-                    <img [src]="detalle?.producto?.imagen || 'null.png'"
+                    <img [src]="detalle?.producto?.imagenes?.[0]?.url || 'null.png'"
                       class="img-fluid object-fit-contain w-100 h-100" alt="prod">
                   </a>
                 </div>

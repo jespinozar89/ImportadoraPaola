@@ -85,7 +85,7 @@
                 <td>
                   <div class="product-item">
                     <a routerLink="/producto/{{ product.producto_id }}">
-                      <img [src]="product.imagen || 'null.png'"
+                      <img [src]="product?.imagenes?.[0]?.url || 'null.png'"
                           [alt]="product.nombre"
                           class="product-image">
                     </a>

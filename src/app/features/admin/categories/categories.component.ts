@@ -50,7 +50,6 @@ export class CategoriesComponent implements OnInit {
     this.categories = categorias.map(categoria => ({
       id: categoria.categoria_id,
       name: categoria.nombre.replace(/_/g, ' '),
-      // slug: `/${categoria.nombre.toLowerCase().replace(/_/g, ' ')}`,
       slug: `/Codigo: ${categoria.categoria_id.toString().padStart(4, '0')}`,
       icon: 'folder2',
       color: this.getNextColor(),

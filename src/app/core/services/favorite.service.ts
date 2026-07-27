@@ -71,7 +71,7 @@ export class FavoriteService {
       precio: item.producto?.precio || 0,
       stock: item.producto?.stock || 0,
       descripcion: item.producto?.descripcion || '',
-      imagen: item.producto?.imagen || '',
+      imagenes: item.producto?.imagenes || [],
     }));
 
   }

@@ -24,7 +24,6 @@ export class SignUpModalComponent {
   isLoading = signal(false);
   formTouched = signal(false);
 
-  // Validaciones (signals + computed)
   nombresValid = computed(() => this.nombres().trim().length >= 2);
   apellidosValid = computed(() => this.apellidos().trim().length >= 2);
   emailValid = computed(() => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email()));

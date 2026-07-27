@@ -1,4 +1,3 @@
-// klap-modal.component.ts
 import { Component, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { Order, OrderResponse } from '@/shared/models/klap.interface';
 import { KlapService } from '@/core/services/klap.service';

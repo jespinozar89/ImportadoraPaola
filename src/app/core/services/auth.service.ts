@@ -15,7 +15,6 @@ export class AuthService {
   private apiUrl = `${environment.apiUrl}/auth`;
   private readonly USER_KEY = 'jwt_token';
 
-  // Estado para saber si el usuario está autenticado (Observable)
   private currentUserSubject: BehaviorSubject<UserLogged | null>;
   public currentUser: Observable<UserLogged | null>;
 
@@ -144,7 +143,6 @@ export class AuthService {
   // GESTIÓN DE TOKEN Y ALMACENAMIENTO (PRIVADO)
   // ----------------------------------------------------------------------
 
-  /** Almacena el token y actualiza el estado del usuario */
   private storeAuthData(response: AuthResponse): void {
     localStorage.setItem(this.USER_KEY, response.token);
 

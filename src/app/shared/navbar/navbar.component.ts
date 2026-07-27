@@ -107,11 +107,15 @@ export class NavbarComponent implements OnInit {
   }
 
   selectItem(value: string) {
-    this.productService.resetPage();
     this.selected = value;
-    localStorage.setItem(this.SELECTED_MENU_KEY, value);
 
-    if (value && !value.includes('inventario')) {
+    if(localStorage.getItem(this.SELECTED_MENU_KEY) !== value){
+      this.productService.resetPage();
+      localStorage.setItem(this.SELECTED_MENU_KEY, value);
+    }
+
+
+    if (value && !value.includes('inventory')) {
       localStorage.removeItem("productStateInventory");
     }
 

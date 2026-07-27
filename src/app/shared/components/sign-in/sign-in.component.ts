@@ -125,7 +125,6 @@ export class SignInComponent {
       (window as any).bootstrap.Modal.getInstance(resetPasswordModalEl) ||
       new (window as any).bootstrap.Modal(resetPasswordModalEl);
 
-    // Cuando se cierre el modal de inicio de sesión, abrir el de recuperación
     signInModalEl.addEventListener(
       'hidden.bs.modal',
       () => {
@@ -136,7 +135,6 @@ export class SignInComponent {
       { once: true }
     );
 
-    // Ocultar el modal de inicio de sesión
     signInInstance.hide();
   }
 }

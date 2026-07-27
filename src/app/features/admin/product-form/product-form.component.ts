@@ -40,7 +40,7 @@ export class ProductFormComponent {
       precio: newProduct.precio,
       stock: newProduct.stock,
       descripcion: newProduct.descripcion,
-      imagen: newProduct.imagen
+      imagenes: newProduct.imagenes || []
     };
 
     await this.productService.create(product);

@@ -87,10 +87,22 @@ export class ProductInventoryComponent implements OnInit {
     this.selectedProduct = null;
   }
 
-  onEditOrDeleteProduct(product: Producto): void {
-    this.selectedProduct = { ...product };
+ async onEditOrDeleteProduct(product: Producto): Promise<void> {
+  try {
+    const foundProduct = await this.productService.findById(product.producto_id);
+
+    if (foundProduct) {
+      this.selectedProduct = {
+        ...foundProduct,
+        imagenes: foundProduct.imagenes ? [...foundProduct.imagenes] : []
+      };
+    }
+
     this.modalMessage = `¿Estás seguro de eliminar el producto "${product.nombre}"?`;
+  } catch (error) {
+    console.error('Error al obtener el producto:', error);
   }
+}
 
   async onSaveProduct(data: any): Promise<void> {
     if (data.producto_id) {
@@ -101,7 +113,7 @@ export class ProductInventoryComponent implements OnInit {
         precio: data.precio,
         stock: data.stock,
         descripcion: data.descripcion,
-        imagen: data.imagen
+        imagenes: data.imagenes
       };
       await this.productService.update(data.producto_id, updatedProduct);
       this.toast.success('Producto actualizado con éxito');
@@ -113,7 +125,7 @@ export class ProductInventoryComponent implements OnInit {
         precio: data.precio,
         stock: data.stock,
         descripcion: data.descripcion,
-        imagen: data.imagen
+        imagenes: data.imagenes
       }
       await this.productService.create(createProduct);
       this.toast.success('Producto creado con éxito');

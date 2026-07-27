@@ -1,38 +1,73 @@
 <form (ngSubmit)="onSubmit()">
   <div class="row">
-    <!-- Image Upload Section -->
+    <!-- Section Upload Multi-Image -->
     <div class="col-lg-5">
       <div class="card h-100">
         <div class="card-body">
-          <h5 class="mb-4">Imagen del Producto</h5>
+          <h5 class="mb-4">Imágenes del Producto</h5>
 
           <!-- Image Upload Area -->
-          <div class="image-upload-area" [class.has-image]="hasImage()" (dragover)="onDragOver($event)"
-            (drop)="onDrop($event)" (click)="triggerFileInput(fileInput)">
+          <div class="image-upload-area"
+               (dragover)="onDragOver($event)"
+               (drop)="onDrop($event)"
+               (click)="triggerFileInput(fileInput)">
 
-            <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)" style="display: none;">
+            <input #fileInput type="file" accept="image/*" multiple (change)="onFileSelected($event)" style="display: none;">
 
-            <div class="upload-placeholder" *ngIf="!hasImage()">
-              <i class="bi bi-cloud-upload upload-icon"></i>
-              <p class="upload-text">Arrastra y suelta una imagen aquí</p>
-              <p class="upload-subtext">o</p>
-              <button type="button" class="btn btn-outline-primary"
+            <div class="upload-placeholder py-3 text-center">
+              <i class="bi bi-cloud-upload upload-icon fs-1 text-primary"></i>
+              <p class="upload-text mb-1 fw-bold">Arrastra y suelta imágenes aquí</p>
+              <p class="upload-subtext text-muted small mb-2">o</p>
+              <button type="button" class="btn btn-outline-primary btn-sm"
                 (click)="fileInput.click(); $event.stopPropagation()">
-                Seleccionar Imagen
-              </button>
-            </div>
-
-            <div class="image-preview-container" [class.active]="hasImage()">
-              <img [src]="imagePreview()" alt="Preview" class="image-preview">
-              <button type="button" class="btn btn-danger btn-sm remove-image-btn" (click)="removeImage($event)">
-                <i class="bi bi-trash"></i> Eliminar
+                Seleccionar Imágenes
               </button>
             </div>
           </div>
 
-          <small class="text-muted d-block mt-2">
-            Formatos aceptados: JPG, PNG, GIF (Máx. 5MB)
+          <small class="text-muted d-block mt-2 mb-3">
+            Formatos aceptados: JPG, PNG, GIF (Máx. 5MB por imagen). Puedes subir múltiples archivos.
           </small>
+
+          <!-- List / Grid Gallery Preview -->
+          <div *ngIf="product.imagenes.length > 0" class="mt-3">
+            <h6 class="small text-muted mb-2">Galería de imágenes ({{ product.imagenes.length }})</h6>
+
+            <div class="row g-2">
+              <div class="col-4" *ngFor="let img of product.imagenes; let i = index">
+                <div class="card h-100 position-relative border" [class.border-primary]="img.es_principal" [class.border-2]="img.es_principal">
+
+                  <img [src]="img.url" alt="Preview" class="card-img-top object-fit-cover" style="height: 90px;">
+
+                  <!-- Badge Principal -->
+                  <span *ngIf="img.es_principal" class="position-absolute top-0 start-0 badge bg-primary m-1 small">
+                    Principal
+                  </span>
+
+                  <!-- Action Buttons -->
+                  <div class="p-1 d-flex justify-content-between align-items-center bg-light">
+                    <button type="button"
+                            class="btn btn-xs"
+                            [class.btn-warning]="img.es_principal"
+                            [class.btn-outline-secondary]="!img.es_principal"
+                            title="Marcar como principal"
+                            (click)="setPrincipalImage(i)">
+                      <i class="bi" [class.bi-star-fill]="img.es_principal" [class.bi-star]="!img.es_principal"></i>
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-outline-danger btn-xs"
+                            title="Eliminar imagen"
+                            (click)="removeImage(i, $event)">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -63,7 +98,7 @@
 
           <!-- Product Code -->
           <div class="mb-3">
-            <label for="productCode" class="form-label">Codigo del Producto *</label>
+            <label for="productCode" class="form-label">Código del Producto *</label>
             <input type="text" class="form-control" id="productCode" name="productCode"
               [(ngModel)]="product.producto_codigo" placeholder="Ej: 4009900484039" required>
           </div>
@@ -82,8 +117,8 @@
             <div class="col-md-6 mb-3">
               <label for="stock" class="form-label">Stock Disponible</label>
               <select class="form-select" id="stock" name="stock" [(ngModel)]="product.stock" required>
-                <option *ngFor="let cat of stockOptions" [value]="cat.value">
-                  {{ cat.label }}
+                <option *ngFor="let option of stockOptions" [value]="option.value">
+                  {{ option.label }}
                 </option>
               </select>
             </div>
@@ -100,7 +135,7 @@
           <div class="d-flex gap-2 mt-4">
             <button type="submit" class="btn btn-primary flex-grow-1">
               <i class="bi bi-check-circle me-2"></i>
-              {{ productData ? 'Guardar Cambios' : 'Crear Producto' }}
+              {{ isEdit() ? 'Guardar Cambios' : 'Crear Producto' }}
             </button>
             <button type="button" class="btn btn-outline-secondary" (click)="resetForm()">
               <i class="bi bi-arrow-clockwise"></i> Limpiar

@@ -1,10 +1,16 @@
 import { Categoria } from "./categoria.interface";
 
+export interface ImagenProducto {
+  imagen_id: number;
+  url: string;
+  es_principal: boolean;
+}
+
 export interface Producto {
   producto_id: number;
   nombre: string;
   descripcion: string;
-  imagen: string;
+  imagenes: ImagenProducto[];
   precio: number;
   stock: number;
   producto_codigo: string;
@@ -15,7 +21,7 @@ export interface Producto {
 export interface ProductoCreateInput {
   nombre: string;
   descripcion: string;
-  imagen?: string;
+  imagenes: ImagenProducto[];
   producto_codigo?: string;
   precio: number;
   stock: number;
@@ -25,7 +31,7 @@ export interface ProductoCreateInput {
 export interface ProductoUpdateInput {
   nombre?: string;
   descripcion?: string;
-  imagen?: string;
+  imagenes: ImagenProducto[];
   precio?: number;
   stock?: number;
   producto_codigo?: string;
