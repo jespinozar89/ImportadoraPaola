@@ -69,6 +69,7 @@ export class FavoriteService {
       producto_codigo: item.producto?.producto_codigo || '',
       nombre: item.producto?.nombre || '',
       precio: item.producto?.precio || 0,
+      precio_oferta: item.producto?.precio_oferta ? Number(item.producto?.precio_oferta) : null,
       stock: item.producto?.stock || 0,
       descripcion: item.producto?.descripcion || '',
       imagenes: item.producto?.imagenes || [],

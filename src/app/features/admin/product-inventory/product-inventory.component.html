@@ -1,4 +1,3 @@
-
 <div class="container mt-4">
   <!-- Back Link -->
   <div class="back-link-container mb-3">
@@ -6,7 +5,7 @@
       <i class="bi bi-arrow-left me-2"></i>
       Volver a Productos
     </a>
-    </div>
+  </div>
 
   <!-- Page Header -->
   <div class="page-header">
@@ -37,12 +36,8 @@
               <i class="bi bi-funnel"></i>
               Filtrar por categoría:
             </label>
-            <select
-              id="categoryFilter"
-              class="form-select"
-              (change)="onCategoryChange($event)"
-              (click)="onResetSearch()"
-              [(ngModel)]="selectedCategory">
+            <select id="categoryFilter" class="form-select" (change)="onCategoryChange($event)"
+              (click)="onResetSearch()" [(ngModel)]="selectedCategory">
               <option value="all">Todas las categorías</option>
               <option *ngFor="let cat of categories" [value]="cat.categoria_id">
                 {{ this.normalizeString(cat.nombre) }}
@@ -53,16 +48,11 @@
         <div class="search-create-section">
           <div class="search-box position-relative">
             <i class="bi bi-search search-icon"></i>
-            <input type="text"
-                   class="form-control"
-                   placeholder="Buscar nombre o codigo producto..."
-                   (input)="onSearch($event)"
-                   [value]="searchTerm()" >
+            <input type="text" class="form-control" placeholder="Buscar nombre o codigo producto..."
+              (input)="onSearch($event)" [value]="searchTerm()">
           </div>
-          <button class="btn btn-primary"
-                  data-bs-toggle="modal"
-                  data-bs-target="#editModal"
-                  (click)="onCreateProduct()">
+          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editModal"
+            (click)="onCreateProduct()">
             <i class="bi bi-plus-circle me-2"></i>
             Crear Producto
           </button>
@@ -81,13 +71,13 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let product of products | paginate: { itemsPerPage: itemsPerPage, currentPage: p, totalItems: totalProducts }" >
+              <tr
+                *ngFor="let product of products | paginate: { itemsPerPage: itemsPerPage, currentPage: p, totalItems: totalProducts }">
                 <td>
                   <div class="product-item">
                     <a routerLink="/producto/{{ product.producto_id }}">
-                      <img [src]="product?.imagenes?.[0]?.url || 'null.png'"
-                          [alt]="product.nombre"
-                          class="product-image">
+                      <img [src]="product?.imagenes?.[0]?.url || 'null.png'" [alt]="product.nombre"
+                        class="product-image">
                     </a>
                     <div class="product-info">
                       <div class="product-name">{{ product.nombre }}</div>
@@ -99,33 +89,40 @@
                   <span class="category-badge">{{ this.normalizeString(product.categoria?.nombre || '') }}</span>
                 </td>
                 <td>
-                  <span class="product-price">{{ formatPrice(product.precio) }}</span>
+                  <div class="price-container">
+                    <!-- Precio Oferta -->
+                    <ng-container *ngIf="hasValidOffer(product); else normalPrice">
+                      <div class="d-flex flex-column align-items-start">
+                        <span class="product-price-offer text-danger fw-bold">
+                          {{ formatPrice(product.precio_oferta!) }}
+                        </span>
+                        <span class="product-price-original text-muted text-decoration-line-through small">
+                          {{ formatPrice(product.precio) }}
+                        </span>
+                      </div>
+                    </ng-container>
+                    <!-- Precio normal  -->
+                    <ng-template #normalPrice>
+                      <span class="product-price">{{ formatPrice(product.precio) }}</span>
+                    </ng-template>
+                  </div>
                 </td>
-
                 <td>
-                  <span class="status-badge"
-                        [class.disponible]="product.stock > 0"
-                        [class.agotado]="product.stock === 0">
-                    <i class="bi"
-                       [class.bi-check-circle-fill]="product.stock > 0"
-                       [class.bi-x-circle-fill]="product.stock === 0"></i>
+                  <span class="status-badge" [class.disponible]="product.stock > 0"
+                    [class.agotado]="product.stock === 0">
+                    <i class="bi" [class.bi-check-circle-fill]="product.stock > 0"
+                      [class.bi-x-circle-fill]="product.stock === 0"></i>
                     {{ product.stock > 0 ? 'Disponible' : 'Agotado' }}
                   </span>
                 </td>
                 <td>
                   <div class="table-actions">
-                    <button class="btn btn-edit btn-action"
-                            data-bs-toggle="modal"
-                            data-bs-target="#editModal"
-                            (click)="onEditOrDeleteProduct(product)"
-                            title="Editar">
+                    <button class="btn btn-edit btn-action" data-bs-toggle="modal" data-bs-target="#editModal"
+                      (click)="onEditOrDeleteProduct(product)" title="Editar">
                       <i class="bi bi-pencil"></i>
                     </button>
-                    <button class="btn btn-delete btn-action"
-                            data-bs-toggle="modal"
-                            data-bs-target="#deleteModal"
-                            (click)="onEditOrDeleteProduct(product)"
-                            title="Eliminar">
+                    <button class="btn btn-delete btn-action" data-bs-toggle="modal" data-bs-target="#deleteModal"
+                      (click)="onEditOrDeleteProduct(product)" title="Eliminar">
                       <i class="bi bi-trash"></i>
                     </button>
                   </div>
@@ -145,10 +142,7 @@
           </table>
         </div>
         <div class="mt-4 d-flex justify-content-center">
-          <pagination-controls
-            (pageChange)="onPageChange($event)"
-            previousLabel="Ant."
-            nextLabel="Sig.">
+          <pagination-controls (pageChange)="onPageChange($event)" previousLabel="Ant." nextLabel="Sig.">
           </pagination-controls>
         </div>
       </div>
@@ -157,21 +151,19 @@
 </div>
 
 <!-- modal -->
- <app-confirm-modal [mensaje]="modalMessage" (confirm)="onDeleteProduct()">
+<app-confirm-modal [mensaje]="modalMessage" (confirm)="onDeleteProduct()">
 </app-confirm-modal>
 
- <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-xl"> <div class="modal-content">
+<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">{{ selectedProduct ? 'Editar Producto' : 'Crear Producto' }}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
       <div class="modal-body bg-light">
-        <app-product-editor
-          [productData]="selectedProduct"
-          (save)="onSaveProduct($event)"
-          (cancel)="closeModal()">
+        <app-product-editor [productData]="selectedProduct" (save)="onSaveProduct($event)" (cancel)="closeModal()">
         </app-product-editor>
       </div>
     </div>

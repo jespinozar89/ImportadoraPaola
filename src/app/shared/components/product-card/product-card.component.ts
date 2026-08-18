@@ -5,6 +5,7 @@ import { HotToastService } from '@ngxpert/hot-toast';
 import { Producto } from '@/core/services/product.service';
 import { FavoriteService } from '@/core/services/favorite.service';
 import { CartService } from '@/core/services/cart.service';
+import { UtilsService } from '@/shared/service/utils.service';
 
 
 @Component({
@@ -22,6 +23,7 @@ export class ProductCardComponent {
     private favoriteService: FavoriteService,
     private cartService: CartService,
     private toast: HotToastService,
+    public utilsService: UtilsService,
     private router: Router
   ) { }
 
@@ -60,6 +62,20 @@ export class ProductCardComponent {
 
     this.router.navigate(['/producto', productId]);
 
+  }
+
+  getDiscountPercentage(): number {
+    if (!this.product) return 0;
+
+    const precio = this.utilsService.parsePrice(this.product.precio);
+    const precioOferta = this.utilsService.parsePrice(this.product.precio_oferta);
+
+    if (precio <= 0 || precioOferta <= 0 || precioOferta >= precio) {
+      return 0;
+    }
+
+    const discount = ((precio - precioOferta) / precio) * 100;
+    return Math.round(discount);
   }
 
 }

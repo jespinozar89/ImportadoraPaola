@@ -12,6 +12,7 @@ export interface Producto {
   descripcion: string;
   imagenes: ImagenProducto[];
   precio: number;
+  precio_oferta?: number | null;
   stock: number;
   producto_codigo: string;
   categoria_id: number;
@@ -24,6 +25,7 @@ export interface ProductoCreateInput {
   imagenes: ImagenProducto[];
   producto_codigo?: string;
   precio: number;
+  precio_oferta?: number | null;
   stock: number;
   categoria_id: number;
 }
@@ -33,6 +35,7 @@ export interface ProductoUpdateInput {
   descripcion?: string;
   imagenes: ImagenProducto[];
   precio?: number;
+  precio_oferta?: number | null;
   stock?: number;
   producto_codigo?: string;
   categoria_id?: number;

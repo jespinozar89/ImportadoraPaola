@@ -108,6 +108,18 @@ input[readonly][tabindex="-1"] {
   right: 12px;
 }
 
+/* Badge de Oferta sobre Imagen Principal */
+.offer-badge {
+  z-index: 10;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  border-radius: 6px;
+
+  i {
+    font-size: 0.85rem;
+  }
+}
 
 
 

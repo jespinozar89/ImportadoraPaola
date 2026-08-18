@@ -308,4 +308,6 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
       this.closeKlapModal();
     }
   }
+
+
 }

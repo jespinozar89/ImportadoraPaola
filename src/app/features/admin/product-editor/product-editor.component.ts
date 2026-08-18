@@ -32,6 +32,7 @@ export class ProductEditorComponent implements OnInit, OnChanges {
     producto_codigo: '',
     nombre: '',
     precio: 0,
+    precio_oferta: null,
     stock: 1,
     descripcion: '',
     imagenes: []
@@ -151,6 +152,18 @@ export class ProductEditorComponent implements OnInit, OnChanges {
     if (!product.precio) {
       errores.push("Precio");
     }
+
+    if (product.precio_oferta !== null && product.precio_oferta !== undefined && product.precio_oferta !== ('') as any) {
+      const oferta = Number(product.precio_oferta);
+      const precioNormal = Number(product.precio);
+
+      if (oferta < 0) {
+        errores.push("El precio de oferta no puede ser negativo");
+      } else if (precioNormal > 0 && oferta >= precioNormal) {
+        errores.push("El precio de oferta debe ser menor al precio normal");
+      }
+    }
+
     if (!product.descripcion) {
       errores.push("Descripción");
     }
@@ -175,6 +188,8 @@ export class ProductEditorComponent implements OnInit, OnChanges {
       return;
     }
 
+    this.product.precio_oferta = this.product.precio_oferta ? Number(this.product.precio_oferta) : null;
+
     this.product.categoria_id = Number(this.product.categoria_id);
     this.product.stock = Number(this.product.stock);
 
@@ -193,6 +208,7 @@ export class ProductEditorComponent implements OnInit, OnChanges {
       producto_codigo: '',
       nombre: '',
       precio: 0,
+      precio_oferta: null,
       stock: 1,
       descripcion: '',
       imagenes: []

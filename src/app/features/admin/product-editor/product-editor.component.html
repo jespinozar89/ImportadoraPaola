@@ -110,7 +110,16 @@
               <div class="input-group">
                 <span class="input-group-text">$</span>
                 <input type="number" class="form-control" id="price" name="price" [(ngModel)]="product.precio"
-                  step="0.01" min="0" placeholder="299.99" required>
+                  step="1" min="0" placeholder="9990" required>
+              </div>
+            </div>
+
+            <div class="col-md-4 mb-3">
+              <label for="offerPrice" class="form-label">Precio Oferta (Opcional)</label>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input type="number" class="form-control" id="offerPrice" name="offerPrice" [(ngModel)]="product.precio_oferta"
+                  step="1" min="0" placeholder="19990">
               </div>
             </div>
 

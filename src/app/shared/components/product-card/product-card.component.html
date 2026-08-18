@@ -1,4 +1,11 @@
 <div class="card h-100 d-flex flex-column" (click)="viewDetails()" style="cursor: pointer;">
+  <!-- Badge Promocional con Ícono de Etiqueta y Porcentaje de Descuento -->
+  <span *ngIf="getDiscountPercentage() > 0"
+        class="badge bg-danger position-absolute top-0 start-0 m-2 px-2 py-1 shadow-sm offer-badge d-flex align-items-center gap-1">
+    <i class="bi bi-tag-fill"></i>
+    -{{ getDiscountPercentage() }}%
+  </span>
+
   <!-- Ícono del corazón -->
   <button class="position-absolute top-0 end-0 m-2 p-1 rounded shadow-sm favorite-btn"
           (click)="toggleFavorite($event)">
@@ -31,9 +38,25 @@
       </span>
 
       <div class="d-flex justify-content-between align-items-center mt-3">
-        <span class="fw-bold fs-5 text-primary">
-          ${{ product.precio | number:'1.0-0':'es-CL' }}
-        </span>
+        <!-- Contenedor de Precios -->
+        <div class="d-flex flex-column align-items-start">
+          <!-- Si tiene precio de oferta válido -->
+          <ng-container *ngIf="product.precio_oferta && product.precio_oferta > 0 && product.precio_oferta < product.precio; else precioNormal">
+            <span class="fw-bold fs-5 text-danger">
+              ${{ product.precio_oferta | number:'1.0-0':'es-CL' }}
+            </span>
+            <span class="text-muted text-decoration-line-through small style-original-price">
+              ${{ product.precio | number:'1.0-0':'es-CL' }}
+            </span>
+          </ng-container>
+
+          <!-- Si NO tiene oferta (Precio Normal) -->
+          <ng-template #precioNormal>
+            <span class="fw-bold fs-5 text-primary">
+              ${{ product.precio | number:'1.0-0':'es-CL' }}
+            </span>
+          </ng-template>
+        </div>
         <button class="btn btn-sm btn-primary d-flex align-items-center gap-2 fw-bold"
                 [disabled]="product.stock === 0"
                 (click)="addToCart($event)">

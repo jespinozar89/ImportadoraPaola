@@ -38,6 +38,7 @@ export class ProductFormComponent {
       nombre: newProduct.nombre,
       producto_codigo: newProduct.producto_codigo,
       precio: newProduct.precio,
+      precio_oferta: newProduct.precio_oferta ? Number(newProduct.precio_oferta) : null,
       stock: newProduct.stock,
       descripcion: newProduct.descripcion,
       imagenes: newProduct.imagenes || []

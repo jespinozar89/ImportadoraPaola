@@ -53,10 +53,10 @@ export class ProductInventoryComponent implements OnInit {
     let data: PaginatedResult<any>;
     let category: string;
 
-    if(this.selectedCategory() === 'all'){
+    if (this.selectedCategory() === 'all') {
       category = '';
     }
-    else{
+    else {
       category = this.selectedCategory();
     }
 
@@ -87,22 +87,22 @@ export class ProductInventoryComponent implements OnInit {
     this.selectedProduct = null;
   }
 
- async onEditOrDeleteProduct(product: Producto): Promise<void> {
-  try {
-    const foundProduct = await this.productService.findById(product.producto_id);
+  async onEditOrDeleteProduct(product: Producto): Promise<void> {
+    try {
+      const foundProduct = await this.productService.findById(product.producto_id);
 
-    if (foundProduct) {
-      this.selectedProduct = {
-        ...foundProduct,
-        imagenes: foundProduct.imagenes ? [...foundProduct.imagenes] : []
-      };
+      if (foundProduct) {
+        this.selectedProduct = {
+          ...foundProduct,
+          imagenes: foundProduct.imagenes ? [...foundProduct.imagenes] : []
+        };
+      }
+
+      this.modalMessage = `¿Estás seguro de eliminar el producto "${product.nombre}"?`;
+    } catch (error) {
+      console.error('Error al obtener el producto:', error);
     }
-
-    this.modalMessage = `¿Estás seguro de eliminar el producto "${product.nombre}"?`;
-  } catch (error) {
-    console.error('Error al obtener el producto:', error);
   }
-}
 
   async onSaveProduct(data: any): Promise<void> {
     if (data.producto_id) {
@@ -111,6 +111,7 @@ export class ProductInventoryComponent implements OnInit {
         producto_codigo: data.producto_codigo,
         nombre: data.nombre,
         precio: data.precio,
+        precio_oferta: data.precio_oferta ? Number(data.precio_oferta) : null,
         stock: data.stock,
         descripcion: data.descripcion,
         imagenes: data.imagenes
@@ -123,6 +124,7 @@ export class ProductInventoryComponent implements OnInit {
         producto_codigo: data.producto_codigo,
         categoria_id: data.categoria_id,
         precio: data.precio,
+        precio_oferta: data.precio_oferta ? Number(data.precio_oferta) : null,
         stock: data.stock,
         descripcion: data.descripcion,
         imagenes: data.imagenes
@@ -210,4 +212,9 @@ export class ProductInventoryComponent implements OnInit {
   goBack(): void {
     this.utilsService.goToUrl();
   }
+
+  hasValidOffer(product: any): boolean{
+    return this.utilsService.hasValidOffer(product);
+  }
+
 }

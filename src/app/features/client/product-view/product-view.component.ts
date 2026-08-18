@@ -156,5 +156,33 @@ export class ProductViewComponent implements OnInit {
     }
   }
 
+  getDiscountPercentage(): number {
+    if (!this.product) return 0;
+
+    const precio = this.utilsService.parsePrice(this.product.precio);
+    const precioOferta = this.utilsService.parsePrice(this.product.precio_oferta);
+
+    if (precio <= 0 || precioOferta <= 0 || precioOferta >= precio) {
+      return 0;
+    }
+
+    const discount = ((precio - precioOferta) / precio) * 100;
+    return Math.round(discount);
+  }
+
+  formatSavings(): string {
+    if (!this.product) return '';
+
+    const precio = this.utilsService.parsePrice(this.product.precio);
+    const precioOferta = this.utilsService.parsePrice(this.product.precio_oferta);
+
+    if (precioOferta <= 0 || precioOferta >= precio) return '';
+
+    const ahorro = precio - precioOferta;
+    return new Intl.NumberFormat('es-CL', {
+      style: 'currency',
+      currency: 'CLP'
+    }).format(ahorro);
+  }
 
 }
