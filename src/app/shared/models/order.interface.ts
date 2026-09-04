@@ -17,6 +17,7 @@ export interface DetallePedido {
   producto_id: number;
   cantidad: number;
   precio_unitario: number;
+  precio_unitario_oferta?: number| null;
   producto?: Producto;
 }
 

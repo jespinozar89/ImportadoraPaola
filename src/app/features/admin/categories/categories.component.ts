@@ -95,17 +95,23 @@ export class CategoriesComponent implements OnInit {
   }
 
   async onSaveCategory(data: any) {
+    const descripcionLimpia = data.descripcion?.trim() || data.nombre;
+
     if (data.categoria_id) {
-      await firstValueFrom(this.categoriaService.update(data.categoria_id, data));
-      this.toast.success('Categoría actualizada con éxito')
+      const updateData = {
+        ...data,
+        descripcion: descripcionLimpia
+      };
+      await firstValueFrom(this.categoriaService.update(data.categoria_id, updateData));
+      this.toast.success('Categoría actualizada con éxito');
     } else {
       const dataCategory: CreateCategoriaDTO = {
         nombre: data.nombre,
-        descripcion: data.descripcion,
+        descripcion: descripcionLimpia,
         estado: data.estado
       };
       await firstValueFrom(this.categoriaService.create(dataCategory));
-      this.toast.success('Categoría creada con éxito')
+      this.toast.success('Categoría creada con éxito');
     }
 
     await this.loadCategory();

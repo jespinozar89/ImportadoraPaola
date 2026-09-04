@@ -46,7 +46,7 @@
             <thead>
               <tr>
                 <th>Producto</th>
-                <th>Precio</th>
+                <th>Precio Unitario</th>
                 <th>Cantidad</th>
                 <th>Subtotal</th>
               </tr>
@@ -54,17 +54,46 @@
             <tbody>
               <tr *ngFor="let p of order?.detalles">
                 <td>
-                  <div class="product-info">
+                  <div class="product-info position-relative">
                     <img [src]="p.producto?.imagenes?.[0]?.url || 'null.png'" alt="Producto" class="product-image" />
                     <div class="product-details">
-                      <h6>{{ p.producto?.nombre }}</h6>
+                      <div class="d-flex align-items-center gap-2">
+                        <h6 class="mb-0">{{ p.producto?.nombre }}</h6>
+                        <!-- Badge de Descuento si aplica -->
+                        <span *ngIf="getDiscountPercentage(p.producto) > 0" class="badge bg-danger">
+                          -{{ getDiscountPercentage(p.producto) }}%
+                        </span>
+                      </div>
                       <span class="product-sku">Codigo: {{ p.producto?.producto_codigo }}</span>
                     </div>
                   </div>
                 </td>
-                <td>${{ p.producto?.precio | number:'1.0-0':'es-CL' }}</td>
-                <td><span class="quantity-badge">x{{ p.cantidad }}</span></td>
-                <td><strong>${{ (p.producto?.precio || 0) * (p.cantidad || 0) | number:'1.0-0':'es-CL' }}</strong></td>
+                <td>
+                  <div class="price-container">
+                    <!-- Precio Oferta + Precio Original Tachado -->
+                    <ng-container *ngIf="hasOffer(p.producto); else normalPrice">
+                      <div class="d-flex flex-column align-items-start">
+                        <span class="product-price-offer text-danger fw-bold">
+                          ${{ p.producto?.precio_oferta | number:'1.0-0':'es-CL' }}
+                        </span>
+                        <span class="product-price-original text-muted text-decoration-line-through small">
+                          ${{ p.producto?.precio | number:'1.0-0':'es-CL' }}
+                        </span>
+                      </div>
+                    </ng-container>
+
+                    <!-- Precio Normal -->
+                    <ng-template #normalPrice>
+                      <span class="product-price">${{ p.producto?.precio | number:'1.0-0':'es-CL' }}</span>
+                    </ng-template>
+                  </div>
+                </td>
+                <td>
+                  <span class="quantity-badge">x{{ p.cantidad }}</span>
+                </td>
+                <td>
+                  <strong>${{ getItemSubtotal(p) | number:'1.0-0':'es-CL' }}</strong>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -221,7 +250,8 @@
           <i class="bi bi-exclamation-triangle-fill me-2"></i>
           Cancelar Pedido
         </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar" [disabled]="processingCancelOrder"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"
+          [disabled]="processingCancelOrder"></button>
       </div>
 
       <!-- Body -->

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
+import { CarritoDetalladoDTO } from '../models/cart.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -36,6 +37,37 @@ export class UtilsService {
     const precioOferta = this.parsePrice(product.precio_oferta);
 
     return precioOferta > 0 && precioOferta < precio;
+  }
+
+  public getEffectivePrice(item: CarritoDetalladoDTO): number {
+    return (item.precio_oferta && item.precio_oferta > 0) ? item.precio_oferta : item.precio;
+  }
+
+  public getDiscountPercentage(
+    precio: string | number | null | undefined,
+    precioOferta: string | number | null | undefined
+  ): number {
+    const pVal = this.parsePrice(precio);
+    const pOfertaVal = this.parsePrice(precioOferta);
+
+    if (pVal <= 0 || pOfertaVal <= 0 || pOfertaVal >= pVal) {
+      return 0;
+    }
+
+    const discount = ((pVal - pOfertaVal) / pVal) * 100;
+    return Math.round(discount);
+  }
+
+  getItemSubtotal(item: any): number {
+    if (!item?.producto) return 0;
+
+    const tieneOferta = this.hasValidOffer(item.producto);
+    const precioAplicado = tieneOferta
+      ? this.parsePrice(item.producto.precio_oferta)
+      : this.parsePrice(item.producto.precio);
+
+    const cantidad = Number(item.cantidad || 0);
+    return precioAplicado * cantidad;
   }
 
 }

@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { firstValueFrom, Observable, of } from 'rxjs';
 import {
   BulkUpload,
   Producto,
@@ -31,7 +31,7 @@ export class ProductService {
     const params = { page, limit, ...filtros };
 
     return firstValueFrom(
-      this.http.get<PaginatedResult<Producto>>(url,{params})
+      this.http.get<PaginatedResult<Producto>>(url, { params })
     );
   }
 
@@ -62,7 +62,7 @@ export class ProductService {
     return firstValueFrom(this.http.delete<Producto>(url));
   }
 
-  async bulkUpload(file: File,categoryId: number): Promise<BulkUpload> {
+  async bulkUpload(file: File, categoryId: number): Promise<BulkUpload> {
     const url = `${this.baseUrl}/carga-masiva`;
     const formData = new FormData();
     formData.append('file', file);
@@ -74,6 +74,13 @@ export class ProductService {
   resetPage() {
     this.lastPage.set(1);
     localStorage.setItem('lastPage', '1');
+  }
+
+  async filterWithStock(ids: number[]): Promise<number[]> {
+    const url = `${this.baseUrl}/filter-stock`;
+    const params = new HttpParams().set('ids', ids.join(','));
+
+    return firstValueFrom(this.http.get<number[]>(url, { params }));
   }
 
 }

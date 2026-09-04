@@ -60,10 +60,6 @@ export class ProductEditorComponent implements OnInit, OnChanges {
         imagenes: this.productData.imagenes ? [...this.productData.imagenes] : []
       };
 
-      if (this.product.stock > 0) {
-        this.product.stock = 1;
-      }
-
       this.isEdit.set(true);
     } else {
       this.resetForm();

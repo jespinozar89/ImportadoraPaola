@@ -110,9 +110,35 @@
                   <div class="text-dark fw-bold" style="font-size: 0.95rem;">
                     {{ detalle?.producto?.nombre }}
                   </div>
-                  <div class="text-dark fw-bold" style="font-size: 0.95rem;">
-                    ${{ detalle?.precio_unitario | number:'1.0-0':'es-CL' }}
-                  </div>
+                  <!-- Precio Unitario con Oferta/Normal -->
+                  <ng-container
+                    *ngIf="utilsService.getDiscountPercentage(detalle?.precio_unitario, detalle?.precio_unitario_oferta) > 0; else precioNormalDetalle">
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                      <!-- Precio Oferta -->
+                      <div class="text-danger fw-bold" style="font-size: 0.95rem;">
+                        ${{ detalle?.precio_unitario_oferta | number:'1.0-0':'es-CL' }}
+                      </div>
+
+                      <!-- Precio Normal Tachado -->
+                      <span class="text-muted text-decoration-line-through small">
+                        ${{ detalle?.precio_unitario | number:'1.0-0':'es-CL' }}
+                      </span>
+
+                      <!-- Badge Descuento -->
+                      <span class="badge bg-danger d-inline-flex align-items-center gap-1">
+                        <i class="bi bi-tag-fill"></i>
+                        -{{ utilsService.getDiscountPercentage(detalle?.precio_unitario,
+                        detalle?.precio_unitario_oferta) }}% Dto
+                      </span>
+                    </div>
+                  </ng-container>
+
+                  <!-- Precio Unitario Normal -->
+                  <ng-template #precioNormalDetalle>
+                    <div class="text-dark fw-bold" style="font-size: 0.95rem;">
+                      ${{ detalle?.precio_unitario | number:'1.0-0':'es-CL' }}
+                    </div>
+                  </ng-template>
                 </div>
               </div>
             </div>
@@ -140,7 +166,8 @@
           <i class="bi bi-exclamation-triangle-fill me-2"></i>
           Cancelar Pedido
         </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar" [disabled]="processingCancelOrder"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"
+          [disabled]="processingCancelOrder"></button>
       </div>
 
       <!-- Body -->

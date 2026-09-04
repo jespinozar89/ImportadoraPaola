@@ -56,10 +56,10 @@
         <ng-container *ngIf="getDiscountPercentage() > 0; else precioNormal">
           <div class="d-flex align-items-center gap-2">
             <h3 class="text-danger fw-bold mb-0">
-              ${{ (+product!.precio_oferta!) | number:'1.0-0':'es-CL' }}
+              ${{ (+product?.precio_oferta!) | number:'1.0-0':'es-CL' }}
             </h3>
             <span class="text-muted text-decoration-line-through fs-5">
-              ${{ (+product!.precio) | number:'1.0-0':'es-CL' }}
+              ${{ (+product?.precio!) | number:'1.0-0':'es-CL' }}
             </span>
             <span class="badge bg-danger-subtle text-danger fw-semibold border border-danger-subtle px-2 py-1 ms-1">
               <i class="bi bi-tag-fill me-1"></i>
@@ -70,18 +70,31 @@
 
         <!-- Caso precio normal -->
         <ng-template #precioNormal>
-          <h3 class="text-primary fw-bold mb-0">${{ (+product!.precio) | number:'1.0-0':'es-CL' }}</h3>
+          <h3 class="text-primary fw-bold mb-0">${{ (+product?.precio!) | number:'1.0-0':'es-CL' }}</h3>
         </ng-template>
       </div>
-      <div class="input-group">
-        <span class="input-group-text bg-white border-end-0 text-success">
-          <i *ngIf="product && product.stock > 0" class="bi bi-check-circle-fill"></i>
-          <i *ngIf="product && product.stock === 0" class="bi bi-x-circle-fill text-danger"></i>
-        </span>
-        <input *ngIf="product && product.stock > 0" type="text" class="form-control border-start-0 text-success"
-          value="En stock y listo para retirar" readonly tabindex="-1">
-        <input *ngIf="product && product.stock === 0" type="text" class="form-control border-start-0 text-danger"
-          value="Producto agotado" readonly tabindex="-1">
+      <!-- BADGE DE ESTADO Y STOCK (Reemplazo del input-group) -->
+      <div class="mb-3">
+        <ng-container [ngSwitch]="true">
+          <!-- Sin Stock -->
+          <span *ngSwitchCase="product?.stock === 0" class="status-badge agotado">
+            <i class="bi bi-x-circle-fill"></i>
+            Agotado
+          </span>
+
+          <!-- Pocas Unidades-->
+          <span *ngSwitchCase="(product?.stock ?? 0) > 0 && (product?.stock ?? 0) <= 10"
+            class="status-badge bg-warning text-dark fw-bold border border-warning">
+            <i class="bi bi-exclamation-triangle-fill me-1"></i>
+            {{ product?.stock === 1 ? '¡Última unidad!' : 'Pocas unidades (' + product?.stock + ')' }}
+          </span>
+
+          <!-- Stock Normal-->
+          <span *ngSwitchDefault class="status-badge disponible">
+            <i class="bi bi-check-circle-fill"></i>
+            Disponible
+          </span>
+        </ng-container>
       </div>
       <p class="mt-3"><strong>Descripción</strong></p>
       <p>{{ product?.descripcion }}</p>

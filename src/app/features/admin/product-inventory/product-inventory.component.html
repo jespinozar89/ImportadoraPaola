@@ -66,6 +66,7 @@
                 <th>Producto</th>
                 <th>Categoría</th>
                 <th>Precio</th>
+                <th>Stock</th>
                 <th>Estado</th>
                 <th>Acciones</th>
               </tr>
@@ -76,7 +77,7 @@
                 <td>
                   <div class="product-item">
                     <a routerLink="/producto/{{ product.producto_id }}">
-                      <img [src]="product?.imagenes?.[0]?.url || 'null.png'" [alt]="product.nombre"
+                      <img [src]="product?.imagenes?.[0]?.url || 'null.png'" [alt]="product?.nombre"
                         class="product-image">
                     </a>
                     <div class="product-info">
@@ -105,6 +106,16 @@
                     <ng-template #normalPrice>
                       <span class="product-price">{{ formatPrice(product.precio) }}</span>
                     </ng-template>
+                  </div>
+                </td>
+                <td>
+                  <div class="price-container">
+                    <span
+                      class="product-price"
+                      [class.text-danger]="product.stock <= 10"
+                      [class.fw-bold]="product.stock <= 10">
+                      {{ product.stock }}
+                    </span>
                   </div>
                 </td>
                 <td>

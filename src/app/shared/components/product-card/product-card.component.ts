@@ -65,17 +65,11 @@ export class ProductCardComponent {
   }
 
   getDiscountPercentage(): number {
-    if (!this.product) return 0;
+    return this.utilsService.getDiscountPercentage(this.product.precio, this.product.precio_oferta);
+  }
 
-    const precio = this.utilsService.parsePrice(this.product.precio);
-    const precioOferta = this.utilsService.parsePrice(this.product.precio_oferta);
-
-    if (precio <= 0 || precioOferta <= 0 || precioOferta >= precio) {
-      return 0;
-    }
-
-    const discount = ((precio - precioOferta) / precio) * 100;
-    return Math.round(discount);
+  hasOffer(): boolean {
+    return this.utilsService.hasValidOffer(this.product);
   }
 
 }

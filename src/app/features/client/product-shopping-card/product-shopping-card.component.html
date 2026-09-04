@@ -42,39 +42,92 @@
               <div class="row align-items-center">
                 <div class="col-md-2 col-3">
                   <a routerLink="/producto/{{ item.producto_id }}">
-                    <img [src]="item.imagen ? item.imagen : 'null.png'" class="img-fluid h-100 rounded"
-                      [style.object-fit]="'cover'" alt="{{ item.nombre }}">
+                    <img [src]="item.imagen ? item.imagen : 'null.png'"
+                        class="img-fluid h-100 rounded"
+                        [class.grayscale-img]="!hasStock(item.producto_id)"
+                        [style.object-fit]="'cover'"
+                        alt="{{ item.nombre }}">
                   </a>
                 </div>
 
+                <!-- COLUMNA DE PRECIO UNITARIO CON OFERTA -->
                 <div class="col-md-4 col-9">
-                  <h6 class="product-name mb-1">{{ item.nombre }}</h6>
-                  <p class="product-price mb-0">${{ item.precio| number:'1.0-0':'es-CL' }}</p>
+                  <h6 class="product-name mb-1" [class.text-muted]="!hasStock(item.producto_id)">{{ item.nombre }}</h6>
+
+                  <!-- Si el producto NO tiene stock -->
+                  <ng-container *ngIf="!hasStock(item.producto_id); else precioConStock">
+                    <span class="badge bg-secondary text-uppercase px-2 py-1">
+                      Agotado
+                    </span>
+                  </ng-container>
+
+                  <!-- Si el producto SÍ tiene stock -->
+                  <ng-template #precioConStock>
+                    <!-- Precio Oferta -->
+                    <ng-container
+                      *ngIf="utilsService.getDiscountPercentage(item.precio, item.precio_oferta) > 0; else precioNormalUnitario">
+                      <div class="d-flex align-items-center gap-2">
+                        <p class="product-price text-danger fw-bold mb-0">
+                          ${{ (item.precio_oferta ?? 0) | number:'1.0-0':'es-CL' }}
+                        </p>
+                        <span class="text-muted text-decoration-line-through small">
+                          ${{ item.precio | number:'1.0-0':'es-CL' }}
+                        </span>
+                        <span class="badge bg-danger d-inline-flex align-items-center gap-1">
+                          <i class="bi bi-tag-fill"></i>
+                          -{{ utilsService.getDiscountPercentage(item.precio, item.precio_oferta) }}% Dto
+                        </span>
+                      </div>
+                    </ng-container>
+
+                    <!-- Precio unitario normal -->
+                    <ng-template #precioNormalUnitario>
+                      <p class="product-price mb-0">${{ item.precio | number:'1.0-0':'es-CL' }}</p>
+                    </ng-template>
+                  </ng-template>
                 </div>
 
                 <div class="col-md-3 col-6">
                   <div class="quantity-controls d-flex align-items-center justify-content-center">
-                    <button class="btn btn-outline-secondary btn-sm" (click)="decreaseQuantity(item)"
-                      [disabled]="item.cantidad <= 1">
+                    <!-- Deshabilitar el botón restar si no hay stock o si la cantidad es 1 -->
+                    <button class="btn btn-outline-secondary btn-sm"
+                            (click)="decreaseQuantity(item)"
+                            [disabled]="!hasStock(item.producto_id) || item.cantidad <= 1">
                       <i class="bi bi-dash"></i>
                     </button>
-                    <span class="quantity-value mx-3">{{ item.cantidad }}</span>
-                    <button class="btn btn-outline-secondary btn-sm" (click)="increaseQuantity(item)">
+
+                    <span class="quantity-value mx-3" [class.text-muted]="!hasStock(item.producto_id)">
+                      {{ item.cantidad }}
+                    </span>
+
+                    <!-- Deshabilitar el botón sumar si no hay stock -->
+                    <button class="btn btn-outline-secondary btn-sm"
+                            (click)="increaseQuantity(item)"
+                            [disabled]="!hasStock(item.producto_id)">
                       <i class="bi bi-plus"></i>
                     </button>
                   </div>
                 </div>
 
+                <!-- COLUMNA DE TOTAL POR ÍTEM -->
                 <div class="col-md-3 col-6">
                   <div class="text-end">
-                    <h5 class="item-total mb-3">${{ item.cantidad * item.precio| number:'1.0-0':'es-CL' }}</h5>
+                    <h5 class="item-total mb-3" [class.text-muted]="!hasStock(item.producto_id)">
+                      <ng-container *ngIf="hasStock(item.producto_id); else totalAgotado">
+                        ${{ getItemTotal(item) | number:'1.0-0':'es-CL' }}
+                      </ng-container>
+                      <ng-template #totalAgotado>
+                        <span class="fs-6 text-muted">—</span>
+                      </ng-template>
+                    </h5>
+
                     <div class="item-actions">
                       <button class="btn btn-link text-secondary p-1" (click)="addToWishlist(item)"
                         title="Agregar a lista de deseos">
                         <i class="bi fs-5" [ngClass]="{
                             'bi-heart-fill text-danger': isFavorite(item.producto_id),
                             'bi-heart text-secondary': !isFavorite(item.producto_id)
-                        }">
+                          }">
                         </i>
                       </button>
                       <button class="btn btn-link text-danger p-1" (click)="removeItem(item)" title="Eliminar artículo">

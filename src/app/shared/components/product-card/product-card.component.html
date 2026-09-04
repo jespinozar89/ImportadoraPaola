@@ -28,20 +28,31 @@
 
     <!-- Bloque final (estado + precio + botón) -->
     <div class="mt-auto">
-      <span class="status-badge"
-            [class.disponible]="product.stock > 0"
-            [class.agotado]="product.stock === 0">
-        <i class="bi"
-           [class.bi-check-circle-fill]="product.stock > 0"
-           [class.bi-x-circle-fill]="product.stock === 0"></i>
-        {{ product.stock > 0 ? 'Disponible' : 'Agotado' }}
-      </span>
+      <ng-container [ngSwitch]="true">
+        <!-- Sin Stock -->
+        <span *ngSwitchCase="product.stock === 0" class="status-badge agotado">
+          <i class="bi bi-x-circle-fill"></i>
+          Agotado
+        </span>
+
+        <!-- Pocas Unidades (<= 10) -->
+        <span *ngSwitchCase="product.stock > 0 && product.stock <= 10" class="status-badge bg-warning text-dark fw-bold border border-warning">
+          <i class="bi bi-exclamation-triangle-fill me-1"></i>
+          {{ product.stock === 1 ? '¡Última unidad!' : 'Pocas unidades (' + product.stock + ')' }}
+        </span>
+
+        <!-- Stock Normal (> 10) -->
+        <span *ngSwitchDefault class="status-badge disponible">
+          <i class="bi bi-check-circle-fill"></i>
+          Disponible
+        </span>
+      </ng-container>
 
       <div class="d-flex justify-content-between align-items-center mt-3">
         <!-- Contenedor de Precios -->
         <div class="d-flex flex-column align-items-start">
           <!-- Si tiene precio de oferta válido -->
-          <ng-container *ngIf="product.precio_oferta && product.precio_oferta > 0 && product.precio_oferta < product.precio; else precioNormal">
+          <ng-container *ngIf="hasOffer(); else precioNormal">
             <span class="fw-bold fs-5 text-danger">
               ${{ product.precio_oferta | number:'1.0-0':'es-CL' }}
             </span>

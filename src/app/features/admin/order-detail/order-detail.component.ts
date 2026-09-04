@@ -131,20 +131,20 @@ export class OrderDetailComponent implements OnInit {
   async updateStatus() {
     await this.loaderOrder(this.order?.pedido_id || 0);
 
-    if (this.selectedStatus === this.order?.estado){
+    if (this.selectedStatus === this.order?.estado) {
       this.toast.warning(
         'El pedido ya se encuentra en estado '
-        +this.selectedStatus+
+        + this.selectedStatus +
         '. Por favor, seleccione un estado diferente para continuar.');
       return;
     }
 
-    if(this.order?.estado === EstadoPedido.Entregado && this.selectedStatus === EstadoPedido.Cancelado){
+    if (this.order?.estado === EstadoPedido.Entregado && this.selectedStatus === EstadoPedido.Cancelado) {
       this.toast.warning('El pedido ya ha sido entregado y no puede ser cancelado.');
       return;
     }
 
-    if(this.order?.estado === EstadoPedido.Cancelado){
+    if (this.order?.estado === EstadoPedido.Cancelado) {
       this.toast.warning('El pedido ya fue cancelado, no puede realizar cambios');
       return;
     }
@@ -307,6 +307,18 @@ export class OrderDetailComponent implements OnInit {
       modalInstance?.hide();
       this.resetFile();
     }
+  }
+
+  hasOffer(producto: any): boolean {
+    return this.utilsService.hasValidOffer(producto);
+  }
+
+  getDiscountPercentage(producto: any): number {
+    return this.utilsService.getDiscountPercentage(producto.precio, producto.precio_oferta);
+  }
+
+  getItemSubtotal(item: any): number {
+    return this.utilsService.getItemSubtotal(item);
   }
 
 }

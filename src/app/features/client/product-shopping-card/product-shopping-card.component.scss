@@ -172,3 +172,9 @@
   100% { transform: rotate(360deg); }
 }
 
+.grayscale-img {
+  filter: grayscale(100%);
+  opacity: 0.6;
+  transition: filter 0.3s ease, opacity 0.3s ease;
+}
+

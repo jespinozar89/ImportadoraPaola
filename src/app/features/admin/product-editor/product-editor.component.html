@@ -123,13 +123,13 @@
               </div>
             </div>
 
-            <div class="col-md-6 mb-3">
-              <label for="stock" class="form-label">Stock Disponible</label>
-              <select class="form-select" id="stock" name="stock" [(ngModel)]="product.stock" required>
-                <option *ngFor="let option of stockOptions" [value]="option.value">
-                  {{ option.label }}
-                </option>
-              </select>
+            <div class="col-md-4 mb-3">
+              <label for="stock" class="form-label">Stock Disponible *</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-box-seam"></i></span>
+                <input type="number" class="form-control" id="stock" name="stock" [(ngModel)]="product.stock"
+                  step="1" min="0" placeholder="10" required>
+              </div>
             </div>
           </div>
 
