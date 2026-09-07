@@ -2,8 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { ProductService, Producto } from '@/core/services/product.service';
-import { CategoriaService } from '@/core/services/categoria.service';
-import { firstValueFrom } from 'rxjs';
 import { UtilsService } from '@/shared/service/utils.service';
 import { FavoriteService } from '@/core/services/favorite.service';
 import { CartService } from '@/core/services/cart.service';
@@ -22,11 +20,10 @@ export class ProductViewComponent implements OnInit {
   currentImageFit: 'cover' | 'contain' = 'cover';
   productId!: number;
   quantity: number = 0;
-  categoryName: string = '';
+  categories: string[] = [];
 
   constructor(
     private route: ActivatedRoute,
-    private categoriaService: CategoriaService,
     private productService: ProductService,
     private favoriteService: FavoriteService,
     private cartService: CartService,
@@ -47,7 +44,6 @@ export class ProductViewComponent implements OnInit {
 
   async loadProduct(id: number): Promise<void> {
     try {
-
       const loadedProduct = await this.productService.findById(id);
       const cartItems = await this.cartService.getCartItems();
       const cartItem = cartItems.get(id);
@@ -55,10 +51,15 @@ export class ProductViewComponent implements OnInit {
 
       if (loadedProduct) {
         this.product = loadedProduct;
-        const categoria = await firstValueFrom(this.categoriaService.findById(loadedProduct.categoria_id));
 
-        const nameCategoryString = categoria?.nombre ?? '';
-        this.categoryName = this.utilsService.getCategoriaNombre(nameCategoryString);
+        if (loadedProduct.productoCategorias && loadedProduct.productoCategorias.length > 0) {
+          this.categories = loadedProduct.productoCategorias
+            .map(pc => pc.categoria?.nombre)
+            .filter((nombre): nombre is string => Boolean(nombre))
+            .map(nombre => this.utilsService.getCategoriaNombre(nombre));
+        } else {
+          this.categories = [];
+        }
       } else {
         console.warn(`No se encontró el producto con ID: ${id}`);
       }
@@ -73,19 +74,19 @@ export class ProductViewComponent implements OnInit {
     if (this.product && this.quantity >= 0 && this.product.stock > 0) {
       await this.cartService.addToCart(this.productId);
       await this.loadProduct(this.productId);
-      this.toast.success('Producto sumado al carrito')
+      this.toast.success('Producto sumado al carrito');
     }
   }
 
   async decrement(): Promise<void> {
     if (this.product && this.quantity >= 0 && this.product.stock > 0) {
-      let menssage = 'Producto restado al carrito'
+      let menssage = 'Producto restado al carrito';
 
       await this.cartService.decreaseToCart(this.productId);
       await this.loadProduct(this.productId);
 
-      if (this.quantity === 0) menssage = "Producto eliminado del carrito"
-      this.toast.success(menssage)
+      if (this.quantity === 0) menssage = "Producto eliminado del carrito";
+      this.toast.success(menssage);
     }
   }
 

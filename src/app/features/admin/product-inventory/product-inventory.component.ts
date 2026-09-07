@@ -50,17 +50,15 @@ export class ProductInventoryComponent implements OnInit {
   }
 
   async loadProducts(): Promise<void> {
-    let data: PaginatedResult<any>;
     let category: string;
 
     if (this.selectedCategory() === 'all') {
       category = '';
-    }
-    else {
+    } else {
       category = this.selectedCategory();
     }
 
-    data = await this.productService.findAll(
+    const data: PaginatedResult<any> = await this.productService.findAll(
       this.p,
       this.itemsPerPage,
       {
@@ -73,7 +71,16 @@ export class ProductInventoryComponent implements OnInit {
   }
 
   public normalizeString(str: string): string {
-    return str.replace(/_/g, ' ');
+    return str ? str.replace(/_/g, ' ') : '';
+  }
+
+  public getProductCategories(product: Producto): string[] {
+    if (!product.productoCategorias || product.productoCategorias.length === 0) {
+      return [];
+    }
+    return product.productoCategorias
+      .map(pc => pc.categoria?.nombre)
+      .filter((nombre): nombre is string => Boolean(nombre));
   }
 
   async onCategoryChange(event: Event) {
@@ -107,7 +114,7 @@ export class ProductInventoryComponent implements OnInit {
   async onSaveProduct(data: any): Promise<void> {
     if (data.producto_id) {
       const updatedProduct: ProductoUpdateInput = {
-        categoria_id: data.categoria_id,
+        categoria_ids: data.categoria_ids || [],
         producto_codigo: data.producto_codigo,
         nombre: data.nombre,
         precio: data.precio,
@@ -122,13 +129,13 @@ export class ProductInventoryComponent implements OnInit {
       const createProduct: ProductoCreateInput = {
         nombre: data.nombre,
         producto_codigo: data.producto_codigo,
-        categoria_id: data.categoria_id,
+        categoria_ids: data.categoria_ids || [],
         precio: data.precio,
         precio_oferta: data.precio_oferta ? Number(data.precio_oferta) : null,
         stock: data.stock,
         descripcion: data.descripcion,
         imagenes: data.imagenes
-      }
+      };
       await this.productService.create(createProduct);
       this.toast.success('Producto creado con éxito');
     }
@@ -213,7 +220,7 @@ export class ProductInventoryComponent implements OnInit {
     this.utilsService.goToUrl();
   }
 
-  hasValidOffer(product: any): boolean{
+  hasValidOffer(product: any): boolean {
     return this.utilsService.hasValidOffer(product);
   }
 

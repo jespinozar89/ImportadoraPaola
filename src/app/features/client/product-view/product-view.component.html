@@ -46,10 +46,15 @@
       </div>
     </div>
     <div class="col-md-6">
-      <div class="bg-light text-dark fw-semibold small rounded-pill px-3 py-1 d-inline-block mb-2">
-        {{ categoryName }}
-      </div>
       <h2>{{ product?.nombre }}</h2>
+      <!-- TIRA DE CATEGORÍAS -->
+      <div class="d-flex flex-wrap gap-1 mb-3" *ngIf="categories.length > 0">
+        <span
+          *ngFor="let cat of categories"
+          class="category-badge">
+          {{ cat }}
+        </span>
+      </div>
       <!-- SECCIÓN DE PRECIOS CON OFERTA -->
       <div class="my-3">
         <!-- Caso con oferta activa -->

@@ -1,4 +1,4 @@
-import { Component} from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductEditorComponent } from "../product-editor/product-editor.component";
@@ -29,12 +29,12 @@ export class ProductFormComponent {
     private productService: ProductService,
     private toast: HotToastService,
     private utilsService: UtilsService
-  ) {}
+  ) { }
 
-  async handleCreateProduct(newProduct: Producto) {
+  async handleCreateProduct(newProduct: any) {
 
     const product: ProductoCreateInput = {
-      categoria_id: newProduct.categoria_id,
+      categoria_ids: newProduct.categoria_ids,
       nombre: newProduct.nombre,
       producto_codigo: newProduct.producto_codigo,
       precio: newProduct.precio,
@@ -45,7 +45,7 @@ export class ProductFormComponent {
     };
 
     await this.productService.create(product);
-    this.toast.success('Producto creado con éxito')
+    this.toast.success('Producto creado con éxito');
 
   }
 

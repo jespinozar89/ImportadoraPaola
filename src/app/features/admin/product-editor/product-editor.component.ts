@@ -25,9 +25,10 @@ export class ProductEditorComponent implements OnInit, OnChanges {
 
   isEdit = signal<boolean>(false);
   categories: Categoria[] = [];
+  selectedCategoriaIds: number[] = [];
 
   product: Producto = {
-    categoria_id: 0,
+    productoCategorias: [],
     producto_id: 0,
     producto_codigo: '',
     nombre: '',
@@ -59,6 +60,10 @@ export class ProductEditorComponent implements OnInit, OnChanges {
         ...this.productData,
         imagenes: this.productData.imagenes ? [...this.productData.imagenes] : []
       };
+
+      this.selectedCategoriaIds = this.productData.productoCategorias
+        ? this.productData.productoCategorias.map(pc => pc.categoria_id)
+        : [];
 
       this.isEdit.set(true);
     } else {
@@ -136,9 +141,11 @@ export class ProductEditorComponent implements OnInit, OnChanges {
     if (!product.imagenes || product.imagenes.length === 0) {
       errores.push("Al menos una imagen");
     }
-    if (product.categoria_id === 0) {
-      errores.push("Categoría");
+
+    if (!this.selectedCategoriaIds || this.selectedCategoriaIds.length === 0) {
+      errores.push("Al menos una Categoría");
     }
+
     if (!product.nombre) {
       errores.push("Nombre");
     }
@@ -185,12 +192,39 @@ export class ProductEditorComponent implements OnInit, OnChanges {
     }
 
     this.product.precio_oferta = this.product.precio_oferta ? Number(this.product.precio_oferta) : null;
-
-    this.product.categoria_id = Number(this.product.categoria_id);
     this.product.stock = Number(this.product.stock);
 
-    this.save.emit(this.product);
+    const payloadToSend = {
+      ...this.product,
+      categoria_ids: this.selectedCategoriaIds
+    };
+
+    this.save.emit(payloadToSend as any);
     this.resetForm();
+  }
+
+  onCategoryChange(categoriaId: number, event: Event): void {
+    const checkbox = event.target as HTMLInputElement;
+    if (checkbox.checked) {
+      if (!this.selectedCategoriaIds.includes(categoriaId)) {
+        this.selectedCategoriaIds.push(categoriaId);
+      }
+    } else {
+      this.selectedCategoriaIds = this.selectedCategoriaIds.filter(id => id !== categoriaId);
+    }
+  }
+
+  isCategorySelected(categoriaId: number): boolean {
+    return this.selectedCategoriaIds.includes(categoriaId);
+  }
+
+  removeCategory(categoriaId: number): void {
+    this.selectedCategoriaIds = this.selectedCategoriaIds.filter(id => id !== categoriaId);
+  }
+
+  getCategoryName(categoriaId: number): string {
+    const category = this.categories.find(c => c.categoria_id === categoriaId);
+    return category ? category.nombre : '';
   }
 
   onCancel(): void {
@@ -199,7 +233,7 @@ export class ProductEditorComponent implements OnInit, OnChanges {
 
   resetForm(): void {
     this.product = {
-      categoria_id: 0,
+      productoCategorias: [],
       producto_id: 0,
       producto_codigo: '',
       nombre: '',
@@ -210,6 +244,7 @@ export class ProductEditorComponent implements OnInit, OnChanges {
       imagenes: []
     };
 
+    this.selectedCategoriaIds = [];
     this.isEdit.set(false);
   }
 }

@@ -1,5 +1,14 @@
 import { Categoria } from "./categoria.interface";
 
+export interface ProductoCategoria {
+  producto_id: number;
+  categoria_id: number;
+  categoria?: {
+    id: number;
+    nombre: string;
+  };
+}
+
 export interface ImagenProducto {
   imagen_id: number;
   url: string;
@@ -15,8 +24,7 @@ export interface Producto {
   precio_oferta?: number | null;
   stock: number;
   producto_codigo: string;
-  categoria_id: number;
-  categoria?: Categoria;
+  productoCategorias?: ProductoCategoria[];
 }
 
 export interface ProductoCreateInput {
@@ -27,7 +35,7 @@ export interface ProductoCreateInput {
   precio: number;
   precio_oferta?: number | null;
   stock: number;
-  categoria_id: number;
+  categoria_ids?: number[];
 }
 
 export interface ProductoUpdateInput {
@@ -38,7 +46,7 @@ export interface ProductoUpdateInput {
   precio_oferta?: number | null;
   stock?: number;
   producto_codigo?: string;
-  categoria_id?: number;
+  categoria_ids?: number[];
 }
 
 export interface BulkUpload {

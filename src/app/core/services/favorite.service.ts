@@ -65,7 +65,7 @@ export class FavoriteService {
 
     return products.map(item => ({
       producto_id: item.producto?.producto_id || item.producto_id,
-      categoria_id: item.producto?.categoria_id || 0,
+      productoCategorias: item.producto?.productoCategorias || [],
       producto_codigo: item.producto?.producto_codigo || '',
       nombre: item.producto?.nombre || '',
       precio: item.producto?.precio || 0,

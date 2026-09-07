@@ -87,7 +87,18 @@
                   </div>
                 </td>
                 <td>
-                  <span class="category-badge">{{ this.normalizeString(product.categoria?.nombre || '') }}</span>
+                  <div class="d-flex flex-wrap gap-1">
+                    <ng-container *ngIf="getProductCategories(product).length > 0; else noCategory">
+                      <span
+                        *ngFor="let catNombre of getProductCategories(product)"
+                        class="category-badge">
+                        {{ normalizeString(catNombre) }}
+                      </span>
+                    </ng-container>
+                    <ng-template #noCategory>
+                      <span class="text-muted small">Sin categoría</span>
+                    </ng-template>
+                  </div>
                 </td>
                 <td>
                   <div class="price-container">
