@@ -59,8 +59,6 @@ export const routes: Routes = [
   },
   {
     path: 'shop',
-    canActivate: [roleGuard],
-    data: { roles: ['administrador', 'cliente'] },
     loadComponent: () =>
       import('@/features/client/product-shopping-card/product-shopping-card.component')
         .then(m => m.ProductShoppingCardComponent)

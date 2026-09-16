@@ -5,9 +5,11 @@
     Volver a Productos
   </a>
 </div>
+
 <div class="popIn-animations container mt-4">
-  <div class="card shadow-sm p-4">
-    <h5 class="mb-5">
+  <!-- Tarjeta de Perfil -->
+  <div class="card shadow-sm p-4 mb-4">
+    <h5 class="mb-4">
       <i class="bi bi-person-square me-2"></i>
       Modificar perfil
     </h5>
@@ -33,7 +35,7 @@
           <label class="form-label">Nueva contraseña</label>
           <div class="input-group">
             <input [type]="showPassword ? 'text' : 'password'" class="form-control" placeholder="Nueva contraseña"
-              formControlName="passwordNew" required
+              formControlName="passwordNew"
               [attr.aria-invalid]="perfilForm.get('passwordNew')?.invalid && perfilForm.get('passwordNew')?.touched" />
             <button type="button" class="btn btn-outline-secondary" (click)="togglePasswordVisibility()" tabindex="-1"
               aria-label="Mostrar/ocultar nueva contraseña">
@@ -46,7 +48,7 @@
           <label class="form-label">Confirmar contraseña</label>
           <div class="input-group">
             <input [type]="showPassword ? 'text' : 'password'" class="form-control"
-              placeholder="Confirmar contraseña" formControlName="passwordConfirm" required
+              placeholder="Confirmar contraseña" formControlName="passwordConfirm"
               [attr.aria-invalid]="perfilForm.get('passwordConfirm')?.invalid && perfilForm.get('passwordConfirm')?.touched" />
             <button type="button" class="btn btn-outline-secondary" (click)="togglePasswordVisibility()" tabindex="-1"
               aria-label="Mostrar/ocultar confirmación de contraseña">
@@ -54,7 +56,6 @@
             </button>
           </div>
         </div>
-
       </div>
 
       <div class="mt-4 text-end">
@@ -65,13 +66,69 @@
       </div>
     </form>
   </div>
+
+  <!-- Nueva Sección: Mis Direcciones -->
+  <div class="card shadow-sm p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h5 class="mb-0">
+        <i class="bi bi-geo-alt-fill me-2"></i>
+        Mis direcciones de envío
+      </h5>
+      <button type="button" class="btn btn-outline-primary btn-sm" (click)="openAddressModalCreate()">
+        <i class="bi bi-plus-circle me-1"></i>
+        Agregar Dirección
+      </button>
+    </div>
+
+    <!-- Indicador de carga -->
+    <div *ngIf="cargandoDirecciones" class="text-center py-4">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+    </div>
+
+    <!-- Mensaje sin direcciones -->
+    <div *ngIf="!cargandoDirecciones && direcciones.length === 0" class="alert alert-light text-center border mb-0">
+      <i class="bi bi-info-circle me-2"></i>
+      Aún no tienes direcciones guardadas. ¡Agrega una para agilizar tus compras!
+    </div>
+
+    <!-- Grid de tarjetas de direcciones -->
+    <div *ngIf="!cargandoDirecciones && direcciones.length > 0" class="row g-3">
+      <div class="col-md-6 col-lg-4" *ngFor="let dir of direcciones">
+        <div class="card h-100 border shadow-sm position-relative" [class.border-primary]="dir.es_predeterminada">
+          <div class="card-body d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <h6 class="fw-bold mb-0 text-truncate me-2">{{ dir.calle }} #{{ dir.numero }}</h6>
+              <span *ngIf="dir.es_predeterminada" class="badge bg-primary">Predeterminada</span>
+            </div>
+
+            <p class="text-muted small mb-1" *ngIf="dir.departamento">Dpto/Depto: {{ dir.departamento }}</p>
+            <p class="text-muted small mb-3">{{ dir.comuna }}, {{ dir.region }}</p>
+
+            <div class="mt-auto d-flex gap-2 pt-2 border-top">
+              <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openAddressModalEdit(dir)">
+                <i class="bi bi-pencil me-1"></i>Editar
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-danger" (click)="deleteAddress(dir.direccion_id!)">
+                <i class="bi bi-trash me-1"></i>Eliminar
+              </button>
+              <button *ngIf="!dir.es_predeterminada" type="button" class="btn btn-sm btn-link text-decoration-none ms-auto p-0"
+                (click)="setDefaultAddress(dir.direccion_id!)">
+                Hacer favorita
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<!-- Modal de confirmación -->
+<!-- Modal de confirmación de cambios de perfil -->
 <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-
       <div class="modal-header">
         <h5 class="modal-title">
           <i class="bi bi-exclamation-triangle me-2"></i>
@@ -81,9 +138,7 @@
       </div>
 
       <div class="modal-body">
-        <p class="mb-3">
-          Estás a punto de modificar tus datos de perfil.
-        </p>
+        <p class="mb-3">Estás a punto de modificar tus datos de perfil.</p>
         <p>¿Seguro que deseas continuar?</p>
 
         <form *ngIf="this.confirmForm" [formGroup]="confirmForm" (ngSubmit)="saveChanges()">
@@ -110,3 +165,78 @@
       </div>
     </div>
   </div>
+</div>
+
+<!-- Modal para Crear / Editar Dirección -->
+<div class="modal fade" id="addressModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-geo-alt me-2"></i>
+          {{ editandoDireccion ? 'Editar Dirección' : 'Nueva Dirección' }}
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <form [formGroup]="addressForm" (ngSubmit)="saveAddress()">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Calle *</label>
+            <input type="text" class="form-control" formControlName="calle" placeholder="Ej: Av. Principal">
+          </div>
+
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <label class="form-label">Número *</label>
+              <input type="text" class="form-control" formControlName="numero" placeholder="Ej: 1234">
+            </div>
+            <div class="col-6">
+              <label class="form-label">Dpto / Casa</label>
+              <input type="text" class="form-control" formControlName="departamento" placeholder="Ej: Dpto 402">
+            </div>
+          </div>
+
+          <div class="row g-2 mb-3">
+            <!-- Selector Región -->
+            <div class="col-6">
+              <label class="form-label">Región *</label>
+              <select class="form-select" formControlName="region" (change)="onRegionChange($event)">
+                <option value="">Seleccione región</option>
+                <option *ngFor="let item of regions" [value]="item.codigo">
+                  {{ item.region }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Selector Comuna -->
+            <div class="col-6">
+              <label class="form-label">Comuna *</label>
+              <select class="form-select" formControlName="comuna">
+                <option value="">
+                  {{ isLoadingCommunes ? 'Cargando...' : 'Seleccione comuna' }}
+                </option>
+                <option *ngFor="let commune of communes" [value]="commune">
+                  {{ commune }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" formControlName="es_predeterminada" id="checkPredeterminadaModal">
+            <label class="form-check-label" for="checkPredeterminadaModal">
+              Marcar como dirección predeterminada
+            </label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="addressForm.invalid">
+            <i class="bi bi-check-circle me-1"></i>
+            Guardar Dirección
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -3,7 +3,11 @@ import { Producto } from "./producto.interface";
 
 export interface Pedido {
   pedido_id: number;
-  usuario_id: number;
+  usuario_id?: number | null;
+  nombre_contacto: string;
+  email_contacto: string;
+  telefono_contacto: string;
+  direccion_envio: string;
   fecha_pedido: Date;
   fecha_cambio_estado: Date;
   estado: EstadoPedido;
@@ -22,6 +26,10 @@ export interface DetallePedido {
 }
 
 export interface CrearPedido {
+  nombre_contacto: string;
+  email_contacto: string;
+  telefono_contacto: string;
+  direccion_envio: string;
   klap_order_id: string | null;
   detalles: DetallePedido[];
 }

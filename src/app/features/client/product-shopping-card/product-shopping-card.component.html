@@ -242,7 +242,7 @@
         <p class="mb-2">
           En breve recibirás un correo con el <strong>detalle completo de tu compra</strong>.
         </p>
-        <p class="mb-0">
+        <p class="mb-0" *ngIf="isAuthenticated">
           Además, podrás revisar el <strong>estado de tu pedido</strong> en la sección <span class="text-primary">Mis
             Pedidos</span> dentro de tu cuenta.
         </p>
@@ -257,3 +257,41 @@
 <!-- Modal Klap -->
 <app-klap-modal #klapModal [orderData]="orderData" (orderResult)="handleOrderResult($event)">
 </app-klap-modal>
+
+<!-- Modal Datos de Invitado -->
+<div class="modal fade" id="guestDataModal" tabindex="-1" aria-labelledby="guestDataModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="guestDataModalLabel">Datos para la Entrega y Boleta</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted small">Ingresa tus datos de contacto para coordinar la entrega y enviar el comprobante de compra.</p>
+
+        <div class="row g-3">
+          <div class="col-6">
+            <label class="form-label">Nombre *</label>
+            <input type="text" class="form-control" [(ngModel)]="guestForm.nombres" placeholder="Ej: Juan">
+          </div>
+          <div class="col-6">
+            <label class="form-label">Apellido *</label>
+            <input type="text" class="form-control" [(ngModel)]="guestForm.apellidos" placeholder="Ej: Pérez">
+          </div>
+          <div class="col-12">
+            <label class="form-label">Correo Electrónico *</label>
+            <input type="email" class="form-control" [(ngModel)]="guestForm.email" placeholder="ejemplo@correo.com">
+          </div>
+          <div class="col-12">
+            <label class="form-label">Teléfono de Contacto *</label>
+            <input type="tel" class="form-control" [(ngModel)]="guestForm.telefono" placeholder="+56 9 1234 5678">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" (click)="confirmGuestData()">Continuar con el Pago</button>
+      </div>
+    </div>
+  </div>
+</div>

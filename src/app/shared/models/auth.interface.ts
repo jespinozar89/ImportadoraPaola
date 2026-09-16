@@ -1,9 +1,18 @@
+export interface GuestUserData {
+  nombres: string;
+  apellidos: string;
+  email: string;
+  telefono: string;
+  direccion?: string;
+}
+
 export interface CreateUserDTO {
   nombres: string;
   apellidos: string;
   email: string;
   password: string;
   telefono?: string;
+  direccion?: string;
 }
 
 export interface UpdateUserDTO {

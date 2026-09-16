@@ -62,7 +62,7 @@ export class OrderManagementComponent {
       const backendStatus = this.selectedStatus() === 'all' ? 'todos' : this.selectedStatus();
       const term = this.searchTerm().trim();
 
-      const response = await this.orderService.findAll(this.p, this.itemsPerPage, {estado: backendStatus, search: term});
+      const response = await this.orderService.findAll(this.p, this.itemsPerPage, { estado: backendStatus, search: term });
 
       this.orders = response.data || [];
       this.totalOrders = response.meta.total || 0;
@@ -101,7 +101,7 @@ export class OrderManagementComponent {
 
   async exportCsv(id: number) {
     const order = await this.orderService.findById(id);
-    if (!order){
+    if (!order) {
       this.toast.error('No se encontró el pedido');
       return;
     }
@@ -150,8 +150,56 @@ export class OrderManagementComponent {
     return phone;
   }
 
+  getClientName(order: any): string {
+    if (order.nombre_contacto && order.nombre_contacto.trim() !== '') {
+      return order.nombre_contacto;
+    }
+    if (order.usuario?.nombres) {
+      const apellidos = order.usuario.apellidos || '';
+      return `${order.usuario.nombres} ${apellidos}`.trim();
+    }
+    return 'Usuario Invitado';
+  }
+
+  getClientPhone(order: any): string {
+    const rawPhone = order.telefono_contacto || order.usuario?.telefono || '';
+    return rawPhone ? this.formatPhone(rawPhone) : 'Sin teléfono';
+  }
+
+  getAvatarInitials(order: any): string {
+    if (order?.usuario?.nombres) {
+      const primerNombre = order.usuario.nombres.trim().split(/\s+/)[0] || '';
+      const primerApellido = (order.usuario.apellidos || '').trim().split(/\s+/)[0] || '';
+
+      const iNombre = primerNombre.charAt(0);
+      const iApellido = primerApellido.charAt(0);
+
+      return (iNombre + iApellido).toUpperCase() || 'UR';
+    }
+
+    if (order?.nombre_contacto && order.nombre_contacto.trim() !== '') {
+      const palabras = order.nombre_contacto.trim().split(/\s+/);
+
+      if (palabras.length >= 4) {
+        const iNombre = palabras[0].charAt(0);
+        const iApellido = palabras[2].charAt(0);
+        return (iNombre + iApellido).toUpperCase();
+      }
+
+      if (palabras.length === 2 || palabras.length === 3) {
+        const iNombre = palabras[0].charAt(0);
+        const iApellido = palabras[1].charAt(0);
+        return (iNombre + iApellido).toUpperCase();
+      }
+    }
+
+    return 'UI';
+  }
+
   formatName(firstName: string, lastName: string): string {
-    if (!firstName || !lastName) return '';
+    if (!firstName && !lastName) return 'Cliente';
+    if (!firstName) return lastName;
+    if (!lastName) return firstName;
 
     const names = firstName.trim().split(/\s+/);
     const surnames = lastName.trim().split(/\s+/);
@@ -162,4 +210,5 @@ export class OrderManagementComponent {
 
     return `${mainName} ${mainSurname} ${secondSurnameInitial}`.trim();
   }
+
 }

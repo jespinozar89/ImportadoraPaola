@@ -77,20 +77,20 @@
               <td>
                 <span class="order-id">#ORD-{{ order.pedido_id.toString().padStart(4, '0') }}</span>
               </td>
-              <!-- Información del cliente -->
+              <!-- Información del cliente (Registrado o Invitado) -->
               <td>
                 <div class="customer-info">
-                  <!-- Avatar: iniciales del nombre y apellido -->
+                  <!-- Avatar con iniciales dinámicas -->
                   <div class="customer-avatar">
-                    {{ order.usuario?.nombres?.charAt(0) }}{{ order.usuario?.apellidos?.charAt(0) }}
+                    {{ getAvatarInitials(order) }}
                   </div>
                   <div class="customer-details">
                     <span class="customer-name">
-                      {{ formatName(order.usuario?.nombres!,order.usuario?.apellidos!)}}
+                      {{ getClientName(order) }}
                     </span>
                     <span class="customer-phone">
                       <i class="bi bi-telephone"></i>
-                      {{ formatPhone(order.usuario?.telefono!) }}
+                      {{ getClientPhone(order) }}
                     </span>
                   </div>
                 </div>

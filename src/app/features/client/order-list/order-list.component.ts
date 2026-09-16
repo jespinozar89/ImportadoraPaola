@@ -34,11 +34,8 @@ export class OrderListComponent {
     private orderService: OrderService,
     public utilsService: UtilsService
   ) {
-    // Creamos el efecto reactivo para escuchar el buscador
     effect(() => {
-      const term = this.searchTerm(); // Angular detecta la dependencia de esta señal
-
-      // Cada vez que cambie el término, gatillamos la búsqueda (Página 1, Límite 10)
+      const term = this.searchTerm();
       this.loadOrders(this.p, this.itemsPerPage, term);
     });
   }

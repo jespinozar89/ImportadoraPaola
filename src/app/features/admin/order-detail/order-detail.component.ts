@@ -321,4 +321,55 @@ export class OrderDetailComponent implements OnInit {
     return this.utilsService.getItemSubtotal(item);
   }
 
+  getClientName(): string {
+    if (this.order?.nombre_contacto && this.order.nombre_contacto.trim() !== '') {
+      return this.order.nombre_contacto;
+    }
+    if (this.order?.usuario?.nombres) {
+      const apellidos = this.order.usuario.apellidos || '';
+      return `${this.order.usuario.nombres} ${apellidos}`.trim();
+    }
+    return 'Usuario Invitado';
+  }
+
+  getClientEmail(): string {
+    return this.order?.email_contacto || this.order?.usuario?.email || 'Sin correo de contacto';
+  }
+
+  getClientPhone(): string {
+    const rawPhone = this.order?.telefono_contacto || this.order?.usuario?.telefono || '';
+    return rawPhone ? this.formatPhone(rawPhone) : 'Sin teléfono de contacto';
+  }
+
+  getAvatarInitials(): string {
+    if (this.order?.usuario?.nombres) {
+      const primerNombre = this.order.usuario.nombres.trim().split(/\s+/)[0] || '';
+      const primerApellido = (this.order.usuario.apellidos || '').trim().split(/\s+/)[0] || '';
+
+      const iNombre = primerNombre.charAt(0);
+      const iApellido = primerApellido.charAt(0);
+
+      return (iNombre + iApellido).toUpperCase() || 'UR';
+    }
+
+    if (this.order?.nombre_contacto && this.order.nombre_contacto.trim() !== '') {
+      const palabras = this.order.nombre_contacto.trim().split(/\s+/);
+
+      if (palabras.length >= 4) {
+        const iNombre = palabras[0].charAt(0);
+        const iApellido = palabras[2].charAt(0);
+        return (iNombre + iApellido).toUpperCase();
+      }
+
+      if (palabras.length === 2 || palabras.length === 3) {
+        const iNombre = palabras[0].charAt(0);
+        const iApellido = palabras[1].charAt(0);
+        return (iNombre + iApellido).toUpperCase();
+      }
+
+    }
+
+    return 'UI';
+  }
+
 }

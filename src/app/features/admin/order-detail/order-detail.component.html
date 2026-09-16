@@ -103,6 +103,7 @@
 
     <!-- Cliente + resumen -->
     <div>
+      <!-- Información del Cliente (Registrado o Invitado) -->
       <div class="card mb-4">
         <div class="card-header-custom">
           <i class="bi bi-person"></i>
@@ -110,16 +111,21 @@
         </div>
         <div class="card-body-custom">
           <div class="customer-card">
-            <div class="customer-avatar-large">{{ order?.usuario?.nombres?.charAt(0) }}{{
-              order?.usuario?.apellidos?.charAt(0) }}</div>
+            <!-- Avatar dinámico -->
+            <div class="customer-avatar-large">
+              {{ getAvatarInitials() }}
+            </div>
             <div class="customer-details">
-              <h4>{{ order?.usuario?.nombres }} {{ order?.usuario?.apellidos}}</h4>
+              <!-- Nombre completo del cliente -->
+              <h4>{{ getClientName() }}</h4>
               <div class="customer-contact">
+                <!-- Correo electrónico -->
                 <span class="contact-item">
-                  <i class="bi bi-envelope"></i> {{ order?.usuario?.email }}
+                  <i class="bi bi-envelope"></i> {{ getClientEmail() }}
                 </span>
+                <!-- Teléfono -->
                 <span class="contact-item">
-                  <i class="bi bi-telephone"></i> {{ formatPhone(order?.usuario?.telefono!) }}
+                  <i class="bi bi-telephone"></i> {{ getClientPhone() }}
                 </span>
               </div>
             </div>

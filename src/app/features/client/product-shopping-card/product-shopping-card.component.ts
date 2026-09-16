@@ -16,13 +16,15 @@ import { KlapModalComponent } from "@/shared/components/klap-modal/klap-modal.co
 import { Order, OrderResponse } from '@/shared/models/klap.interface';
 import { AuthService } from '../../../core/services/auth.service';
 import { ProductService } from '@/core/services/product.service';
+import { GuestUserData } from '@/shared/models/auth.interface';
+import { FormsModule } from '@angular/forms';
 
 declare var bootstrap: any;
 
 @Component({
   selector: 'app-product-shopping-card',
   standalone: true,
-  imports: [CommonModule, RouterLink, KlapModalComponent],
+  imports: [CommonModule, RouterLink, FormsModule, KlapModalComponent],
   templateUrl: './product-shopping-card.component.html',
   styleUrl: './product-shopping-card.component.scss'
 })
@@ -40,8 +42,21 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
   setupFee: number = 0;
   bankInfo!: BankInfo;
   processingOrder: boolean = false;
+  isAuthenticated: boolean = false;
   fileName: string | null = null;
   fileBase64: string | null = null;
+
+
+  public guestData: GuestUserData | null = null;
+  public isGuestModalOpen: boolean = false;
+
+  public guestForm = {
+    nombres: '',
+    apellidos: '',
+    email: '',
+    telefono: '',
+    direccion: ''
+  };
 
   constructor(
     private cartService: CartService,
@@ -58,8 +73,9 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
     try {
       this.bankInfo = environment.bankInfo;
       this.setupFee = Number(environment.orderSetupFee) || 0;
-      this.cartItems = await lastValueFrom(this.cartService.getDetailedCart());
-      await this.validateStockInCart();
+      this.isAuthenticated = this.authService.isAuthenticated();
+
+      await this.refetchCartData();
 
     } catch (error) {
       console.error('Error al cargar el carrito:', error);
@@ -109,9 +125,9 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
   }
 
 
-  // ----------------------------------------------------------------------
-  // CÁLCULOS SINCRONOS DEL RESUMEN DEL PEDIDO (Usan la propiedad cartItems)
-  // ----------------------------------------------------------------------
+  // ------------------------------------------
+  // CÁLCULOS SINCRONOS DEL RESUMEN DEL PEDIDO
+  // ------------------------------------------
 
   get subtotal(): number {
     return this.cartItems.reduce((acc, item) => acc + this.utilsService.getEffectivePrice(item) * item.cantidad, 0);
@@ -133,17 +149,14 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
   async processOrder(): Promise<void> {
     this.processingOrder = true;
     this.orderHandled = false;
+
     try {
-
       await this.validateStockInCart();
-
-      // 2. Filtrar únicamente los items que tienen stock disponible
       const itemsConStock = this.cartItems.filter(item => this.hasStock(item.producto_id));
 
-      // Si hay productos agotados en el carrito
       if (itemsConStock.length < this.cartItems.length) {
         this.processingOrder = false;
-        await this.refetchCartData(); // Refresca el carrito para deshabilitar los agotados
+        await this.refetchCartData();
         this.toast.error('Hay productos agotados en tu carrito. Por favor elimínalos o ajústalos para continuar.');
         return;
       }
@@ -154,19 +167,39 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
         return;
       }
 
-      const userData = this.authService.getCurrentUserProfile();
+      const currentUser = this.authService.getCurrentUserProfile();
+      let userPayload: any;
 
-      const user = {
-        email: userData.email!,
-        rut: null,
-        first_name: userData.nombres!,
-        last_name: userData.apellidos!,
-        phone: userData.telefono!,
-        address_line: null,
-        address_city: null,
-        address_state: null,
-        country: 'CL',
-        postal_code: null
+      if (currentUser && currentUser.email) {
+        userPayload = {
+          email: currentUser.email,
+          rut: null,
+          first_name: currentUser.nombres || '',
+          last_name: currentUser.apellidos || '',
+          phone: currentUser.telefono || '',
+          address_line: null,
+          address_city: null,
+          address_state: null,
+          country: 'CL',
+          postal_code: null
+        };
+      } else if (this.guestData) {
+        userPayload = {
+          email: this.guestData.email,
+          rut: null,
+          first_name: this.guestData.nombres || '',
+          last_name: this.guestData.apellidos || '',
+          phone: this.guestData.telefono || '',
+          address_line: null,
+          address_city: null,
+          address_state: null,
+          country: 'CL',
+          postal_code: null
+        };
+      } else {
+        this.processingOrder = false;
+        this.openGuestDataModal();
+        return;
       }
 
       const items = this.cartItems.map(item => {
@@ -183,13 +216,13 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
       const total = items.reduce((acc, item) => acc + item.price, 0);
 
       this.orderData = {
-        referenceId: 'REF-' + Date.now(),
-        user,
+        referenceId: 'REF-' + Date.now() + '-' + Math.floor(Math.random() * 10000),
+        user: userPayload,
         items,
         total
       };
 
-      await this.createOrder(this.orderData.referenceId);
+      await this.createOrder(this.orderData.referenceId, userPayload);
       await this.openKlapModal();
 
     } catch (error) {
@@ -199,10 +232,13 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
     }
   }
 
-  async createOrder(klapOrderId: string): Promise<number> {
-
+  async createOrder(klapOrderId: string, userPayload: any): Promise<number> {
     try {
       let orderData: CrearPedido = {
+        nombre_contacto: `${userPayload.first_name} ${userPayload.last_name}`.trim(),
+        email_contacto: userPayload.email,
+        telefono_contacto: userPayload.phone,
+        direccion_envio: userPayload.address_line || 'Retiro en tienda.',
         detalles: this.cartItems.map(item => ({
           producto_id: item.producto_id,
           nombre: item.nombre,
@@ -263,21 +299,26 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
     this.toast.success('Productos de favoritos agregados al carrito');
   }
 
-  async decreaseQuantity(item: CarritoDetalladoDTO): Promise<void> {
-    if (item.cantidad > 1) {
-      await this.cartService.decreaseToCart(item.producto_id);
-      await this.refetchCartData();
-      this.toast.success('Producto restado al carrito')
-
-    }
-  }
-
   async increaseQuantity(item: CarritoDetalladoDTO): Promise<void> {
     if (item.cantidad > 0) {
       await this.cartService.addToCart(item.producto_id);
       await this.refetchCartData();
-      this.toast.success('Producto sumado al carrito')
+      this.toast.success('Producto sumado al carrito');
     }
+  }
+
+  async decreaseQuantity(item: CarritoDetalladoDTO): Promise<void> {
+    if (item.cantidad > 1) {
+      await this.cartService.decreaseToCart(item.producto_id);
+      await this.refetchCartData();
+      this.toast.success('Producto restado al carrito');
+    }
+  }
+
+  async removeItem(item: CarritoDetalladoDTO): Promise<void> {
+    await this.cartService.removeFromCart(item.producto_id);
+    await this.refetchCartData();
+    this.toast.success('Producto eliminado del carrito');
   }
 
   async addToWishlist(item: CarritoDetalladoDTO): Promise<void> {
@@ -290,12 +331,6 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
     }
   }
 
-  async removeItem(item: CarritoDetalladoDTO): Promise<void> {
-    await this.cartService.removeFromCart(item.producto_id);
-    await this.refetchCartData();
-    this.toast.success('Producto eliminado del carrito')
-  }
-
   async clearCart(): Promise<void> {
     await this.cartService.clearCart();
     await this.refetchCartData();
@@ -305,7 +340,32 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
 
   private async refetchCartData(): Promise<void> {
     try {
-      this.cartItems = await lastValueFrom(this.cartService.getDetailedCart());
+      this.isAuthenticated = this.authService.isAuthenticated();
+
+      if (this.isAuthenticated) {
+        this.cartItems = await lastValueFrom(this.cartService.getDetailedCart());
+      } else {
+        const itemsMap = this.cartService.getCartItems();
+        const localItems: CarritoDetalladoDTO[] = [];
+
+        for (const [productId, item] of itemsMap.entries()) {
+          const prod = await this.productService.findById(productId);
+          if (prod) {
+            localItems.push({
+              carrito_id: 0,
+              producto_id: prod.producto_id!,
+              nombre: prod.nombre,
+              precio: prod.precio,
+              precio_oferta: prod.precio_oferta,
+              cantidad: item.cantidad,
+              imagen: prod.imagenes?.[0]?.url || 'null.png',
+              stock: prod.stock
+            } as CarritoDetalladoDTO);
+          }
+        }
+        this.cartItems = localItems;
+      }
+
       await this.validateStockInCart();
     } catch (error) {
       console.error('Error al recargar el carrito:', error);
@@ -378,5 +438,35 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
     return item.cantidad * precioUnitario;
   }
 
+  openGuestDataModal(): void {
+    const modalElement = document.getElementById('guestDataModal');
+    if (modalElement) {
+      const modal = new bootstrap.Modal(modalElement);
+      modal.show();
+    }
+  }
+
+  confirmGuestData(): void {
+    if (!this.guestForm.nombres || !this.guestForm.email || !this.guestForm.telefono) {
+      this.toast.warning('Por favor completa todos los campos requeridos.');
+      return;
+    }
+
+    this.guestData = {
+      nombres: this.guestForm.nombres,
+      apellidos: this.guestForm.apellidos,
+      email: this.guestForm.email,
+      telefono: this.guestForm.telefono,
+      direccion: this.guestForm.direccion
+    };
+
+    const modalElement = document.getElementById('guestDataModal');
+    if (modalElement) {
+      const modal = bootstrap.Modal.getInstance(modalElement);
+      modal?.hide();
+    }
+
+    this.processOrder();
+  }
 
 }
