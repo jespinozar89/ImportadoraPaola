@@ -2,7 +2,7 @@
   <!-- Header -->
   <div class="cart-header mb-4">
     <a (click)="utilsService.goToUrl('/')"
-      class="back-link d-inline-flex align-items-center fw-semibold px-3 py-2 rounded">
+      class="back-link d-inline-flex align-items-center fw-semibold px-3 py-2 rounded cursor-pointer">
       <i class="bi bi-arrow-left me-2"></i>
       Continuar comprando
     </a>
@@ -32,6 +32,7 @@
   </div>
 
   <div class="popIn-animations row g-4">
+    <!-- COLUMNA PRODUCTOS -->
     <div class="col-lg-8">
       <div class="card">
         <div class="card-body">
@@ -42,28 +43,20 @@
               <div class="row align-items-center">
                 <div class="col-md-2 col-3">
                   <a routerLink="/producto/{{ item.producto_id }}">
-                    <img [src]="item.imagen ? item.imagen : 'null.png'"
-                        class="img-fluid h-100 rounded"
-                        [class.grayscale-img]="!hasStock(item.producto_id)"
-                        [style.object-fit]="'cover'"
-                        alt="{{ item.nombre }}">
+                    <img [src]="item.imagen ? item.imagen : 'null.png'" class="img-fluid h-100 rounded"
+                      [class.grayscale-img]="!hasStock(item.producto_id)" [style.object-fit]="'cover'"
+                      alt="{{ item.nombre }}">
                   </a>
                 </div>
 
-                <!-- COLUMNA DE PRECIO UNITARIO CON OFERTA -->
                 <div class="col-md-4 col-9">
                   <h6 class="product-name mb-1" [class.text-muted]="!hasStock(item.producto_id)">{{ item.nombre }}</h6>
 
-                  <!-- Si el producto NO tiene stock -->
                   <ng-container *ngIf="!hasStock(item.producto_id); else precioConStock">
-                    <span class="badge bg-secondary text-uppercase px-2 py-1">
-                      Agotado
-                    </span>
+                    <span class="badge bg-secondary text-uppercase px-2 py-1">Agotado</span>
                   </ng-container>
 
-                  <!-- Si el producto SÍ tiene stock -->
                   <ng-template #precioConStock>
-                    <!-- Precio Oferta -->
                     <ng-container
                       *ngIf="utilsService.getDiscountPercentage(item.precio, item.precio_oferta) > 0; else precioNormalUnitario">
                       <div class="d-flex align-items-center gap-2">
@@ -80,7 +73,6 @@
                       </div>
                     </ng-container>
 
-                    <!-- Precio unitario normal -->
                     <ng-template #precioNormalUnitario>
                       <p class="product-price mb-0">${{ item.precio | number:'1.0-0':'es-CL' }}</p>
                     </ng-template>
@@ -89,10 +81,8 @@
 
                 <div class="col-md-3 col-6">
                   <div class="quantity-controls d-flex align-items-center justify-content-center">
-                    <!-- Deshabilitar el botón restar si no hay stock o si la cantidad es 1 -->
-                    <button class="btn btn-outline-secondary btn-sm"
-                            (click)="decreaseQuantity(item)"
-                            [disabled]="!hasStock(item.producto_id) || item.cantidad <= 1">
+                    <button class="btn btn-outline-secondary btn-sm" (click)="decreaseQuantity(item)"
+                      [disabled]="!hasStock(item.producto_id) || item.cantidad <= 1">
                       <i class="bi bi-dash"></i>
                     </button>
 
@@ -100,16 +90,13 @@
                       {{ item.cantidad }}
                     </span>
 
-                    <!-- Deshabilitar el botón sumar si no hay stock -->
-                    <button class="btn btn-outline-secondary btn-sm"
-                            (click)="increaseQuantity(item)"
-                            [disabled]="!hasStock(item.producto_id)">
+                    <button class="btn btn-outline-secondary btn-sm" (click)="increaseQuantity(item)"
+                      [disabled]="!hasStock(item.producto_id)">
                       <i class="bi bi-plus"></i>
                     </button>
                   </div>
                 </div>
 
-                <!-- COLUMNA DE TOTAL POR ÍTEM -->
                 <div class="col-md-3 col-6">
                   <div class="text-end">
                     <h5 class="item-total mb-3" [class.text-muted]="!hasStock(item.producto_id)">
@@ -145,83 +132,305 @@
               Tu carrito de compras está vacío.
             </div>
           </ng-template>
-
         </div>
       </div>
     </div>
 
+    <!-- COLUMNA RESUMEN DE COMPRA Y MÉTODOS DE ENTREGA -->
     <div class="col-lg-4">
       <div class="card order-summary-card sticky-top">
         <div class="card-body">
           <h4 class="mb-4">Resumen del Pedido</h4>
 
-          <!-- <div class="summary-row d-flex justify-content-between mb-3">
+          <!-- SELECCIÓN MÉTODO DE ENTREGA -->
+          <div class="mb-4">
+            <h6 class="fw-bold mb-3">Método de Entrega</h6>
+
+            <div class="form-check border rounded p-3 mb-2 cursor-pointer"
+              [class.border-primary]="tipoEntrega === 'retiro'" (click)="onCambioTipoEntrega('retiro')">
+              <input class="form-check-input ms-0 me-2" type="radio" name="tipoEntrega" id="retiro" value="retiro"
+                [checked]="tipoEntrega === 'retiro'">
+              <label class="form-check-label fw-semibold cursor-pointer" for="retiro">
+                Retiro en Tienda (Gratis)
+              </label>
+              <div class="text-muted small mt-1">Av. Argentina #334, Valparaíso</div>
+            </div>
+
+            <div class="form-check border rounded p-3 cursor-pointer"
+              [class.border-primary]="tipoEntrega === 'despacho'" (click)="onCambioTipoEntrega('despacho')">
+              <input class="form-check-input ms-0 me-2" type="radio" name="tipoEntrega" id="despacho" value="despacho"
+                [checked]="tipoEntrega === 'despacho'">
+              <label class="form-check-label fw-semibold cursor-pointer" for="despacho">
+                Despacho a Domicilio
+              </label>
+              <div class="text-muted small mt-1">Envío con tarifa calculada según comuna</div>
+            </div>
+          </div>
+
+          <!-- SECCIÓN DIRECCIÓN DE DESPACHO (SI TIPO ES DESPACHO) -->
+          <div *ngIf="tipoEntrega === 'despacho'" class="mb-4 p-3 border rounded bg-light">
+            <!-- USUARIO REGISTRADO -->
+            <div *ngIf="isAuthenticated">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="fw-bold small">Dirección de Envío:</span>
+                <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none" (click)="openAddressModal()">
+                  <i class="bi bi-plus-circle me-1"></i> Nueva / Cambiar
+                </button>
+              </div>
+
+              <div *ngIf="direccionSeleccionada; else sinDireccionesUser">
+                <p class="mb-1 fw-semibold text-dark">{{ direccionSeleccionada.calle }} #{{ direccionSeleccionada.numero
+                  }}</p>
+                <p class="mb-0 text-muted small">{{ direccionSeleccionada.comuna }}, {{ direccionSeleccionada.region }}
+                </p>
+              </div>
+
+              <ng-template #sinDireccionesUser>
+                <div class="text-muted small">No tienes direcciones guardadas.</div>
+                <button type="button" class="btn btn-outline-primary btn-sm w-100 mt-2" (click)="openAddressModal()">
+                  Agregar Dirección
+                </button>
+              </ng-template>
+
+              <!-- Selector si tiene múltiples direcciones -->
+              <div *ngIf="direccionesUsuario.length > 1" class="mt-2">
+                <select class="form-select form-select-sm" [(ngModel)]="direccionSeleccionada"
+                  (change)="seleccionarDireccion(direccionSeleccionada!)">
+                  <option *ngFor="let dir of direccionesUsuario" [ngValue]="dir">
+                    {{ dir.calle }} #{{ dir.numero }} - {{ dir.comuna }}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <!-- INVITADO -->
+            <div *ngIf="!isAuthenticated">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="fw-bold small">Dirección de Envío:</span>
+                <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none" (click)="openAddressModal()">
+                  {{ guestData?.direccion ? 'Editar' : 'Ingresar' }}
+                </button>
+              </div>
+
+              <div *ngIf="guestData?.direccion; else sinDireccionGuest">
+                <p class="mb-0 text-muted small">{{ guestData?.direccion }}</p>
+              </div>
+
+              <ng-template #sinDireccionGuest>
+                <p class="text-muted small mb-2">Ingresa tu dirección para calcular la tarifa de despacho.</p>
+                <button type="button" class="btn btn-primary btn-sm w-100" (click)="openAddressModal()">
+                  <i class="bi bi-geo-alt me-1"></i> Configurar Dirección
+                </button>
+              </ng-template>
+            </div>
+          </div>
+
+          <!-- DESGLOSE COSTOS -->
+          <div class="summary-row d-flex justify-content-between mb-2">
             <span class="text-muted">Subtotal</span>
-            <span class="fw-bold">${{ subtotal | number:'1.0-0':'es-CL'}}</span>
+            <span class="fw-bold">${{ subtotal | number:'1.0-0':'es-CL' }}</span>
           </div>
 
-          <div class="summary-row d-flex justify-content-between mb-3">
-            <span class="text-muted">
-              <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-html="true"
-                title="Este cargo corresponde al armado<br>- Organización de tu pedido<br>- Empaquetado de útiles">
-              </i>
-
-              Cargo por armado
-            </span>
-            <span class="fw-bold">${{ tax | number:'1.0-0':'es-CL' }}</span>
-          </div>
-
-          <hr> -->
-
-          <div class="summary-row d-flex justify-content-between mb-4">
-            <span class="fs-5 fw-bold">Total</span>
-            <span class="fs-5 fw-bold">${{ total | number:'1.0-0':'es-CL' }}</span>
+          <div *ngIf="tipoEntrega === 'despacho'" class="summary-row d-flex justify-content-between mb-2">
+            <span class="text-muted">Costo de Envío</span>
+            <span *ngIf="cargandoEnvio" class="spinner-border spinner-border-sm text-primary"></span>
+            <span *ngIf="!cargandoEnvio" class="fw-bold">${{ costoEnvio | number:'1.0-0':'es-CL' }}</span>
           </div>
 
           <hr>
 
-          <!-- <div class="mt-2">
-            <span class="fs-6 fw-bold">Metodo de pago tranferencia:</span>
-            <label class="form-label d-flex align-items-center gap-2 border rounded px-3 py-2 cursor-pointer">
-              <i class="bi bi-paperclip"></i>
-              <span>Adjuntar comprobante de pago</span>
-              <input type="file" accept=".pdf,image/*" hidden (change)="onFileSelected($event)">
-            </label>
-            <div *ngIf="fileName" class="mt-1 text-muted small">
-              Archivo seleccionado: {{ fileName }}
-            </div>
-          </div> -->
+          <div class="summary-row d-flex justify-content-between mb-4">
+            <span class="fs-5 fw-bold">Total</span>
+            <span class="fs-5 fw-bold text-primary">${{ total | number:'1.0-0':'es-CL' }}</span>
+          </div>
 
-          <div class="mt-3 p-3 border rounded bg-light text-dark small">
+          <!-- MENSAJE DE RETIRO -->
+          <div *ngIf="tipoEntrega === 'retiro'" class="p-3 border rounded bg-light text-dark small mb-4">
             <div class="d-flex align-items-start gap-2">
-              <i class="bi bi-info-circle text-primary fs-5 mt-1"></i>
+              <i class="bi bi-info-circle text-primary fs-5"></i>
               <div>
-                <strong>Importante:</strong>
-                Las compras realizadas deberán ser retiradas de manera presencial en
-                <span class="fw-semibold">Librería Paola</span>, ubicada en
-                <span class="fw-semibold">Av. Argentina #334, Valparaíso</span>.
-                <br>
-                <p class="mt-2 mb-2">
-                  Al momento de retirar su compra, por favor tenga a mano el
-                  <span class="fw-semibold">correo electrónico de confirmación</span>
-                  correspondiente a la transacción.
-                </p>
-                <p>
-                  Este procedimiento es obligatorio para validar la entrega de su pedido.
-                </p>
+                <strong>Retiro presencial:</strong> En Av. Argentina #334, Valparaíso. Presentar correo de confirmación
+                al retirar.
               </div>
             </div>
           </div>
 
           <div class="mt-4">
-            <button class="btn btn-primary w-100 btn-lg" [disabled]="cartItems.length === 0 || processingOrder"
+            <button class="btn btn-primary w-100 btn-lg"
+              [disabled]="cartItems.length === 0 || processingOrder || (tipoEntrega === 'despacho' && costoEnvio === 0 && !cargandoEnvio)"
               (click)="processOrder()">
-              <i *ngIf="processingOrder" class="bi bi-arrow-clockwise spin"></i>
+              <i *ngIf="processingOrder" class="bi bi-arrow-clockwise spin me-1"></i>
               Finalizar Compra
             </button>
           </div>
-
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para Crear / Ingresar Dirección -->
+<div class="modal fade" id="addressModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-geo-alt me-2"></i>
+          {{ isAuthenticated ? 'Agregar Dirección de Envío' : 'Ingresar Dirección para Despacho' }}
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <form [formGroup]="addressForm" (ngSubmit)="saveAddressModal()">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Calle *</label>
+            <input type="text" class="form-control" formControlName="calle" placeholder="Ej: Av. Principal">
+          </div>
+
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <label class="form-label">Número *</label>
+              <input type="text" class="form-control" formControlName="numero" placeholder="Ej: 1234">
+            </div>
+            <div class="col-6">
+              <label class="form-label">Dpto / Casa</label>
+              <input type="text" class="form-control" formControlName="departamento" placeholder="Ej: Dpto 402">
+            </div>
+          </div>
+
+          <div class="row g-2 mb-3">
+            <!-- Selector Región -->
+            <div class="col-6">
+              <label class="form-label">Región *</label>
+              <select class="form-select" formControlName="region" (change)="onRegionChange($event)">
+                <option [ngValue]="''">Seleccione región</option>
+                <option *ngFor="let item of regions" [value]="item.codigo">
+                  {{ item.region }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Selector Comuna -->
+            <div class="col-6">
+              <label class="form-label">Comuna *</label>
+              <select class="form-select" formControlName="comuna">
+                <option [ngValue]="''">
+                  {{ isLoadingCommunes ? 'Cargando...' : 'Seleccione comuna' }}
+                </option>
+                <option *ngFor="let commune of communes" [value]="commune">
+                  {{ commune }}
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="addressForm.invalid">
+            <i class="bi bi-check-circle me-1"></i>
+            Guardar y Calcular Envío
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Unificado de Datos de Invitado -->
+<div class="modal fade" id="guestDataModal" tabindex="-1" aria-labelledby="guestDataModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" [class.modal-lg]="tipoEntrega === 'despacho'">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="guestDataModalLabel">
+          <i class="bi bi-person-lines-fill me-2"></i>
+          {{ tipoEntrega === 'despacho' ? 'Datos del Comprador y Envío' : 'Datos del Comprador' }}
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+
+        <!-- SECCIÓN DATOS PERSONALES (SIEMPRE VISIBLE) -->
+        <h6 class="fw-bold mb-3 text-primary">
+          <i class="bi bi-person me-1"></i> Información Personal
+        </h6>
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="form-label">Nombre *</label>
+            <input type="text" class="form-control" [(ngModel)]="guestForm.nombres" placeholder="Ej: Juan">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Apellido *</label>
+            <input type="text" class="form-control" [(ngModel)]="guestForm.apellidos" placeholder="Ej: Pérez">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Correo Electrónico *</label>
+            <input type="email" class="form-control" [(ngModel)]="guestForm.email" placeholder="ejemplo@correo.com">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Teléfono de Contacto *</label>
+            <input type="tel" class="form-control" [(ngModel)]="guestForm.telefono" placeholder="+56 9 1234 5678">
+          </div>
+        </div>
+
+        <!-- SECCIÓN DIRECCIÓN (SOLO SI ES DESPACHO) -->
+        <ng-container *ngIf="tipoEntrega === 'despacho'">
+          <hr class="my-4">
+          <h6 class="fw-bold mb-3 text-primary">
+            <i class="bi bi-geo-alt me-1"></i> Dirección de Despacho
+          </h6>
+
+          <form [formGroup]="guestAddressForm">
+            <div class="mb-3">
+              <label class="form-label">Calle *</label>
+              <input type="text" class="form-control" formControlName="calle" placeholder="Ej: Av. Principal">
+            </div>
+
+            <div class="row g-2 mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Número *</label>
+                <input type="text" class="form-control" formControlName="numero" placeholder="Ej: 1234">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Dpto / Casa</label>
+                <input type="text" class="form-control" formControlName="departamento" placeholder="Ej: Dpto 402">
+              </div>
+            </div>
+
+            <div class="row g-2 mb-3">
+              <!-- Selector Región -->
+              <div class="col-md-6">
+                <label class="form-label">Región *</label>
+                <select class="form-select" formControlName="region" (change)="onGuestRegionChange($event)">
+                  <option value="">Seleccione región</option>
+                  <option *ngFor="let item of regions" [value]="item.codigo">
+                    {{ item.region }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Selector Comuna -->
+              <div class="col-md-6">
+                <label class="form-label">Comuna *</label>
+                <select class="form-select" formControlName="comuna">
+                  <option value="">
+                    {{ isLoadingCommunes ? 'Cargando...' : 'Seleccione comuna' }}
+                  </option>
+                  <option *ngFor="let commune of communes" [value]="commune">
+                    {{ commune }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </form>
+        </ng-container>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" (click)="confirmGuestData()">
+          <i class="bi bi-check-circle me-1"></i>
+          Guardar y Continuar
+        </button>
       </div>
     </div>
   </div>
@@ -237,7 +446,7 @@
       </div>
       <div class="modal-body text-dark">
         <p class="mb-2">
-          Gracias por confiar en <strong>Importadora Paola</strong>. Tu pedido ha sido procesado correctamente.
+          Gracias por confiar en <strong>Librería Paola</strong>. Tu pedido ha sido procesado correctamente.
         </p>
         <p class="mb-2">
           En breve recibirás un correo con el <strong>detalle completo de tu compra</strong>.
@@ -255,43 +464,4 @@
 </div>
 
 <!-- Modal Klap -->
-<app-klap-modal #klapModal [orderData]="orderData" (orderResult)="handleOrderResult($event)">
-</app-klap-modal>
-
-<!-- Modal Datos de Invitado -->
-<div class="modal fade" id="guestDataModal" tabindex="-1" aria-labelledby="guestDataModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="guestDataModalLabel">Datos para la Entrega y Boleta</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <p class="text-muted small">Ingresa tus datos de contacto para coordinar la entrega y enviar el comprobante de compra.</p>
-
-        <div class="row g-3">
-          <div class="col-6">
-            <label class="form-label">Nombre *</label>
-            <input type="text" class="form-control" [(ngModel)]="guestForm.nombres" placeholder="Ej: Juan">
-          </div>
-          <div class="col-6">
-            <label class="form-label">Apellido *</label>
-            <input type="text" class="form-control" [(ngModel)]="guestForm.apellidos" placeholder="Ej: Pérez">
-          </div>
-          <div class="col-12">
-            <label class="form-label">Correo Electrónico *</label>
-            <input type="email" class="form-control" [(ngModel)]="guestForm.email" placeholder="ejemplo@correo.com">
-          </div>
-          <div class="col-12">
-            <label class="form-label">Teléfono de Contacto *</label>
-            <input type="tel" class="form-control" [(ngModel)]="guestForm.telefono" placeholder="+56 9 1234 5678">
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-primary" (click)="confirmGuestData()">Continuar con el Pago</button>
-      </div>
-    </div>
-  </div>
-</div>
+<app-klap-modal #klapModal [orderData]="orderData" (orderResult)="handleOrderResult($event)"></app-klap-modal>

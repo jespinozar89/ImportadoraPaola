@@ -32,6 +32,7 @@ export class OrderDetailComponent implements OnInit {
     entregado: { icon: 'bi-check-circle-fill', label: 'Entregado', class: 'entregado' },
     cancelado: { icon: 'bi-x-circle-fill', label: 'Cancelado', class: 'cancelado' },
     enpreparacion: { icon: 'bi-hourglass-split', label: 'Preparando', class: 'preparando' },
+    despachado: { icon: 'bi-truck', label: 'Despachado', class: 'despachado' },
     listo: { icon: 'bi-box-seam', label: 'Listo para retiro', class: 'listo' },
     pendiente: { icon: 'bi-clock', label: 'Pendiente', class: 'pendiente' }
   };
@@ -81,10 +82,23 @@ export class OrderDetailComponent implements OnInit {
     reader.readAsDataURL(file);
   }
 
+  getSubtotal(): number {
+    if (!this.order?.detalles) return 0;
+    return this.order.detalles.reduce((acc, item) => {
+      return acc + this.getItemSubtotal(item);
+    }, 0);
+  }
 
-  getTotal() {
-    const total = this.order?.total || 0;
-    return +total;
+  get costoEnvio(): number {
+    return Number(this.order?.costo_envio) || 0;
+  }
+
+  getTotal(): number {
+    const totalGuardado = Number(this.order?.total);
+    if (!isNaN(totalGuardado) && totalGuardado > 0) {
+      return totalGuardado;
+    }
+    return this.getSubtotal() + this.costoEnvio;
   }
 
   getProductQuantity() {

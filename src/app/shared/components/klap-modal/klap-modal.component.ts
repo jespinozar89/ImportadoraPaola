@@ -35,6 +35,10 @@ export class KlapModalComponent implements OnDestroy {
         this.orderData = orderData;
       }
 
+      if (this.orderData?.user?.address_line) {
+        this.orderData.user.address_line = this.orderData.user.address_line.substring(0, 60);
+      }
+
       this.orderResponse = await this.klapService.createOrder(this.orderData);
       this.redirectUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.orderResponse.redirect_url);
 

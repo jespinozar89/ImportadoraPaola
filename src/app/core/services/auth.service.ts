@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap, firstValueFrom } from 'rxjs';
+import { Observable, BehaviorSubject, tap, firstValueFrom, map } from 'rxjs';
 import { CreateUserDTO, LoginPayload, AuthResponse, UserLogged, UpdateUserDTO } from '@/shared/models/auth.interface';
 import { environment } from '@/environments/environment';
 import { Router } from '@angular/router';
@@ -18,12 +18,21 @@ export class AuthService {
   private currentUserSubject: BehaviorSubject<UserLogged | null>;
   public currentUser: Observable<UserLogged | null>;
 
+  public isAuthenticated$: Observable<boolean>;
+
   constructor(
     private http: HttpClient,
     private router: Router
   ) {
-    this.currentUserSubject = new BehaviorSubject<UserLogged | null>(null);
+    const initialToken = localStorage.getItem(this.USER_KEY);
+    const initialUser: UserLogged | null = initialToken ? ({ token: initialToken } as UserLogged) : null;
+
+    this.currentUserSubject = new BehaviorSubject<UserLogged | null>(initialUser);
     this.currentUser = this.currentUserSubject.asObservable();
+
+    this.isAuthenticated$ = this.currentUserSubject.pipe(
+      map(user => !!user && !!user.token)
+    );
   }
 
   // ----------------------------------------------------------------------
@@ -50,6 +59,7 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, data).pipe(
       tap(response => {
         this.storeAuthData(response);
+        localStorage.removeItem('guest_user_info');
       })
     );
   }

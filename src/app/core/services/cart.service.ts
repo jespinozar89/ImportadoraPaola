@@ -52,9 +52,6 @@ export class CartService implements OnDestroy {
   // MÉTODOS PÚBLICOS
   // ----------------------------------------------------------------------
 
-  /**
-   * Añade o incrementa un producto en el carrito (local o DB).
-   */
   public async addToCart(productId: number): Promise<void> {
     const item = this.cartItems.get(productId);
     const newCantidad = (item?.cantidad || 0) + 1;
@@ -68,9 +65,6 @@ export class CartService implements OnDestroy {
     this.updateSubjects();
   }
 
-  /**
-   * Resta la cantidad de un producto en el carrito.
-   */
   public async decreaseToCart(productId: number): Promise<void> {
     const item = this.cartItems.get(productId);
     if (!item) return;
@@ -94,9 +88,6 @@ export class CartService implements OnDestroy {
     this.updateSubjects();
   }
 
-  /**
-   * Elimina un producto por completo del carrito.
-   */
   public async removeFromCart(productId: number): Promise<void> {
     if (!this.cartItems.has(productId)) return;
 
@@ -109,23 +100,14 @@ export class CartService implements OnDestroy {
     this.updateSubjects();
   }
 
-  /**
-   * Obtiene la estructura Map en memoria del carrito.
-   */
   public getCartItems(): Map<number, CartItem> {
     return this.cartItems;
   }
 
-  /**
-   * Obtiene el carrito detallado con datos de productos desde el servidor.
-   */
   public getDetailedCart(): Observable<CarritoDetalladoDTO[]> {
     return this.http.get<CarritoDetalladoDTO[]>(`${this.apiUrl}/detailed`);
   }
 
-  /**
-   * Limpia el carrito.
-   */
   public async clearCart(): Promise<void> {
     if (this.authService.isAuthenticated()) {
       try {
@@ -193,9 +175,6 @@ export class CartService implements OnDestroy {
   // SINCRONIZACIÓN Y ACCIONES REMOTAS (BACKEND)
   // ----------------------------------------------------------------------
 
-  /**
-   * Fusiona el carrito anonimo del localStorage con la BD tras el Login.
-   */
   private async syncLocalToDatabase(): Promise<void> {
     try {
       const localItemsArray: CartItem[] = JSON.parse(localStorage.getItem(this.LOCAL_CART_KEY) || '[]');

@@ -102,54 +102,95 @@
     </div>
 
     <!-- Cliente + resumen -->
+    <!-- REEMPLAZAR LA SECCIÓN CLIENTE + RESUMEN EN LA COLUMNA DERECHA -->
     <div>
-      <!-- Información del Cliente (Registrado o Invitado) -->
+      <!-- Información del Cliente y Método de Entrega -->
       <div class="card mb-4">
         <div class="card-header-custom">
           <i class="bi bi-person"></i>
-          <h5>Información del Cliente</h5>
+          <h5>Información del Cliente y Envío</h5>
         </div>
         <div class="card-body-custom">
-          <div class="customer-card">
-            <!-- Avatar dinámico -->
+          <!-- Datos Personales -->
+          <div class="customer-card mb-3">
             <div class="customer-avatar-large">
               {{ getAvatarInitials() }}
             </div>
             <div class="customer-details">
-              <!-- Nombre completo del cliente -->
               <h4>{{ getClientName() }}</h4>
               <div class="customer-contact">
-                <!-- Correo electrónico -->
                 <span class="contact-item">
                   <i class="bi bi-envelope"></i> {{ getClientEmail() }}
                 </span>
-                <!-- Teléfono -->
                 <span class="contact-item">
                   <i class="bi bi-telephone"></i> {{ getClientPhone() }}
                 </span>
               </div>
             </div>
           </div>
+
+          <hr class="my-3">
+
+          <!-- Datos de Despacho / Retiro -->
+          <div class="delivery-details p-2">
+            <div class="mb-2">
+              <strong>Método de Entrega:</strong>
+              <span class="badge bg-light text-dark border ms-2">
+                <i class="bi" [ngClass]="order?.tipo_entrega === 'despacho' ? 'bi-truck' : 'bi-shop'"></i>
+                {{ order?.tipo_entrega === 'despacho' ? 'Despacho a Domicilio' : 'Retiro en Tienda' }}
+              </span>
+            </div>
+
+            <div>
+              <strong>{{ order?.tipo_entrega === 'despacho' ? 'Dirección de Envío:' : 'Sucursal de Retiro:' }}</strong>
+              <div class="text-muted small mt-1">
+                <ng-container *ngIf="order?.tipo_entrega === 'despacho'; else sucursalAdminTpl">
+                  <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+                  {{ order?.direccion_envio || 'No especificada' }}
+                </ng-container>
+                <ng-template #sucursalAdminTpl>
+                  <i class="bi bi-building text-primary me-1"></i>
+                  Av. Argentina #334, Valparaíso
+                </ng-template>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
+      <!-- Resumen del Pedido -->
       <div class="card">
         <div class="card-header-custom">
           <i class="bi bi-receipt"></i>
           <h5>Resumen del Pedido</h5>
         </div>
         <div class="card-body-custom">
-          <!-- <div class="summary-item">
-            <span class="summary-label">Subtotal</span>
-            <span class="summary-value">${{ order?.total| number:'1.0-0':'es-CL' }}</span>
+
+          <!-- Subtotal -->
+          <div class="summary-item d-flex justify-content-between mb-2">
+            <span class="summary-label text-muted">Subtotal</span>
+            <span class="summary-value fw-semibold">${{ getSubtotal() | number:'1.0-0':'es-CL' }}</span>
           </div>
-          <div class="summary-item">
-            <span class="summary-label">Cargo Armado</span>
-            <span class="summary-value">${{ setupFee | number:'1.0-0':'es-CL' }}</span>
-          </div> -->
-          <div class="summary-item summary-total">
+
+          <!-- Costo de Envío -->
+          <div class="summary-item d-flex justify-content-between mb-2">
+            <span class="summary-label text-muted">Costo de Envío</span>
+            <span class="summary-value fw-semibold">
+              <ng-container *ngIf="order?.tipo_entrega === 'despacho'; else envioGratis">
+                ${{ costoEnvio | number:'1.0-0':'es-CL' }}
+              </ng-container>
+              <ng-template #envioGratis>
+                <span class="text-success fw-bold">Gratis (Retiro)</span>
+              </ng-template>
+            </span>
+          </div>
+
+          <hr class="my-2">
+
+          <!-- Total -->
+          <div class="summary-item summary-total d-flex justify-content-between fs-5 fw-bold">
             <span class="summary-label">Total</span>
-            <span class="summary-value">{{ getTotal() | number:'1.0-0':'es-CL' }}</span>
+            <span class="summary-value text-dark">${{ getTotal() | number:'1.0-0':'es-CL' }}</span>
           </div>
 
           <div class="mt-3 p-3 border rounded bg-light text-dark small">
@@ -157,16 +198,10 @@
               <i class="bi bi-exclamation-triangle-fill text-danger fs-5 mt-1"></i>
               <div>
                 <strong>Advertencia:</strong>
-                La cancelación de una orden no solo anula el pedido del cliente,
-                sino que también <span class="fw-semibold">genera automáticamente un reembolso</span>
-                al usuario en la <span class="fw-semibold">tarjeta utilizada para el pago</span>.
+                La cancelación de una orden genera automáticamente un reembolso al usuario en la tarjeta utilizada.
                 <br>
                 <p class="mt-2 mb-2">
                   Este proceso es irreversible una vez confirmado.
-                  Por favor asegúrese de que realmente desea cancelar la orden antes de continuar.
-                </p>
-                <p>
-                  El reembolso puede tardar algunos días hábiles en reflejarse en su cuenta bancaria.
                 </p>
               </div>
             </div>
@@ -181,6 +216,7 @@
               <select id="statusSelect" class="form-select" [(ngModel)]="selectedStatus">
                 <option value="Pendiente">Pendiente</option>
                 <option value="EnPreparacion">Preparando</option>
+                <option value="Despachado">Despachado</option>
                 <option value="Listo">Listo para retiro</option>
                 <option value="Entregado">Entregado</option>
                 <option value="Cancelado">Cancelado</option>

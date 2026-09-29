@@ -1,6 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { AuthService } from '@/core/services/auth.service';
 import { HotToastService } from '@ngxpert/hot-toast';
 
@@ -12,6 +13,9 @@ import { HotToastService } from '@ngxpert/hot-toast';
   styleUrls: ['./sign-in.component.scss']
 })
 export class SignInComponent {
+
+  private router = inject(Router);
+
   email = signal<string>('');
   password = signal<string>('');
   showPassword = signal<boolean>(false);

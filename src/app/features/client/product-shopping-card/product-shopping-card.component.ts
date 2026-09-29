@@ -17,14 +17,20 @@ import { Order, OrderResponse } from '@/shared/models/klap.interface';
 import { AuthService } from '../../../core/services/auth.service';
 import { ProductService } from '@/core/services/product.service';
 import { GuestUserData } from '@/shared/models/auth.interface';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { LocationService } from '../../../core/services/location.service';
+import { AddressService } from '../../../core/services/address.service';
+import { ShippingService } from '@/core/services/shipping.service';
+import { Region } from '@/shared/models/ubicacion.interface';
+import { DireccionUsuario } from '@/shared/models/direccion.model';
 
 declare var bootstrap: any;
+const GUEST_DATA_KEY = 'guest_user_info';
 
 @Component({
   selector: 'app-product-shopping-card',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, KlapModalComponent],
+  imports: [CommonModule, RouterLink, FormsModule, ReactiveFormsModule, KlapModalComponent],
   templateUrl: './product-shopping-card.component.html',
   styleUrl: './product-shopping-card.component.scss'
 })
@@ -37,7 +43,6 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
   private orderHandled = false;
   public availableProductIds: Set<number> = new Set<number>();
 
-
   orderData: Order = {} as Order;
   setupFee: number = 0;
   bankInfo!: BankInfo;
@@ -46,10 +51,20 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
   fileName: string | null = null;
   fileBase64: string | null = null;
 
+  public tipoEntrega: 'retiro' | 'despacho' = 'retiro';
+  public costoEnvio: number = 0;
+  public cargandoEnvio: boolean = false;
+  public regions: Region[] = [];
+  public communes: string[] = [];
+  public isLoadingCommunes: boolean = false;
+
+  public direccionesUsuario: DireccionUsuario[] = [];
+  public direccionSeleccionada: DireccionUsuario | null = null;
+
+  public addressForm!: FormGroup;
+  public guestAddressForm!: FormGroup;
 
   public guestData: GuestUserData | null = null;
-  public isGuestModalOpen: boolean = false;
-
   public guestForm = {
     nombres: '',
     apellidos: '',
@@ -64,21 +79,42 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
     private productService: ProductService,
     private orderService: OrderService,
     private authService: AuthService,
+    private locationService: LocationService,
+    private addressService: AddressService,
+    private shippingService: ShippingService,
+    private fb: FormBuilder,
     private destroyRef: DestroyRef,
     private toast: HotToastService,
     public utilsService: UtilsService
   ) { }
 
   async ngOnInit(): Promise<void> {
+    this.initAddressForm();
+    this.initGuestAddressForm();
+
     try {
       this.bankInfo = environment.bankInfo;
       this.setupFee = Number(environment.orderSetupFee) || 0;
-      this.isAuthenticated = this.authService.isAuthenticated();
 
-      await this.refetchCartData();
+      this.loadRegions();
+
+      this.authService.isAuthenticated$
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(async (isAuth) => {
+          this.isAuthenticated = isAuth;
+
+          if (isAuth) {
+            this.clearGuestStorage();
+            this.loadUserAddresses();
+          } else {
+            this.loadGuestDataFromStorage();
+          }
+
+          await this.refetchCartData();
+        });
 
     } catch (error) {
-      console.error('Error al cargar el carrito:', error);
+      console.error('Error al cargar la información inicial:', error);
     }
 
     this.favoriteService.favoritesCount$
@@ -93,64 +129,347 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
     tooltipTriggerList.map(el => new bootstrap.Tooltip(el, { html: true }));
   }
 
-
-  public isFavorite(idProduct: number): boolean {
-    return this.favoriteService.isFavorite(idProduct);
+  private initAddressForm(): void {
+    this.addressForm = this.fb.group({
+      calle: ['', Validators.required],
+      numero: ['', Validators.required],
+      departamento: [''],
+      region: ['', Validators.required],
+      comuna: [{ value: '', disabled: true }, Validators.required]
+    });
   }
 
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      const file = input.files[0];
-      this.fileName = file.name;
+  private initGuestAddressForm(): void {
+    this.guestAddressForm = this.fb.group({
+      calle: ['', Validators.required],
+      numero: ['', Validators.required],
+      departamento: [''],
+      region: ['', Validators.required],
+      comuna: [{ value: '', disabled: true }, Validators.required]
+    });
+  }
 
-      const reader = new FileReader();
-      reader.onload = () => {
-        this.fileBase64 = reader.result as string;
-      };
+  onGuestRegionChange(event: Event): void {
+    const selectElement = event.target as HTMLSelectElement;
+    const regionCode = selectElement.value;
 
-      reader.readAsDataURL(file);
-    } else {
-      this.fileName = null;
-      this.fileBase64 = null;
+    const communeControl = this.guestAddressForm.get('comuna');
+    communeControl?.reset('');
+    communeControl?.disable();
+    this.communes = [];
+
+    if (!regionCode) return;
+
+    this.isLoadingCommunes = true;
+    this.locationService.getCommunesByRegion(regionCode).subscribe({
+      next: (data) => {
+        this.communes = data;
+        communeControl?.enable();
+        this.isLoadingCommunes = false;
+      },
+      error: () => {
+        this.toast.error('Error al cargar las comunas');
+        this.isLoadingCommunes = false;
+      }
+    });
+  }
+
+  // ------------------------------------------
+  // CARGA DE REGIONES Y COMUNAS
+  // ------------------------------------------
+
+  loadRegions(): void {
+    this.locationService.getRegions().subscribe({
+      next: (data) => (this.regions = data),
+      error: () => this.toast.error('Error al cargar las regiones')
+    });
+  }
+
+  onRegionChange(event: Event): void {
+    const selectElement = event.target as HTMLSelectElement;
+    const regionCode = selectElement.value;
+
+    const communeControl = this.addressForm.get('comuna');
+    communeControl?.reset('');
+    communeControl?.disable();
+    this.communes = [];
+
+    if (!regionCode) return;
+
+    this.isLoadingCommunes = true;
+    this.locationService.getCommunesByRegion(regionCode).subscribe({
+      next: (data) => {
+        this.communes = data;
+        communeControl?.enable();
+        this.isLoadingCommunes = false;
+      },
+      error: () => {
+        this.toast.error('Error al cargar las comunas');
+        this.isLoadingCommunes = false;
+      }
+    });
+  }
+
+  // ------------------------------------------
+  // MANEJO DE DIRECCIONES (REGISTRADOS)
+  // ------------------------------------------
+
+  loadUserAddresses(): void {
+    this.guestData = null;
+
+    this.addressService.getMyAddresses().subscribe({
+      next: (data) => {
+        this.direccionesUsuario = data;
+        const predeterminada = data.find(d => d.es_predeterminada);
+
+        if (predeterminada) {
+          this.seleccionarDireccion(predeterminada);
+        } else if (data.length > 0) {
+          this.seleccionarDireccion(data[0]);
+        } else {
+          this.direccionSeleccionada = null;
+        }
+      },
+      error: () => this.toast.error('Error al cargar tus direcciones')
+    });
+  }
+
+  seleccionarDireccion(dir: DireccionUsuario): void {
+    this.direccionSeleccionada = dir;
+    if (this.tipoEntrega === 'despacho') {
+      this.cotizarEnvio(dir.comuna, dir.region);
     }
   }
 
-  onOpenModal() {
-    const modalElement = document.getElementById('compraExitosaModal');
+  // ------------------------------------------
+  // SELECCIÓN DE MÉTODO DE ENTREGA Y COTIZACIÓN
+  // ------------------------------------------
+
+  onCambioTipoEntrega(tipo: 'retiro' | 'despacho'): void {
+    this.tipoEntrega = tipo;
+
+    if (tipo === 'retiro') {
+      this.costoEnvio = 0;
+      return;
+    }
+
+    if (this.isAuthenticated) {
+      if (this.direccionSeleccionada) {
+        this.cotizarEnvio(this.direccionSeleccionada.comuna, this.direccionSeleccionada.region);
+      } else {
+        this.openAddressModal();
+      }
+    } else {
+      this.openGuestDataModal();
+    }
+  }
+
+  cotizarEnvio(comuna: string, region: string): void {
+    if (!comuna || !region) return;
+
+    this.cargandoEnvio = true;
+    const payload = {
+      comuna,
+      region,
+      subtotal: this.subtotal
+    };
+
+    this.shippingService.cotizarEnvio(payload).subscribe({
+      next: (res: any) => {
+        this.costoEnvio = res.costoEnvio || res.tarifa || 0;
+        this.cargandoEnvio = false;
+      },
+      error: () => {
+        this.toast.error('No se pudo calcular la tarifa de envío para la ubicación seleccionada.');
+        this.costoEnvio = 0;
+        this.cargandoEnvio = false;
+      }
+    });
+  }
+
+  // ------------------------------------------
+  // MODALES
+  // ------------------------------------------
+
+  openAddressModal(): void {
+    if (!this.isAuthenticated && this.guestAddressForm.value) {
+      const guestAddress = this.guestAddressForm.getRawValue();
+
+      this.addressForm.patchValue({
+        calle: guestAddress.calle || '',
+        numero: guestAddress.numero || '',
+        departamento: guestAddress.departamento || '',
+        region: guestAddress.region || ''
+      });
+
+      if (guestAddress.region) {
+        this.isLoadingCommunes = true;
+        this.locationService.getCommunesByRegion(guestAddress.region).subscribe({
+          next: (communes) => {
+            this.communes = communes;
+            const communeControl = this.addressForm.get('comuna');
+            communeControl?.enable();
+            communeControl?.setValue(guestAddress.comuna || '');
+            this.isLoadingCommunes = false;
+          },
+          error: () => {
+            this.toast.error('Error al cargar las comunas');
+            this.isLoadingCommunes = false;
+          }
+        });
+      }
+    } else {
+      this.addressForm.reset({
+        calle: '',
+        numero: '',
+        departamento: '',
+        region: '',
+        comuna: ''
+      });
+      this.communes = [];
+      this.addressForm.get('comuna')?.disable();
+    }
+
+    this.openModalById('addressModal');
+  }
+
+  saveAddressModal(): void {
+    if (this.addressForm.invalid) {
+      this.addressForm.markAllAsTouched();
+      this.toast.warning('Completa todos los campos requeridos de la dirección.');
+      return;
+    }
+
+    this.isAuthenticated = this.authService.isAuthenticated();
+
+    const formValues = this.addressForm.value;
+    const selectedRegionObj = this.regions.find(r => r.codigo === formValues.region);
+    const regionNombre = selectedRegionObj ? selectedRegionObj.region : formValues.region;
+
+    if (this.isAuthenticated) {
+      const nuevaDir = { ...formValues, region: regionNombre };
+      this.addressService.createAddress(nuevaDir).subscribe({
+        next: () => {
+          this.toast.success('Dirección guardada');
+          this.clearGuestStorage();
+          this.loadUserAddresses();
+          this.closeModalById('addressModal');
+        },
+        error: (err) => this.toast.error(err.message || 'Error al guardar la dirección')
+      });
+    } else {
+      const calleCompleta = `${formValues.calle} #${formValues.numero} ${formValues.departamento ? 'Dpto: ' + formValues.departamento : ''}, ${formValues.comuna}, ${regionNombre}`;
+      this.guestForm.direccion = calleCompleta;
+      this.guestData = { ...this.guestForm };
+
+      this.guestAddressForm.patchValue({
+        calle: formValues.calle,
+        numero: formValues.numero,
+        departamento: formValues.departamento,
+        region: formValues.region,
+        comuna: formValues.comuna
+      });
+
+      this.cotizarEnvio(formValues.comuna, regionNombre);
+      this.saveGuestDataToStorage();
+      this.closeModalById('addressModal');
+      this.toast.success('Dirección configurada correctamente');
+    }
+  }
+
+  openGuestDataModal(): void {
+    this.openModalById('guestDataModal');
+  }
+
+  confirmGuestData(): void {
+    if (!this.guestForm.nombres || !this.guestForm.apellidos || !this.guestForm.email || !this.guestForm.telefono) {
+      this.toast.warning('Por favor completa todos los campos de contacto.');
+      return;
+    }
+
+    if (this.tipoEntrega === 'despacho') {
+      if (this.guestAddressForm.invalid) {
+        this.guestAddressForm.markAllAsTouched();
+        this.toast.warning('Por favor completa la dirección de entrega.');
+        return;
+      }
+
+      const formValues = this.guestAddressForm.value;
+      const selectedRegionObj = this.regions.find(r => r.codigo === formValues.region);
+      const regionNombre = selectedRegionObj ? selectedRegionObj.region : formValues.region;
+
+      const calleCompleta = `${formValues.calle} #${formValues.numero} ${formValues.departamento ? 'Dpto: ' + formValues.departamento : ''}, ${formValues.comuna}, ${regionNombre}`;
+
+      this.guestForm.direccion = calleCompleta;
+      this.guestData = { ...this.guestForm };
+
+      this.addressForm.patchValue({
+        calle: formValues.calle,
+        numero: formValues.numero,
+        departamento: formValues.departamento,
+        region: formValues.region,
+        comuna: formValues.comuna
+      });
+
+      this.cotizarEnvio(formValues.comuna, regionNombre);
+    } else {
+      this.guestForm.direccion = 'Retiro en tienda';
+      this.guestData = { ...this.guestForm };
+      this.costoEnvio = 0;
+    }
+
+    this.saveGuestDataToStorage();
+
+    this.closeModalById('guestDataModal');
+    this.toast.success('Datos guardados correctamente.');
+  }
+
+
+  private openModalById(id: string): void {
+    const modalElement = document.getElementById(id);
     if (modalElement) {
       const modal = new bootstrap.Modal(modalElement);
       modal.show();
     }
   }
 
+  private closeModalById(id: string): void {
+    const modalElement = document.getElementById(id);
+    if (modalElement) {
+      const modal = bootstrap.Modal.getInstance(modalElement);
+      if (modal) modal.hide();
+    }
+  }
 
   // ------------------------------------------
-  // CÁLCULOS SINCRONOS DEL RESUMEN DEL PEDIDO
+  // CÁLCULOS DEL TOTAL
   // ------------------------------------------
 
   get subtotal(): number {
     return this.cartItems.reduce((acc, item) => acc + this.utilsService.getEffectivePrice(item) * item.cantidad, 0);
   }
 
-  get tax(): number {
-    return this.setupFee;
-  }
-
   get total(): number {
-    return this.subtotal;
+    return this.subtotal + (this.tipoEntrega === 'despacho' ? this.costoEnvio : 0);
   }
 
-  // ----------------------------------------------------------------------
-  // ACCIONES (DELEGADAS A SERVICIOS)
-  // ----------------------------------------------------------------------
-
+  // ------------------------------------------
+  // PROCESAMIENTO DEL PEDIDO
+  // ------------------------------------------
 
   async processOrder(): Promise<void> {
     this.processingOrder = true;
     this.orderHandled = false;
 
     try {
+
+      const currentRole = this.authService.getRolAuthToken();
+      if (currentRole?.toLocaleLowerCase().includes("admin")) {
+        this.processingOrder = false;
+        this.toast.error('Los administradores no pueden realizar compras.');
+        return;
+      }
+
       await this.validateStockInCart();
       const itemsConStock = this.cartItems.filter(item => this.hasStock(item.producto_id));
 
@@ -170,16 +489,52 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
       const currentUser = this.authService.getCurrentUserProfile();
       let userPayload: any;
 
+      let direccionTexto = 'Retiro en tienda.';
+      let comunaFinal = 'Valparaíso';
+      let regionFinal = 'Valparaíso';
+
+
+
+      if (this.tipoEntrega === 'despacho') {
+        if (this.isAuthenticated && this.direccionSeleccionada) {
+          direccionTexto = [
+            this.direccionSeleccionada.calle,
+            `#${this.direccionSeleccionada.numero}`,
+            this.direccionSeleccionada.departamento ? `Dpto: ${this.direccionSeleccionada.departamento},` : ',',
+            `${this.direccionSeleccionada.comuna},`,
+            this.direccionSeleccionada.region
+          ].filter(Boolean).join(' ');
+          comunaFinal = this.direccionSeleccionada.comuna || comunaFinal;
+          regionFinal = this.direccionSeleccionada.region || regionFinal;
+        } else if (this.guestData) {
+          direccionTexto = this.guestData.direccion || direccionTexto;
+          comunaFinal = this.addressForm.get('comuna')?.value || comunaFinal;
+
+          const codigoRegion = this.addressForm.get('region')?.value;
+          if (codigoRegion) {
+            const regionEncontrada = this.regions.find(r => r.codigo === codigoRegion);
+            regionFinal = regionEncontrada ? regionEncontrada.region : regionFinal;
+          }
+        } else {
+          this.processingOrder = false;
+          this.openAddressModal();
+          return;
+        }
+      }
+
+      const addressLineTruncated = direccionTexto.trim();
+      const addressStateTrucanted = regionFinal.trim();
+
       if (currentUser && currentUser.email) {
         userPayload = {
           email: currentUser.email,
           rut: null,
-          first_name: currentUser.nombres || '',
-          last_name: currentUser.apellidos || '',
+          first_name: currentUser.nombres?.trim() || 'Cliente',
+          last_name: currentUser.apellidos?.trim() || 'Registrado',
           phone: currentUser.telefono || '',
-          address_line: null,
-          address_city: null,
-          address_state: null,
+          address_line: addressLineTruncated,
+          address_city: comunaFinal,
+          address_state: addressStateTrucanted,
           country: 'CL',
           postal_code: null
         };
@@ -187,12 +542,12 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
         userPayload = {
           email: this.guestData.email,
           rut: null,
-          first_name: this.guestData.nombres || '',
-          last_name: this.guestData.apellidos || '',
+          first_name: this.guestData.nombres?.trim() || 'Cliente',
+          last_name: this.guestData.apellidos?.trim() || 'Invitado',
           phone: this.guestData.telefono || '',
-          address_line: null,
-          address_city: null,
-          address_state: null,
+          address_line: addressLineTruncated,
+          address_city: comunaFinal,
+          address_state: addressStateTrucanted,
           country: 'CL',
           postal_code: null
         };
@@ -203,7 +558,7 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
       }
 
       const items = this.cartItems.map(item => {
-        const effectivePrice = this.utilsService.getEffectivePrice(item);
+        const effectivePrice = Math.round(this.utilsService.getEffectivePrice(item));
         return {
           name: item.nombre,
           code: item.producto_id.toString(),
@@ -213,13 +568,24 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
         };
       });
 
-      const total = items.reduce((acc, item) => acc + item.price, 0);
+      if (this.tipoEntrega === 'despacho' && this.costoEnvio > 0) {
+        const costoEnvioEntero = Math.round(this.costoEnvio);
+        items.push({
+          name: 'Despacho a domicilio',
+          code: 'SHIPPING',
+          price: costoEnvioEntero,
+          unit_price: costoEnvioEntero,
+          quantity: 1
+        });
+      }
+
+      const totalCalculado = items.reduce((sum, item) => sum + item.price, 0);
 
       this.orderData = {
         referenceId: 'REF-' + Date.now() + '-' + Math.floor(Math.random() * 10000),
         user: userPayload,
         items,
-        total
+        total: totalCalculado
       };
 
       await this.createOrder(this.orderData.referenceId, userPayload);
@@ -238,7 +604,11 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
         nombre_contacto: `${userPayload.first_name} ${userPayload.last_name}`.trim(),
         email_contacto: userPayload.email,
         telefono_contacto: userPayload.phone,
-        direccion_envio: userPayload.address_line || 'Retiro en tienda.',
+        direccion_envio: userPayload.address_line,
+        tipo_entrega: this.tipoEntrega,
+        subtotal: this.subtotal,
+        costo_envio: this.tipoEntrega === 'despacho' ? this.costoEnvio : 0,
+        total: this.total,
         detalles: this.cartItems.map(item => ({
           producto_id: item.producto_id,
           nombre: item.nombre,
@@ -250,16 +620,21 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
       };
 
       const response = await this.orderService.create(orderData);
-
-      if (response.pedido_id) {
-        return response.pedido_id;
-      }
-
-      return 0;
+      return response.pedido_id || 0;
     } catch (error) {
       console.error('Error al crear el pedido:', error);
       return 0;
     }
+  }
+
+  // --- MÉTODOS AUXILIARES Y CARRITO ---
+
+  public isFavorite(idProduct: number): boolean {
+    return this.favoriteService.isFavorite(idProduct);
+  }
+
+  onOpenModal() {
+    this.openModalById('compraExitosaModal');
   }
 
   async addFavoritesToCart(): Promise<void> {
@@ -285,11 +660,6 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
     if (availableIds.length === 0) {
       this.toast.error('Ninguno de los productos favoritos seleccionados tiene stock disponible');
       return;
-    }
-
-    const outOfStockCount = idsNotInCart.length - availableIds.length;
-    if (outOfStockCount > 0) {
-      this.toast.warning(`${outOfStockCount} producto(s) no se agregaron por falta de stock`);
     }
 
     const promises = availableIds.map(id => this.cartService.addToCart(id));
@@ -323,7 +693,6 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
 
   async addToWishlist(item: CarritoDetalladoDTO): Promise<void> {
     await this.favoriteService.toggleFavorite(item.producto_id);
-
     if (this.isFavorite(item.producto_id)) {
       this.toast.success('Producto añadido a favoritos');
     } else {
@@ -334,8 +703,6 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
   async clearCart(): Promise<void> {
     await this.cartService.clearCart();
     await this.refetchCartData();
-    this.fileName = null;
-    this.fileBase64 = null;
   }
 
   private async refetchCartData(): Promise<void> {
@@ -380,7 +747,6 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
 
     const allIds = this.cartItems.map(item => item.producto_id);
     const availableIdsArray = await this.productService.filterWithStock(allIds);
-
     this.availableProductIds = new Set(availableIdsArray);
   }
 
@@ -401,13 +767,17 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
 
     if (res.status === 'completed') {
       this.orderHandled = true;
-
       this.toast.success('Procesando tu pedido... Por favor, espera unos segundos.');
       await firstValueFrom(timer(3000));
 
       this.processingOrder = false;
       this.closeKlapModal();
       await this.clearCart();
+
+      if (!this.isAuthenticated) {
+        this.clearGuestStorage();
+      }
+
       this.onOpenModal();
       this.toast.success('Pedido procesado con éxito');
     }
@@ -429,7 +799,6 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
 
   getItemTotal(item: any): number {
     if (!item) return 0;
-
     const tieneOferta = this.utilsService.getDiscountPercentage(item.precio, item.precio_oferta) > 0;
     const precioUnitario = tieneOferta
       ? this.utilsService.parsePrice(item.precio_oferta)
@@ -438,35 +807,77 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
     return item.cantidad * precioUnitario;
   }
 
-  openGuestDataModal(): void {
-    const modalElement = document.getElementById('guestDataModal');
-    if (modalElement) {
-      const modal = new bootstrap.Modal(modalElement);
-      modal.show();
-    }
-  }
+  // ------------------------------------------
+  // MÉTODOS LOCAL STORAGE PARA INVITADO
+  // ------------------------------------------
 
-  confirmGuestData(): void {
-    if (!this.guestForm.nombres || !this.guestForm.email || !this.guestForm.telefono) {
-      this.toast.warning('Por favor completa todos los campos requeridos.');
-      return;
-    }
+  private saveGuestDataToStorage(): void {
+    if (this.isAuthenticated) return;
 
-    this.guestData = {
-      nombres: this.guestForm.nombres,
-      apellidos: this.guestForm.apellidos,
-      email: this.guestForm.email,
-      telefono: this.guestForm.telefono,
-      direccion: this.guestForm.direccion
+    const dataToSave = {
+      guestForm: this.guestForm,
+      guestData: this.guestData,
+      guestAddressFormValue: this.guestAddressForm.getRawValue()
     };
 
-    const modalElement = document.getElementById('guestDataModal');
-    if (modalElement) {
-      const modal = bootstrap.Modal.getInstance(modalElement);
-      modal?.hide();
-    }
-
-    this.processOrder();
+    localStorage.setItem(GUEST_DATA_KEY, JSON.stringify(dataToSave));
   }
 
+  private loadGuestDataFromStorage(): void {
+    const saved = localStorage.getItem(GUEST_DATA_KEY);
+    if (!saved) return;
+
+    try {
+      const parsed = JSON.parse(saved);
+      if (parsed.guestForm) {
+        this.guestForm = { ...parsed.guestForm };
+      }
+      if (parsed.guestData) {
+        this.guestData = { ...parsed.guestData };
+      }
+
+      if (parsed.guestAddressFormValue) {
+        const addr = parsed.guestAddressFormValue;
+        this.guestAddressForm.patchValue({
+          calle: addr.calle || '',
+          numero: addr.numero || '',
+          departamento: addr.departamento || '',
+          region: addr.region || '',
+        });
+
+        if (addr.region) {
+          this.locationService.getCommunesByRegion(addr.region).subscribe({
+            next: (communes) => {
+              this.communes = communes;
+              const communeControl = this.guestAddressForm.get('comuna');
+              communeControl?.enable();
+              communeControl?.setValue(addr.comuna || '');
+
+              if (addr.comuna && this.tipoEntrega === 'despacho') {
+                const selectedRegionObj = this.regions.find(r => r.codigo === addr.region);
+                const regionNombre = selectedRegionObj ? selectedRegionObj.region : addr.region;
+                this.cotizarEnvio(addr.comuna, regionNombre);
+              }
+            }
+          });
+        }
+      }
+    } catch (e) {
+      console.error('Error al parsear datos de invitado desde LocalStorage', e);
+    }
+  }
+
+  private clearGuestStorage(): void {
+    localStorage.removeItem(GUEST_DATA_KEY);
+    this.guestData = null;
+    this.guestForm = {
+      nombres: '',
+      apellidos: '',
+      email: '',
+      telefono: '',
+      direccion: ''
+    };
+    this.guestAddressForm.reset();
+    this.guestAddressForm.get('comuna')?.disable();
+  }
 }

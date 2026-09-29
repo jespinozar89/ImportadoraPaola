@@ -28,6 +28,7 @@ export class OrderDetailUserComponent implements OnInit {
     entregado: { icon: 'bi-check-circle-fill', label: 'Entregado', class: 'entregado' },
     cancelado: { icon: 'bi-x-circle-fill', label: 'Cancelado', class: 'cancelado' },
     enpreparacion: { icon: 'bi-hourglass-split', label: 'Preparando', class: 'preparando' },
+    despachado: { icon: 'bi-truck', label: 'Despachado', class: 'despachado' },
     listo: { icon: 'bi-box-seam', label: 'Listo para retiro', class: 'listo' },
     pendiente: { icon: 'bi-clock', label: 'Pendiente', class: 'pendiente' }
   };
@@ -61,9 +62,32 @@ export class OrderDetailUserComponent implements OnInit {
       this.authService.getCurrentUserProfile()?.apellidos;
   }
 
-  getTotal() {
-    const total = this.order?.total || 0;
-    return +total;
+  getItemSubtotal(detalle: any): number {
+    if (!detalle) return 0;
+
+    const precioEfectivo = (detalle.precio_unitario_oferta && detalle.precio_unitario_oferta > 0)
+      ? detalle.precio_unitario_oferta
+      : detalle.precio_unitario;
+
+    return (precioEfectivo || 0) * (detalle.cantidad || 1);
+  }
+
+  getSubtotal(): number {
+    if (!this.order?.detalles) return 0;
+    return this.order.detalles.reduce((acc, item) => {
+      const precio = item.precio_unitario_oferta && item.precio_unitario_oferta > 0
+        ? item.precio_unitario_oferta
+        : item.precio_unitario;
+      return acc + (precio * item.cantidad);
+    }, 0);
+  }
+
+  get costoEnvio(): number {
+    return Number(this.order?.costo_envio) || 0;
+  }
+
+  getTotal(): number {
+    return Number(this.order?.total) || (this.getSubtotal() + this.costoEnvio);
   }
 
   async cancelOrder() {

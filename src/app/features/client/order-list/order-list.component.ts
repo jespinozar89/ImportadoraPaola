@@ -26,6 +26,7 @@ export class OrderListComponent {
     entregado: { icon: 'bi-check-circle-fill', label: 'Entregado', class: 'entregado' },
     cancelado: { icon: 'bi-x-circle-fill', label: 'Cancelado', class: 'cancelado' },
     enpreparacion: { icon: 'bi-hourglass-split', label: 'Preparando', class: 'preparando' },
+    despachado: { icon: 'bi-truck', label: 'Despachado', class: 'despachado' },
     listo: { icon: 'bi-box-seam', label: 'Listo para retiro', class: 'listo' },
     pendiente: { icon: 'bi-clock', label: 'Pendiente', class: 'pendiente' }
   };

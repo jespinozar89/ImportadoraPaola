@@ -385,6 +385,13 @@
   color: #084298;
 }
 
+.status-badge {
+  &.despachado {
+    background-color: #e0f2fe;
+    color: #0369a1;
+  }
+}
+
 .status-badge.listo {
   background-color: #d1dce7;
   color: #0a3622;

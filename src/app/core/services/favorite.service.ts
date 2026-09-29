@@ -82,7 +82,6 @@ export class FavoriteService {
   // LÓGICA DE PERSISTENCIA LOCAL (localStorage)
   // ----------------------------------------------------------------------
 
-  /** Carga inicial de favoritos desde localStorage */
   private loadLocalFavorites(): void {
     const localFavs = localStorage.getItem(this.LOCAL_FAV_KEY);
     try {
@@ -99,14 +98,13 @@ export class FavoriteService {
     this.favoritesCount.next(this.favoriteIds.size);
   }
 
-  /** Guarda el estado actual de favoriteIds en localStorage */
+
   private saveLocalFavorites(): void {
     const idsArray = Array.from(this.favoriteIds);
     localStorage.setItem(this.LOCAL_FAV_KEY, JSON.stringify(idsArray));
     this.favoritesCount.next(this.favoriteIds.size);
   }
 
-  /** Lógica de toggle local */
   private _toggleLocal(productId: number): void {
     if (this.favoriteIds.has(productId)) {
       this.favoriteIds.delete(productId);
@@ -128,9 +126,6 @@ export class FavoriteService {
   // LÓGICA DE SINCRONIZACIÓN Y API
   // ----------------------------------------------------------------------
 
-  /** * Ejecuta la sincronización (local -> BD) y luego carga desde BD
-   * Se llama solo al iniciar sesión.
-   */
   private async syncFavoritesAndLoad(userId: number): Promise<void> {
     const localFavs = this._getLocalFavoritesArray();
 
@@ -149,7 +144,6 @@ export class FavoriteService {
     await this.loadApiFavorites();
   }
 
-  /** Carga la lista de favoritos desde la BD y actualiza el Set local */
   private async loadApiFavorites(): Promise<void> {
     try {
       const dbFavs = await this._findAllByUserApi();

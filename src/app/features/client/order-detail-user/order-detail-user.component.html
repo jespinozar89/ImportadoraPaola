@@ -15,38 +15,53 @@
 
     <div class="d-flex justify-content-center mb-4">
       <div class="card shadow-sm border-0 rounded-3 col-12 col-md-6 col-lg-5">
-        <div class="card-header
-          bg-white border-0
-          pt-3 pb-2 mb-2
-          shadow-none
-          border-bottom-light
-          d-flex flex-column">
+        <div class="card-header bg-white border-0 pt-3 pb-2 mb-2 border-bottom-light d-flex flex-column">
           <div *ngIf="order?.estado" class="d-flex mb-1">
-            <span class="status-badge {{ statusConfig[order.estado.toLowerCase()]?.class }}">
-              <i class="bi {{ statusConfig[order.estado.toLowerCase()]?.icon }}"></i>
-              {{ statusConfig[order.estado.toLowerCase()]?.label }}
+            <span class="status-badge" [ngClass]="statusConfig[order.estado.toLowerCase()]?.class">
+              <i class="bi" [ngClass]="statusConfig[order.estado.toLowerCase()]?.icon"></i>
+              {{ statusConfig[order.estado.toLowerCase()]?.label || order.estado }}
             </span>
           </div>
           <div class="d-flex justify-content-between align-items-center">
             <h6 class="text-muted fw-normal mb-0" style="font-size: 0.9rem;">
               {{ order.fecha_cambio_estado | date:"dd 'de' MMMM 'de' yyyy":"":"es-CL" }}
             </h6>
-            <span *ngIf="order?.pedido_id" class="text-muted d-flex align-items-center">
+            <span *ngIf="order?.pedido_id" class="text-muted fw-bold d-flex align-items-center">
               #ORD-{{ order.pedido_id.toString().padStart(4, '0') }}
             </span>
           </div>
         </div>
+
         <div class="list-group list-group-flush p-3">
+          <!-- Tipo de Entrega -->
           <div class="list-group-item border-0 py-2">
-            <strong>Sucursal:</strong>
-            <span class="text-muted">
-              Av. Argentina #334, Valparaíso
+            <strong>Método de Entrega:</strong>
+            <span class="badge bg-light text-dark border ms-2">
+              <i class="bi" [ngClass]="order.tipo_entrega === 'despacho' ? 'bi-truck' : 'bi-shop'"></i>
+              {{ order.tipo_entrega === 'despacho' ? 'Despacho a Domicilio' : 'Retiro en Tienda' }}
             </span>
           </div>
+
+          <!-- Dirección de Despacho o Sucursal de Retiro -->
+          <div class="list-group-item border-0 py-2">
+            <strong>{{ order.tipo_entrega === 'despacho' ? 'Dirección de Envío:' : 'Sucursal de Retiro:' }}</strong>
+            <div class="text-muted mt-1">
+              <ng-container *ngIf="order.tipo_entrega === 'despacho'; else sucursalTpl">
+                <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+                {{ order.direccion_envio || 'No especificada' }}
+              </ng-container>
+              <ng-template #sucursalTpl>
+                <i class="bi bi-building text-primary me-1"></i>
+                Av. Argentina #334, Valparaíso
+              </ng-template>
+            </div>
+          </div>
+
           <div *ngIf="order.estado === 'Entregado'" class="list-group-item border-0 py-2">
             <strong>Recibido por:</strong>
             <span class="text-muted">{{ fullName }}</span>
           </div>
+
           <div class="list-group-item border-0 py-2">
             <strong>Fecha del pedido:</strong>
             <span class="text-muted">
@@ -67,18 +82,31 @@
         </div>
 
         <div class="card-body px-4 py-3">
-          <!-- <div class="d-flex justify-content-between mb-2">
-            <span class="text-secondary">Subtotal</span>
-            <span class="fw-semibold">{{order.total| number:'1.0-0':'es-CL'}}</span>
-          </div>
+          <!-- Subtotal -->
           <div class="d-flex justify-content-between mb-2">
-            <span class="text-secondary">Cargo por armado</span>
-            <span class="fw-semibold">${{ setupFee | number:'1.0-0':'es-CL' }}</span>
+            <span class="text-secondary">Subtotal</span>
+            <span class="fw-semibold">${{ getSubtotal() | number:'1.0-0':'es-CL' }}</span>
           </div>
-          <hr class="my-3"> -->
-          <div class="d-flex justify-content-between">
+
+          <!-- Costo de Envío / Despacho -->
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-secondary">Costo de Envío</span>
+            <span class="fw-semibold">
+              <ng-container *ngIf="order.tipo_entrega === 'despacho'; else costoGratis">
+                ${{ costoEnvio | number:'1.0-0':'es-CL' }}
+              </ng-container>
+              <ng-template #costoGratis>
+                <span class="text-success fw-bold">Gratis (Retiro)</span>
+              </ng-template>
+            </span>
+          </div>
+
+          <hr class="my-3">
+
+          <!-- Total -->
+          <div class="d-flex justify-content-between fs-5">
             <span class="fw-bold text-dark">Total</span>
-            <span class="fw-bold text-dark">{{ getTotal() | number:'1.0-0':'es-CL'}}</span>
+            <span class="fw-bold text-dark">${{ getTotal() | number:'1.0-0':'es-CL' }}</span>
           </div>
         </div>
       </div>
@@ -96,6 +124,8 @@
           <ng-container *ngFor="let detalle of order.detalles">
             <div
               class="list-group-item border-0 py-3 d-flex align-items-center justify-content-between border-bottom-light">
+
+              <!-- LADO IZQUIERDO: Imagen y Descripción del Producto -->
               <div class="d-flex align-items-center flex-grow-1">
                 <div class="flex-shrink-0 border rounded p-1 bg-white" style="width: 70px; height: 70px;">
                   <a routerLink="/producto/{{ detalle?.producto?.producto_id }}">
@@ -110,22 +140,23 @@
                   <div class="text-dark fw-bold" style="font-size: 0.95rem;">
                     {{ detalle?.producto?.nombre }}
                   </div>
+
                   <!-- Precio Unitario con Oferta/Normal -->
                   <ng-container
                     *ngIf="utilsService.getDiscountPercentage(detalle?.precio_unitario, detalle?.precio_unitario_oferta) > 0; else precioNormalDetalle">
                     <div class="d-flex align-items-center gap-2 flex-wrap">
-                      <!-- Precio Oferta -->
-                      <div class="text-danger fw-bold" style="font-size: 0.95rem;">
-                        ${{ detalle?.precio_unitario_oferta | number:'1.0-0':'es-CL' }}
+                      <!-- Precio Oferta Unitario -->
+                      <div class="text-danger fw-bold" style="font-size: 0.85rem;">
+                        ${{ detalle?.precio_unitario_oferta | number:'1.0-0':'es-CL' }} c/u
                       </div>
 
                       <!-- Precio Normal Tachado -->
-                      <span class="text-muted text-decoration-line-through small">
+                      <span class="text-muted text-decoration-line-through small" style="font-size: 0.8rem;">
                         ${{ detalle?.precio_unitario | number:'1.0-0':'es-CL' }}
                       </span>
 
                       <!-- Badge Descuento -->
-                      <span class="badge bg-danger d-inline-flex align-items-center gap-1">
+                      <span class="badge bg-danger d-inline-flex align-items-center gap-1" style="font-size: 0.75rem;">
                         <i class="bi bi-tag-fill"></i>
                         -{{ utilsService.getDiscountPercentage(detalle?.precio_unitario,
                         detalle?.precio_unitario_oferta) }}% Dto
@@ -135,12 +166,21 @@
 
                   <!-- Precio Unitario Normal -->
                   <ng-template #precioNormalDetalle>
-                    <div class="text-dark fw-bold" style="font-size: 0.95rem;">
-                      ${{ detalle?.precio_unitario | number:'1.0-0':'es-CL' }}
+                    <div class="text-muted small" style="font-size: 0.85rem;">
+                      ${{ detalle?.precio_unitario | number:'1.0-0':'es-CL' }} c/u
                     </div>
                   </ng-template>
                 </div>
               </div>
+
+              <!-- LADO DERECHO: Subtotal por Producto (Sutil) -->
+              <div class="text-end ms-3">
+                <span class="text-muted small d-block" style="font-size: 0.75rem;">Subtotal</span>
+                <span class="fw-bold text-dark" style="font-size: 0.95rem;">
+                  ${{ getItemSubtotal(detalle) | number:'1.0-0':'es-CL' }}
+                </span>
+              </div>
+
             </div>
           </ng-container>
           <div *ngIf="order?.estado?.toLocaleLowerCase() === 'pendiente'" class="mt-4 text-center mb-2">

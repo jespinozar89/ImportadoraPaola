@@ -8,7 +8,7 @@ import { environment } from '@/environments/environment';
   providedIn: 'root'
 })
 export class LocationService {
-    private apiUrl = `${environment.apiUrl}/ubicaciones`;
+  private apiUrl = `${environment.apiUrl}/ubicaciones`;
 
   constructor(private http: HttpClient) { }
 

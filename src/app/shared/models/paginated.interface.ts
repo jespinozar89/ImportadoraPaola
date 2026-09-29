@@ -7,6 +7,7 @@ export interface PaginatedResult<T> {
     totalsByStatus?: {
       Pendiente: number;
       EnPreparacion: number;
+      Despachado: number;
       Listo: number;
       Entregado: number;
       Cancelado: number;

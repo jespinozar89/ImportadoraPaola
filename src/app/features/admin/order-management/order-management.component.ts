@@ -35,6 +35,7 @@ export class OrderManagementComponent {
     entregado: { icon: 'bi-check-circle-fill', label: 'Entregado', class: 'entregado' },
     cancelado: { icon: 'bi-x-circle-fill', label: 'Cancelado', class: 'cancelado' },
     enpreparacion: { icon: 'bi-hourglass-split', label: 'Preparando', class: 'preparando' },
+    despachado: { icon: 'bi-truck', label: 'Despachado', class: 'despachado' },
     listo: { icon: 'bi-box-seam', label: 'Listo para retiro', class: 'listo' },
     pendiente: { icon: 'bi-clock', label: 'Pendiente', class: 'pendiente' }
   };
@@ -70,7 +71,9 @@ export class OrderManagementComponent {
 
       this.deliveredOrders = totalByStatus?.Entregado || 0;
       this.pendingOrders = totalByStatus?.Pendiente || 0;
-      this.inProcessOrders = (totalByStatus?.EnPreparacion || 0) + (totalByStatus?.Listo || 0);
+      this.inProcessOrders = (totalByStatus?.EnPreparacion || 0) +
+                           (totalByStatus?.Listo || 0) +
+                           (totalByStatus?.Despachado || 0);
 
     } catch (error) {
       console.error('Error al cargar los pedidos:', error);
