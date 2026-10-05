@@ -134,19 +134,34 @@ export class AuthService {
     return userProfile ?? null;
   }
 
-  public openLoginModal() {
-    document.querySelectorAll('.modal.show').forEach((el) => {
-      const modalInstance = bootstrap.Modal.getInstance(el);
+  public openLoginModal(): void {
+    const openModals = document.querySelectorAll('.modal.show');
+
+    openModals.forEach((el) => {
+      const modalInstance = bootstrap.Modal.getOrCreateInstance(el);
       if (modalInstance) {
         modalInstance.hide();
       }
     });
 
-    const modalElement = document.getElementById('signInModal');
-    if (modalElement) {
-      const modal = new bootstrap.Modal(modalElement);
-      modal.show();
-    }
+    const delay = openModals.length > 0 ? 150 : 0;
+
+    setTimeout(() => {
+      const modalElement = document.getElementById('signInModal');
+      if (modalElement) {
+        const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+        modal.show();
+      }
+    }, delay);
+
+    setTimeout(() => {
+      if (!document.querySelector('.modal.show')) {
+        document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+        document.body.classList.remove('modal-open');
+        document.body.style.removeProperty('overflow');
+        document.body.style.removeProperty('padding-right');
+      }
+    }, 350);
   }
 
   // ----------------------------------------------------------------------

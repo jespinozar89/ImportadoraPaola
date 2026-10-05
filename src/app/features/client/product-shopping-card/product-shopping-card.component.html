@@ -143,7 +143,7 @@
           <h4 class="mb-4">Resumen del Pedido</h4>
 
           <!-- SELECCIÓN MÉTODO DE ENTREGA -->
-          <div class="mb-4">
+          <!-- <div class="mb-4">
             <h6 class="fw-bold mb-3">Método de Entrega</h6>
 
             <div class="form-check border rounded p-3 mb-2 cursor-pointer"
@@ -164,6 +164,30 @@
                 Despacho a Domicilio
               </label>
               <div class="text-muted small mt-1">Envío con tarifa calculada según comuna</div>
+            </div>
+          </div> -->
+          <!-- SELECCIÓN MÉTODO DE ENTREGA -->
+          <div class="mb-4">
+            <h6 class="fw-bold mb-3">Método de Entrega</h6>
+
+            <div class="form-check border rounded p-3 mb-2 cursor-pointer"
+              [class.border-primary]="tipoEntrega === 'retiro'" (click)="onCambioTipoEntrega('retiro')">
+              <input class="form-check-input ms-0 me-2" type="radio" name="tipoEntrega" id="retiro" value="retiro"
+                [checked]="tipoEntrega === 'retiro'">
+              <label class="form-check-label fw-semibold cursor-pointer" for="retiro">
+                Retiro en Tienda (Gratis)
+              </label>
+              <div class="text-muted small mt-1">Av. Argentina #334, Valparaíso</div>
+            </div>
+
+            <div class="form-check border rounded p-3 cursor-pointer"
+              [class.border-primary]="tipoEntrega === 'despacho'" (click)="onCambioTipoEntrega('despacho')">
+              <input class="form-check-input ms-0 me-2" type="radio" name="tipoEntrega" id="despacho" value="despacho"
+                [checked]="tipoEntrega === 'despacho'">
+              <label class="form-check-label fw-semibold cursor-pointer" for="despacho">
+                Despacho a Domicilio (Starken)
+              </label>
+              <div class="text-muted small mt-1">Envío por cobrar (se paga al recibir)</div>
             </div>
           </div>
 
@@ -217,12 +241,25 @@
               </div>
 
               <ng-template #sinDireccionGuest>
-                <p class="text-muted small mb-2">Ingresa tu dirección para calcular la tarifa de despacho.</p>
+                <p class="text-muted small mb-2">Ingresa tu dirección de despacho.</p>
                 <button type="button" class="btn btn-primary btn-sm w-100" (click)="openAddressModal()">
                   <i class="bi bi-geo-alt me-1"></i> Configurar Dirección
                 </button>
               </ng-template>
             </div>
+          </div>
+
+          <!-- BOTÓN DINÁMICO PARA INVITADO -->
+          <div *ngIf="!isAuthenticated" class="mb-3">
+            <button
+              type="button"
+              class="btn btn-outline-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2"
+              (click)="openGuestModalByDeliveryType()">
+              <i class="bi" [ngClass]="tipoEntrega === 'despacho' ? 'bi-geo-alt-fill' : 'bi-person-vcard-fill'"></i>
+              <span>
+                {{ tipoEntrega === 'despacho' ? 'Ver / Configurar Dirección y Datos' : 'Ver / Configurar Datos de Contacto' }}
+              </span>
+            </button>
           </div>
 
           <!-- DESGLOSE COSTOS -->
@@ -231,7 +268,7 @@
             <span class="fw-bold">${{ subtotal | number:'1.0-0':'es-CL' }}</span>
           </div>
 
-          <div *ngIf="tipoEntrega === 'despacho'" class="summary-row d-flex justify-content-between mb-2">
+          <!-- <div *ngIf="tipoEntrega === 'despacho'" class="summary-row d-flex justify-content-between mb-2">
             <span class="text-muted">Costo de Envío</span>
             <span *ngIf="cargandoEnvio" class="spinner-border spinner-border-sm text-primary"></span>
             <span *ngIf="!cargandoEnvio" class="fw-bold">${{ costoEnvio | number:'1.0-0':'es-CL' }}</span>
@@ -242,6 +279,18 @@
           <div class="summary-row d-flex justify-content-between mb-4">
             <span class="fs-5 fw-bold">Total</span>
             <span class="fs-5 fw-bold text-primary">${{ total | number:'1.0-0':'es-CL' }}</span>
+          </div> -->
+
+          <div *ngIf="tipoEntrega === 'despacho'" class="summary-row d-flex justify-content-between mb-2">
+            <span class="text-muted">Costo de Envío</span>
+            <span class="badge bg-warning text-dark align-self-center">Por Cobrar vía Starken</span>
+          </div>
+
+          <hr>
+
+          <div class="summary-row d-flex justify-content-between mb-4">
+            <span class="fs-5 fw-bold">Total a Pagar Ahora</span>
+            <span class="fs-5 fw-bold text-primary">${{ subtotal | number:'1.0-0':'es-CL' }}</span>
           </div>
 
           <!-- MENSAJE DE RETIRO -->
@@ -257,7 +306,7 @@
 
           <div class="mt-4">
             <button class="btn btn-primary w-100 btn-lg"
-              [disabled]="cartItems.length === 0 || processingOrder || (tipoEntrega === 'despacho' && costoEnvio === 0 && !cargandoEnvio)"
+              [disabled]="cartItems.length === 0 || processingOrder"
               (click)="processOrder()">
               <i *ngIf="processingOrder" class="bi bi-arrow-clockwise spin me-1"></i>
               Finalizar Compra
@@ -368,7 +417,7 @@
           </div>
           <div class="col-md-6">
             <label class="form-label">Teléfono de Contacto *</label>
-            <input type="tel" class="form-control" [(ngModel)]="guestForm.telefono" placeholder="+56 9 1234 5678">
+            <input type="tel" class="form-control" [(ngModel)]="guestForm.telefono" placeholder="9 1234 5678">
           </div>
         </div>
 

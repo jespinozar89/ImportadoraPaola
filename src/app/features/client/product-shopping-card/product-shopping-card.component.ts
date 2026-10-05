@@ -26,6 +26,7 @@ import { DireccionUsuario } from '@/shared/models/direccion.model';
 
 declare var bootstrap: any;
 const GUEST_DATA_KEY = 'guest_user_info';
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 @Component({
   selector: 'app-product-shopping-card',
@@ -248,8 +249,9 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
   onCambioTipoEntrega(tipo: 'retiro' | 'despacho'): void {
     this.tipoEntrega = tipo;
 
+    this.costoEnvio = 0;
     if (tipo === 'retiro') {
-      this.costoEnvio = 0;
+      //this.costoEnvio = 0;
       return;
     }
 
@@ -267,24 +269,27 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
   cotizarEnvio(comuna: string, region: string): void {
     if (!comuna || !region) return;
 
-    this.cargandoEnvio = true;
-    const payload = {
-      comuna,
-      region,
-      subtotal: this.subtotal
-    };
+    this.costoEnvio = 0;
+    this.cargandoEnvio = false;
 
-    this.shippingService.cotizarEnvio(payload).subscribe({
-      next: (res: any) => {
-        this.costoEnvio = res.costoEnvio || res.tarifa || 0;
-        this.cargandoEnvio = false;
-      },
-      error: () => {
-        this.toast.error('No se pudo calcular la tarifa de envío para la ubicación seleccionada.');
-        this.costoEnvio = 0;
-        this.cargandoEnvio = false;
-      }
-    });
+    // this.cargandoEnvio = true;
+    // const payload = {
+    //   comuna,
+    //   region,
+    //   subtotal: this.subtotal
+    // };
+
+    // this.shippingService.cotizarEnvio(payload).subscribe({
+    //   next: (res: any) => {
+    //     this.costoEnvio = res.costoEnvio || res.tarifa || 0;
+    //     this.cargandoEnvio = false;
+    //   },
+    //   error: () => {
+    //     this.toast.error('No se pudo calcular la tarifa de envío para la ubicación seleccionada.');
+    //     this.costoEnvio = 0;
+    //     this.cargandoEnvio = false;
+    //   }
+    // });
   }
 
   // ------------------------------------------
@@ -387,6 +392,17 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
       return;
     }
 
+    if (!EMAIL_REGEX.test(this.guestForm.email)) {
+      this.toast.warning('Por favor ingresa un correo electrónico válido.');
+      return;
+    }
+
+    const phoneDigits = this.guestForm.telefono.replace(/\D/g, '');
+    if (phoneDigits.length !== 9) {
+      this.toast.warning('El número de teléfono debe tener exactamente 9 dígitos.');
+      return;
+    }
+
     if (this.tipoEntrega === 'despacho') {
       if (this.guestAddressForm.invalid) {
         this.guestAddressForm.markAllAsTouched();
@@ -424,11 +440,25 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
     this.toast.success('Datos guardados correctamente.');
   }
 
+  openGuestModalByDeliveryType(): void {
+    if (this.isAuthenticated) {
+      if (this.tipoEntrega === 'despacho') {
+        this.openAddressModal();
+      }
+      return;
+    }
+
+    if (this.tipoEntrega === 'despacho') {
+      this.openGuestDataModal();
+    } else {
+      this.openGuestDataModal();
+    }
+  }
 
   private openModalById(id: string): void {
     const modalElement = document.getElementById(id);
     if (modalElement) {
-      const modal = new bootstrap.Modal(modalElement);
+      const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
       modal.show();
     }
   }
@@ -436,9 +466,17 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
   private closeModalById(id: string): void {
     const modalElement = document.getElementById(id);
     if (modalElement) {
-      const modal = bootstrap.Modal.getInstance(modalElement);
-      if (modal) modal.hide();
+      const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+      modal.hide();
     }
+
+    setTimeout(() => {
+      document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+
+      document.body.classList.remove('modal-open');
+      document.body.style.removeProperty('overflow');
+      document.body.style.removeProperty('padding-right');
+    }, 300);
   }
 
   // ------------------------------------------
@@ -496,28 +534,34 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
 
 
       if (this.tipoEntrega === 'despacho') {
-        if (this.isAuthenticated && this.direccionSeleccionada) {
-          direccionTexto = [
-            this.direccionSeleccionada.calle,
-            `#${this.direccionSeleccionada.numero}`,
-            this.direccionSeleccionada.departamento ? `Dpto: ${this.direccionSeleccionada.departamento},` : ',',
-            `${this.direccionSeleccionada.comuna},`,
-            this.direccionSeleccionada.region
-          ].filter(Boolean).join(' ');
-          comunaFinal = this.direccionSeleccionada.comuna || comunaFinal;
-          regionFinal = this.direccionSeleccionada.region || regionFinal;
+        if (this.isAuthenticated) {
+          if (this.direccionSeleccionada) {
+            direccionTexto = [
+              this.direccionSeleccionada.calle,
+              `#${this.direccionSeleccionada.numero}`,
+              this.direccionSeleccionada.departamento ? `Dpto: ${this.direccionSeleccionada.departamento},` : ',',
+              `${this.direccionSeleccionada.comuna},`,
+              this.direccionSeleccionada.region
+            ].filter(Boolean).join(' ');
+            comunaFinal = this.direccionSeleccionada.comuna || comunaFinal;
+            regionFinal = this.direccionSeleccionada.region || regionFinal;
+          } else {
+            this.processingOrder = false;
+            this.openAddressModal();
+            return;
+          }
         } else if (this.guestData) {
           direccionTexto = this.guestData.direccion || direccionTexto;
-          comunaFinal = this.addressForm.get('comuna')?.value || comunaFinal;
+          comunaFinal = this.guestAddressForm.get('comuna')?.value || comunaFinal;
 
-          const codigoRegion = this.addressForm.get('region')?.value;
+          const codigoRegion = this.guestAddressForm.get('region')?.value;
           if (codigoRegion) {
             const regionEncontrada = this.regions.find(r => r.codigo === codigoRegion);
             regionFinal = regionEncontrada ? regionEncontrada.region : regionFinal;
           }
         } else {
           this.processingOrder = false;
-          this.openAddressModal();
+          this.openGuestDataModal();
           return;
         }
       }
@@ -531,7 +575,7 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
           rut: null,
           first_name: currentUser.nombres?.trim() || 'Cliente',
           last_name: currentUser.apellidos?.trim() || 'Registrado',
-          phone: currentUser.telefono || '',
+          phone: currentUser.telefono?.replace(/\s+/g, '') || '',
           address_line: addressLineTruncated,
           address_city: comunaFinal,
           address_state: addressStateTrucanted,
@@ -544,7 +588,7 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
           rut: null,
           first_name: this.guestData.nombres?.trim() || 'Cliente',
           last_name: this.guestData.apellidos?.trim() || 'Invitado',
-          phone: this.guestData.telefono || '',
+          phone: this.guestData.telefono?.replace(/\s+/g, '') || '',
           address_line: addressLineTruncated,
           address_city: comunaFinal,
           address_state: addressStateTrucanted,
@@ -568,16 +612,16 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
         };
       });
 
-      if (this.tipoEntrega === 'despacho' && this.costoEnvio > 0) {
-        const costoEnvioEntero = Math.round(this.costoEnvio);
-        items.push({
-          name: 'Despacho a domicilio',
-          code: 'SHIPPING',
-          price: costoEnvioEntero,
-          unit_price: costoEnvioEntero,
-          quantity: 1
-        });
-      }
+      // if (this.tipoEntrega === 'despacho' && this.costoEnvio > 0) {
+      //   const costoEnvioEntero = Math.round(this.costoEnvio);
+      //   items.push({
+      //     name: 'Despacho a domicilio',
+      //     code: 'SHIPPING',
+      //     price: costoEnvioEntero,
+      //     unit_price: costoEnvioEntero,
+      //     quantity: 1
+      //   });
+      // }
 
       const totalCalculado = items.reduce((sum, item) => sum + item.price, 0);
 
@@ -817,7 +861,8 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
     const dataToSave = {
       guestForm: this.guestForm,
       guestData: this.guestData,
-      guestAddressFormValue: this.guestAddressForm.getRawValue()
+      guestAddressFormValue: this.guestAddressForm.getRawValue(),
+      savedAt: Date.now()
     };
 
     localStorage.setItem(GUEST_DATA_KEY, JSON.stringify(dataToSave));
@@ -829,6 +874,15 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
 
     try {
       const parsed = JSON.parse(saved);
+
+      const THIRTY_MINUTES_MS = 45 * 60 * 1000;
+      const now = Date.now();
+
+      if (parsed.savedAt && (now - parsed.savedAt > THIRTY_MINUTES_MS)) {
+        this.clearGuestStorage();
+        return;
+      }
+
       if (parsed.guestForm) {
         this.guestForm = { ...parsed.guestForm };
       }
@@ -870,6 +924,7 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
   private clearGuestStorage(): void {
     localStorage.removeItem(GUEST_DATA_KEY);
     this.guestData = null;
+
     this.guestForm = {
       nombres: '',
       apellidos: '',
@@ -877,7 +932,16 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
       telefono: '',
       direccion: ''
     };
-    this.guestAddressForm.reset();
+
+    this.guestAddressForm.reset({
+      calle: '',
+      numero: '',
+      departamento: '',
+      region: '',
+      comuna: ''
+    });
+
+    this.communes = [];
     this.guestAddressForm.get('comuna')?.disable();
   }
 }

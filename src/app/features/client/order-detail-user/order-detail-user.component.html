@@ -93,7 +93,8 @@
             <span class="text-secondary">Costo de Envío</span>
             <span class="fw-semibold">
               <ng-container *ngIf="order.tipo_entrega === 'despacho'; else costoGratis">
-                ${{ costoEnvio | number:'1.0-0':'es-CL' }}
+                <!-- ${{ costoEnvio | number:'1.0-0':'es-CL' }} -->
+                 <span class="badge bg-warning text-dark align-self-center">Tarifa calculada por Starken</span>
               </ng-container>
               <ng-template #costoGratis>
                 <span class="text-success fw-bold">Gratis (Retiro)</span>
@@ -106,7 +107,8 @@
           <!-- Total -->
           <div class="d-flex justify-content-between fs-5">
             <span class="fw-bold text-dark">Total</span>
-            <span class="fw-bold text-dark">${{ getTotal() | number:'1.0-0':'es-CL' }}</span>
+            <span class="fw-bold text-dark">${{ getSubtotal() | number:'1.0-0':'es-CL' }}</span>
+            <!-- <span class="fw-bold text-dark">${{ getTotal() | number:'1.0-0':'es-CL' }}</span> -->
           </div>
         </div>
       </div>

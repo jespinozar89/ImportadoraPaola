@@ -109,7 +109,7 @@ export class NavbarComponent implements OnInit {
   selectItem(value: string) {
     this.selected = value;
 
-    if(localStorage.getItem(this.SELECTED_MENU_KEY) !== value){
+    if (localStorage.getItem(this.SELECTED_MENU_KEY) !== value) {
       this.productService.resetPage();
       localStorage.setItem(this.SELECTED_MENU_KEY, value);
     }
@@ -128,24 +128,6 @@ export class NavbarComponent implements OnInit {
     return this.categorias().filter(c => c.estado === 'Activo');
   }
 
-  goToShop() {
-      this.router.navigate(['/shop']);
-  }
-
-  goToWishlist() {
-    if (this.authService.isAuthenticated()) {
-      this.router.navigate(['/wishlist']);
-    }
-    else {
-      const modalElement = document.getElementById('signInModal');
-      if (modalElement) {
-        const modal = new bootstrap.Modal(modalElement);
-        modal.show();
-      }
-      this.toast.info('Por favor, inicia sesión para acceder sus lista de favoritos.');
-    }
-  }
-
   onSearch(): void {
     const term = this.searchTerm().replace(' ', '_');
     if (!term) return;
@@ -156,9 +138,35 @@ export class NavbarComponent implements OnInit {
     this.router.navigate(['/categorias', 'BuscarProducto', term]);
   }
 
+  goToShop() {
+    this.router.navigate(['/shop']);
+  }
+
+  goToWishlist() {
+    if (this.authService.isAuthenticated()) {
+      this.router.navigate(['/wishlist']);
+    } else {
+      const modalElement = document.getElementById('signInModal');
+      if (modalElement) {
+        const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+        modal.show();
+      }
+      this.toast.info('Por favor, inicia sesión para acceder a tu lista de favoritos.');
+    }
+  }
+
   closeOffcanvas() {
     const offcanvasEl = document.querySelector('.offcanvas');
-    const bsOffcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl);
-    bsOffcanvas?.hide();
+    if (offcanvasEl) {
+      const bsOffcanvas = bootstrap.Offcanvas.getOrCreateInstance(offcanvasEl);
+      bsOffcanvas.hide();
+    }
+
+    setTimeout(() => {
+      document.querySelectorAll('.offcanvas-backdrop, .modal-backdrop').forEach(backdrop => backdrop.remove());
+      document.body.classList.remove('modal-open');
+      document.body.style.removeProperty('overflow');
+      document.body.style.removeProperty('padding-right');
+    }, 300);
   }
 }
