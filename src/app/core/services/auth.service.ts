@@ -4,6 +4,7 @@ import { Observable, BehaviorSubject, tap, firstValueFrom, map } from 'rxjs';
 import { CreateUserDTO, LoginPayload, AuthResponse, UserLogged, UpdateUserDTO } from '@/shared/models/auth.interface';
 import { environment } from '@/environments/environment';
 import { Router } from '@angular/router';
+import { UtilsService } from '../../shared/service/utils.service';
 
 declare var bootstrap: any;
 
@@ -22,6 +23,7 @@ export class AuthService {
 
   constructor(
     private http: HttpClient,
+    private utilsService: UtilsService,
     private router: Router
   ) {
     const initialToken = localStorage.getItem(this.USER_KEY);
@@ -154,14 +156,7 @@ export class AuthService {
       }
     }, delay);
 
-    setTimeout(() => {
-      if (!document.querySelector('.modal.show')) {
-        document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
-        document.body.classList.remove('modal-open');
-        document.body.style.removeProperty('overflow');
-        document.body.style.removeProperty('padding-right');
-      }
-    }, 350);
+    this.utilsService.cleanupBackdrops();
   }
 
   // ----------------------------------------------------------------------

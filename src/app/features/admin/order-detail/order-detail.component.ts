@@ -9,8 +9,6 @@ import { UtilsService } from '@/shared/service/utils.service';
 import { environment } from '@/environments/environment';
 import { KlapService } from '@/core/services/klap.service';
 
-declare var bootstrap: any;
-
 @Component({
   selector: 'app-order-detail',
   imports: [CommonModule, FormsModule],
@@ -297,30 +295,16 @@ export class OrderDetailComponent implements OnInit {
   }
 
   public openCancelOrderModal() {
-    const modalElement = document.getElementById('cancelOrderModal');
-    if (modalElement) {
-      const modal = new bootstrap.Modal(modalElement);
-      modal.show();
-    }
+    this.utilsService.openModalById('cancelOrderModal');
   }
 
   public closeCancelOrderModal() {
-    const modalElement = document.getElementById('cancelOrderModal');
-    if (modalElement) {
-      const modalInstance = bootstrap.Modal.getInstance(modalElement);
-      if (modalInstance) {
-        modalInstance.hide();
-      }
-    }
+    this.utilsService.closeModalById('cancelOrderModal');
   }
 
   closeNotifyModal() {
-    const modalElement = document.getElementById('notifyModal');
-    if (modalElement) {
-      const modalInstance = bootstrap.Modal.getInstance(modalElement);
-      modalInstance?.hide();
-      this.resetFile();
-    }
+    this.utilsService.closeModalById('notifyModal');
+    this.resetFile();
   }
 
   hasOffer(producto: any): boolean {

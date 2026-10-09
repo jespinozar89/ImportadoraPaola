@@ -3,6 +3,8 @@ import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { CarritoDetalladoDTO } from '../models/cart.interface';
 
+declare var bootstrap: any;
+
 @Injectable({
   providedIn: 'root'
 })
@@ -68,6 +70,36 @@ export class UtilsService {
 
     const cantidad = Number(item.cantidad || 0);
     return precioAplicado * cantidad;
+  }
+
+  openModalById(id: string): void {
+    const modalElement = document.getElementById(id);
+    if (modalElement) {
+      const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+      modal.show();
+    }
+  }
+
+  closeModalById(id: string): void {
+    const modalElement = document.getElementById(id);
+    if (modalElement) {
+      const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+      modal.hide();
+    }
+
+    this.cleanupBackdrops();
+  }
+
+  cleanupBackdrops(): void {
+    setTimeout(() => {
+      const hasOpenModals = document.querySelectorAll('.modal.show').length > 0;
+      if (!hasOpenModals) {
+        document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+        document.body.classList.remove('modal-open');
+        document.body.style.removeProperty('overflow');
+        document.body.style.removeProperty('padding-right');
+      }
+    }, 300);
   }
 
 }

@@ -14,8 +14,6 @@ import { NgxPaginationModule } from "ngx-pagination";
 import { UtilsService } from '@/shared/service/utils.service';
 import { PaginatedResult } from '@/shared/models/paginated.interface';
 
-declare var bootstrap: any;
-
 @Component({
   selector: 'app-inventory',
   imports: [CommonModule, FormsModule, ProductEditorComponent, ConfirmModalComponent, NgxPaginationModule, RouterLink],
@@ -154,18 +152,7 @@ export class ProductInventoryComponent implements OnInit {
   }
 
   closeModal() {
-    const modalElement = document.getElementById('editModal');
-
-    if (modalElement) {
-      const modalInstance = bootstrap.Modal.getInstance(modalElement);
-
-      if (modalInstance) {
-        modalInstance.hide();
-      } else {
-        const newModal = new bootstrap.Modal(modalElement);
-        newModal.hide();
-      }
-    }
+    this.utilsService.closeModalById('editModal');
 
     this.selectedProduct = null;
   }

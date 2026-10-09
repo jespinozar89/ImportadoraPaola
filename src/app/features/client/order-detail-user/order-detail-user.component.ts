@@ -9,8 +9,6 @@ import { environment } from '@/environments/environment';
 import { HotToastService } from '@ngxpert/hot-toast';
 import { KlapService } from '@/core/services/klap.service';
 
-declare var bootstrap: any;
-
 @Component({
   selector: 'app-order-detail-user',
   imports: [CommonModule, RouterLink],
@@ -129,13 +127,7 @@ export class OrderDetailUserComponent implements OnInit {
   }
 
   public closeModal() {
-    const modalElement = document.getElementById('cancelOrderModal');
-    if (modalElement) {
-      const modalInstance = bootstrap.Modal.getInstance(modalElement);
-      if (modalInstance) {
-        modalInstance.hide();
-      }
-    }
+    this.utilsService.closeModalById('cancelOrderModal');
   }
 
 }

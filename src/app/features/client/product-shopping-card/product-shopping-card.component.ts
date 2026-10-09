@@ -4,7 +4,7 @@ import { firstValueFrom, lastValueFrom, timer } from 'rxjs';
 import { CartService } from '@/core/services/cart.service';
 import { FavoriteService } from '@/core/services/favorite.service';
 import { CarritoDetalladoDTO } from '@/shared/models/cart.interface';
-import { RouterLink } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
 import { HotToastService } from '@ngxpert/hot-toast';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { OrderService } from '@/core/services/order.service';
@@ -20,7 +20,6 @@ import { GuestUserData } from '@/shared/models/auth.interface';
 import { FormsModule, FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { LocationService } from '../../../core/services/location.service';
 import { AddressService } from '../../../core/services/address.service';
-import { ShippingService } from '@/core/services/shipping.service';
 import { Region } from '@/shared/models/ubicacion.interface';
 import { DireccionUsuario } from '@/shared/models/direccion.model';
 
@@ -82,7 +81,7 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
     private authService: AuthService,
     private locationService: LocationService,
     private addressService: AddressService,
-    private shippingService: ShippingService,
+    private router: Router,
     private fb: FormBuilder,
     private destroyRef: DestroyRef,
     private toast: HotToastService,
@@ -335,7 +334,7 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
       this.addressForm.get('comuna')?.disable();
     }
 
-    this.openModalById('addressModal');
+    this.utilsService.openModalById('addressModal');
   }
 
   saveAddressModal(): void {
@@ -358,7 +357,7 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
           this.toast.success('Dirección guardada');
           this.clearGuestStorage();
           this.loadUserAddresses();
-          this.closeModalById('addressModal');
+          this.utilsService.closeModalById('addressModal');
         },
         error: (err) => this.toast.error(err.message || 'Error al guardar la dirección')
       });
@@ -377,13 +376,13 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
 
       this.cotizarEnvio(formValues.comuna, regionNombre);
       this.saveGuestDataToStorage();
-      this.closeModalById('addressModal');
+      this.utilsService.closeModalById('addressModal');
       this.toast.success('Dirección configurada correctamente');
     }
   }
 
   openGuestDataModal(): void {
-    this.openModalById('guestDataModal');
+    this.utilsService.openModalById('guestDataModal');
   }
 
   confirmGuestData(): void {
@@ -436,7 +435,7 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
 
     this.saveGuestDataToStorage();
 
-    this.closeModalById('guestDataModal');
+    this.utilsService.closeModalById('guestDataModal');
     this.toast.success('Datos guardados correctamente.');
   }
 
@@ -453,30 +452,6 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
     } else {
       this.openGuestDataModal();
     }
-  }
-
-  private openModalById(id: string): void {
-    const modalElement = document.getElementById(id);
-    if (modalElement) {
-      const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
-      modal.show();
-    }
-  }
-
-  private closeModalById(id: string): void {
-    const modalElement = document.getElementById(id);
-    if (modalElement) {
-      const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
-      modal.hide();
-    }
-
-    setTimeout(() => {
-      document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
-
-      document.body.classList.remove('modal-open');
-      document.body.style.removeProperty('overflow');
-      document.body.style.removeProperty('padding-right');
-    }, 300);
   }
 
   // ------------------------------------------
@@ -678,7 +653,7 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
   }
 
   onOpenModal() {
-    this.openModalById('compraExitosaModal');
+    this.utilsService.openModalById('compraExitosaModal');
   }
 
   async addFavoritesToCart(): Promise<void> {
@@ -918,6 +893,14 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
       }
     } catch (e) {
       console.error('Error al parsear datos de invitado desde LocalStorage', e);
+    }
+  }
+
+  goToWishlist(): void {
+    if (this.isAuthenticated) {
+      this.router.navigate(['/wishlist']);
+    } else {
+      this.toast.warning('Debes iniciar sesión para ver tus favoritos.');
     }
   }
 

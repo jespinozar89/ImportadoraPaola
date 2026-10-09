@@ -11,8 +11,6 @@ import { UtilsService } from '@/shared/service/utils.service';
 import { DireccionUsuario } from '@/shared/models/direccion.model';
 import { Region } from '@/shared/models/ubicacion.interface';
 
-declare var bootstrap: any;
-
 @Component({
   selector: 'app-perfil-form',
   templateUrl: './perfil-form.component.html',
@@ -312,18 +310,10 @@ export class PerfilFormComponent implements OnInit {
   }
 
   private openModalById(id: string): void {
-    const modalElement = document.getElementById(id);
-    if (modalElement) {
-      const modal = new bootstrap.Modal(modalElement);
-      modal.show();
-    }
+    this.utilsService.openModalById(id);
   }
 
   private closeModalById(id: string): void {
-    const modalElement = document.getElementById(id);
-    if (modalElement) {
-      const modal = bootstrap.Modal.getInstance(modalElement);
-      if (modal) modal.hide();
-    }
+    this.utilsService.closeModalById(id);
   }
 }
