@@ -1,20 +1,6 @@
-/* Header */
-.back-link {
-  color: #0d6efd;
-  /* Azul Bootstrap */
-  text-decoration: none;
-  transition: all 0.2s ease-in-out;
-}
+@use '../../../shared/styles/patterns' as patterns;
 
-.back-link:hover {
-  background-color: #0d6efd;
-  color: #fff;
-  text-decoration: none;
-}
-
-.back-link:hover i {
-  color: #fff;
-}
+@include patterns.back-link;
 
 .btn .bi {
   vertical-align: middle;
@@ -364,52 +350,7 @@
   }
 }
 
-/* Status Badges */
-.status-badge {
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.status-badge.pendiente {
-  background-color: #fff3cd;
-  color: #856404;
-}
-
-.status-badge.preparando {
-  background-color: #cfe2ff;
-  color: #084298;
-}
-
-.status-badge {
-  &.despachado {
-    background-color: #e0f2fe;
-    color: #0369a1;
-  }
-}
-
-.status-badge.listo {
-  background-color: #d1dce7;
-  color: #0a3622;
-}
-
-.status-badge.entregado {
-  background-color: #d1e7dd;
-  color: #0f5132;
-}
-
-.status-badge.cancelado {
-  background-color: #f8d7da;
-  color: #842029;
-}
-
-.status-badge i {
-  font-size: 0.9rem;
-}
+@include patterns.status-badges;
 
 .stat-item {
   text-align: center;
@@ -504,11 +445,4 @@
   padding: 0.5rem;
 }
 
-.spin {
-  display: inline-block;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  100% { transform: rotate(360deg); }
-}
+@include patterns.spin;

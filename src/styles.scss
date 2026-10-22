@@ -1,32 +1,23 @@
 @use '@ngxpert/hot-toast/src/styles/styles.scss';
+@use './app/shared/styles/patterns' as patterns;
+@use './app/shared/styles/tokens' as tokens;
 
 body {
-  background-color: #f8f9fa;
+  background-color: tokens.$page-background;
 }
 
 /* Status Badge */
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
+@include patterns.status-badge-base;
+@include patterns.status-badge-icon;
 
 .status-badge.disponible {
-  background-color: #d1e7dd;
-  color: #0f5132;
+  background-color: tokens.$status-available-background;
+  color: tokens.$status-available-text;
 }
 
 .status-badge.agotado {
-  background-color: #f8d7da;
-  color: #842029;
-}
-
-.status-badge i {
-  font-size: 0.9rem;
+  background-color: tokens.$status-unavailable-background;
+  color: tokens.$status-unavailable-text;
 }
 
 /* Search and Create Section */
@@ -82,4 +73,3 @@ body {
 .hot-toast {
   pointer-events: none !important;
 }
-

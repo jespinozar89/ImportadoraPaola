@@ -1,15 +1,3 @@
-.back-link {
-  color: #0d6efd; /* Azul Bootstrap */
-  text-decoration: none;
-  transition: all 0.2s ease-in-out;
-}
+@use '../../../shared/styles/patterns' as patterns;
 
-.back-link:hover {
-  background-color: #0d6efd;
-  color: #fff;
-  text-decoration: none;
-}
-
-.back-link:hover i {
-  color: #fff;
-}
+@include patterns.back-link;

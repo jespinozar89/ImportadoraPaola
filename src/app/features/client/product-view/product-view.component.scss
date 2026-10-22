@@ -1,32 +1,11 @@
+@use '../../../shared/styles/patterns' as patterns;
+
 input[readonly][tabindex="-1"] {
   pointer-events: none;
   background-color: transparent;
 }
 
-.back-link {
-  color: #0d6efd; /* Azul Bootstrap */
-  text-decoration: none;
-  transition: all 0.2s ease-in-out;
-}
-
-.back-link:hover {
-  background-color: #0d6efd;
-  color: #fff;
-  text-decoration: none;
-}
-
-.back-link:hover i {
-  color: #fff;
-}
-
-.main-image-card {
-  width: 100%;
-  height: 420px;
-  background-color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+@include patterns.back-link;
 
 .thumbnail-container {
   max-height: 420px;
@@ -132,7 +111,5 @@ input[readonly][tabindex="-1"] {
   border-radius: 50rem;
   white-space: nowrap;
 }
-
-
 
 

@@ -1,0 +1,211 @@
+@use 'tokens' as tokens;
+
+@mixin back-link {
+  .back-link {
+    color: tokens.$primary;
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .back-link:hover {
+    background-color: tokens.$primary;
+    color: tokens.$surface;
+    text-decoration: none;
+  }
+
+  .back-link:hover i {
+    color: tokens.$surface;
+  }
+}
+
+@mixin page-header {
+  .page-header {
+    background: linear-gradient(135deg, #3b82f6 0%, #0ea5e9 100%);
+    border-radius: 16px;
+    padding: 2rem;
+    color: tokens.$surface;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .page-title {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0;
+  }
+
+  .page-title i {
+    font-size: 2rem;
+  }
+
+  .page-title h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+  }
+}
+
+@mixin status-badge-base {
+  .status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
+
+@mixin status-badge-icon {
+  .status-badge i {
+    font-size: 0.9rem;
+  }
+}
+
+@mixin status-badges {
+  @include status-badge-base;
+  @include status-badge-icon;
+
+  .status-badge.pendiente {
+    background-color: tokens.$status-pending-background;
+    color: tokens.$status-pending-text;
+  }
+
+  .status-badge.preparando {
+    background-color: tokens.$status-preparing-background;
+    color: tokens.$status-preparing-text;
+  }
+
+  .status-badge.despachado {
+    background-color: tokens.$status-shipped-background;
+    color: tokens.$status-shipped-text;
+  }
+
+  .status-badge.listo {
+    background-color: tokens.$status-ready-background;
+    color: tokens.$status-ready-text;
+  }
+
+  .status-badge.entregado {
+    background-color: tokens.$status-delivered-background;
+    color: tokens.$status-delivered-text;
+  }
+
+  .status-badge.cancelado {
+    background-color: tokens.$status-cancelled-background;
+    color: tokens.$status-cancelled-text;
+  }
+
+}
+
+@mixin empty-state {
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: tokens.$text-muted;
+  }
+
+  .empty-state i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.3;
+  }
+
+  .empty-state p {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+}
+
+@mixin spin {
+  .spin {
+    display: inline-block;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+}
+
+@mixin table-actions {
+  .table-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .btn-action {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-edit {
+    background: #e7f1ff;
+    color: tokens.$primary;
+  }
+
+  .btn-edit:hover {
+    background: tokens.$primary;
+    color: tokens.$surface;
+    transform: translateY(-2px);
+  }
+
+  .btn-delete {
+    background: tokens.$status-cancelled-background;
+    color: #dc3545;
+  }
+
+  .btn-delete:hover {
+    background: #dc3545;
+    color: tokens.$surface;
+    transform: translateY(-2px);
+  }
+}
+
+@mixin admin-card {
+  .card {
+    background: tokens.$surface;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: none;
+  }
+
+  .card-header-custom {
+    padding: 1.5rem;
+    border-bottom: 1px solid tokens.$border;
+    background: tokens.$surface;
+    border-radius: 12px 12px 0 0;
+  }
+
+  .card-header-custom h5 {
+    margin: 0;
+    font-weight: 600;
+    color: tokens.$text-primary;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .card-header-custom i {
+    color: #667eea;
+  }
+
+  .card-body-custom {
+    padding: 1.5rem;
+  }
+}

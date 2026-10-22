@@ -1,3 +1,5 @@
+@use '../../../shared/styles/patterns' as patterns;
+
 .shopping-cart-container {
   max-width: 1400px;
   margin: 0 auto;
@@ -147,34 +149,11 @@
   }
 }
 
-.back-link {
-  color: #0d6efd; /* Azul Bootstrap */
-  text-decoration: none;
-  transition: all 0.2s ease-in-out;
-}
-
-.back-link:hover {
-  background-color: #0d6efd;
-  color: #fff;
-  text-decoration: none;
-}
-
-.back-link:hover i {
-  color: #fff;
-}
-
-.spin {
-  display: inline-block;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  100% { transform: rotate(360deg); }
-}
+@include patterns.back-link;
+@include patterns.spin;
 
 .grayscale-img {
   filter: grayscale(100%);
   opacity: 0.6;
   transition: filter 0.3s ease, opacity 0.3s ease;
 }
-
