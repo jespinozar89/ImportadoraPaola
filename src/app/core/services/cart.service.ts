@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, Subscription, lastValueFrom } from 'rxjs';
 import { environment } from '@/environments/environment';
 import { AuthService } from '@/core/services/auth.service';
+import { LOCAL_CART_KEY } from '@/core/constants/storage-keys';
 import {
   AddItemToCartDTO,
   CartItem,
@@ -16,8 +17,6 @@ import {
 })
 export class CartService implements OnDestroy {
   private apiUrl = `${environment.apiUrl}/carrito`;
-  private readonly LOCAL_CART_KEY = 'local_cart';
-
   private cartItems = new Map<number, CartItem>();
 
   private cartCount = new BehaviorSubject<number>(0);
@@ -118,7 +117,7 @@ export class CartService implements OnDestroy {
     }
 
     this.cartItems.clear();
-    localStorage.removeItem(this.LOCAL_CART_KEY);
+    localStorage.removeItem(LOCAL_CART_KEY);
     this.updateSubjects();
   }
 
@@ -140,7 +139,7 @@ export class CartService implements OnDestroy {
   }
 
   private loadCartInitialState(): void {
-    const localData = localStorage.getItem(this.LOCAL_CART_KEY);
+    const localData = localStorage.getItem(LOCAL_CART_KEY);
     this.cartItems.clear();
 
     if (localData) {
@@ -158,7 +157,7 @@ export class CartService implements OnDestroy {
 
   private saveLocalCart(): void {
     const itemsArray = Array.from(this.cartItems.values());
-    localStorage.setItem(this.LOCAL_CART_KEY, JSON.stringify(itemsArray));
+    localStorage.setItem(LOCAL_CART_KEY, JSON.stringify(itemsArray));
   }
 
   private handleLocalAddOrUpdate(productId: number, newCantidad: number): void {
@@ -177,7 +176,7 @@ export class CartService implements OnDestroy {
 
   private async syncLocalToDatabase(): Promise<void> {
     try {
-      const localItemsArray: CartItem[] = JSON.parse(localStorage.getItem(this.LOCAL_CART_KEY) || '[]');
+      const localItemsArray: CartItem[] = JSON.parse(localStorage.getItem(LOCAL_CART_KEY) || '[]');
 
       const remoteItems = await lastValueFrom(this.http.get<CarritoResponse[]>(this.apiUrl));
       this.mapRemoteItemsToCart(remoteItems);
@@ -194,7 +193,7 @@ export class CartService implements OnDestroy {
         }
       }
 
-      localStorage.removeItem(this.LOCAL_CART_KEY);
+      localStorage.removeItem(LOCAL_CART_KEY);
       this.updateSubjects();
 
     } catch (error) {

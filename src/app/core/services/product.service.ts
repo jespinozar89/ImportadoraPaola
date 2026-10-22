@@ -9,6 +9,7 @@ import {
 } from '@/shared/models/producto.interface';
 import { environment } from '@/environments/environment';
 import { PaginatedResult } from '@/shared/models/paginated.interface';
+import { LAST_PAGE_KEY } from '@/core/constants/storage-keys';
 
 @Injectable({
   providedIn: 'root'
@@ -73,7 +74,7 @@ export class ProductService {
 
   resetPage() {
     this.lastPage.set(1);
-    localStorage.setItem('lastPage', '1');
+    localStorage.setItem(LAST_PAGE_KEY, '1');
   }
 
   async filterWithStock(ids: number[]): Promise<number[]> {
@@ -87,4 +88,3 @@ export class ProductService {
 
 
 export type { Producto };
-

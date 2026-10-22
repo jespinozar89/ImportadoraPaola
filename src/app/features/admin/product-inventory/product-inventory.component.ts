@@ -13,6 +13,7 @@ import { ConfirmModalComponent } from "@/shared/components/confirm-modal/confirm
 import { NgxPaginationModule } from "ngx-pagination";
 import { UtilsService } from '@/shared/service/utils.service';
 import { PaginatedResult } from '@/shared/models/paginated.interface';
+import { PRODUCT_STATE_INVENTORY_KEY } from '@/core/constants/storage-keys';
 
 @Component({
   selector: 'app-inventory',
@@ -189,11 +190,11 @@ export class ProductInventoryComponent implements OnInit {
       currentPage
     };
 
-    localStorage.setItem('productStateInventory', JSON.stringify(state));
+    localStorage.setItem(PRODUCT_STATE_INVENTORY_KEY, JSON.stringify(state));
   }
 
   loadState(): void {
-    const savedState = localStorage.getItem('productStateInventory');
+    const savedState = localStorage.getItem(PRODUCT_STATE_INVENTORY_KEY);
     if (savedState) {
       const state = JSON.parse(savedState);
 

@@ -7,6 +7,7 @@ import { ProductService, Producto } from '@/core/services/product.service';
 import { AuthService } from '@/core/services/auth.service';
 import { UtilsService } from '@/shared/service/utils.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { LAST_PAGE_KEY } from '@/core/constants/storage-keys';
 
 @Component({
   selector: 'app-product-list',
@@ -39,7 +40,7 @@ export class ProductListComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.p = Number(localStorage.getItem('lastPage')) || 1;
+    this.p = Number(localStorage.getItem(LAST_PAGE_KEY)) || 1;
 
     this.route.paramMap
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -88,7 +89,7 @@ export class ProductListComponent implements OnInit {
   onPageChange(page: number): void {
     this.p = page;
     this.productService.lastPage.set(page);
-    localStorage.setItem('lastPage', page.toString());
+    localStorage.setItem(LAST_PAGE_KEY, page.toString());
     this.loadProducts(null);
   }
 

@@ -8,6 +8,7 @@ import { NgxPaginationModule } from "ngx-pagination";
 import { UtilsService } from '@/shared/service/utils.service';
 import { ExportService } from '@/core/services/export.service';
 import { HotToastService } from '@ngxpert/hot-toast';
+import { PRODUCT_STATE_ORDERS_KEY } from '@/core/constants/storage-keys';
 
 @Component({
   selector: 'app-order-management',
@@ -118,11 +119,11 @@ export class OrderManagementComponent {
       currentPage
     };
 
-    localStorage.setItem('productStateOrders', JSON.stringify(state));
+    localStorage.setItem(PRODUCT_STATE_ORDERS_KEY, JSON.stringify(state));
   }
 
   loadState(): void {
-    const savedState = localStorage.getItem('productStateOrders');
+    const savedState = localStorage.getItem(PRODUCT_STATE_ORDERS_KEY);
     if (savedState) {
       const state = JSON.parse(savedState);
 

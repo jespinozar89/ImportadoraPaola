@@ -1,10 +1,16 @@
-import { Component, effect, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { OrderService } from '../../../core/services/order.service';
 import { Pedido } from '../../../shared/models/order.interface';
 import { CommonModule } from '@angular/common';
 import { NgxPaginationModule } from "ngx-pagination";
 import { RouterLink } from '@angular/router';
 import { UtilsService } from '@/shared/service/utils.service';
+import { CLIENT_ORDER_LIST_STATE_KEY } from '@/core/constants/storage-keys';
+
+interface OrderListState {
+  currentPage?: unknown;
+  inputText?: unknown;
+}
 
 @Component({
   selector: 'app-order-list',
@@ -12,7 +18,7 @@ import { UtilsService } from '@/shared/service/utils.service';
   templateUrl: './order-list.component.html',
   styleUrl: './order-list.component.scss'
 })
-export class OrderListComponent {
+export class OrderListComponent implements OnInit {
 
   orderList: Pedido[] = [];
   searchTerm = signal<string>('');
@@ -34,11 +40,11 @@ export class OrderListComponent {
   constructor(
     private orderService: OrderService,
     public utilsService: UtilsService
-  ) {
-    effect(() => {
-      const term = this.searchTerm();
-      this.loadOrders(this.p, this.itemsPerPage, term);
-    });
+  ) { }
+
+  async ngOnInit(): Promise<void> {
+    this.loadState();
+    await this.loadOrders(this.p, this.itemsPerPage, this.searchTerm());
   }
 
   async loadOrders(page: number, limit: number, search?: string) {
@@ -56,6 +62,7 @@ export class OrderListComponent {
 
   async onPageChange(page: number) {
     this.p = page;
+    this.saveState();
     await this.loadOrders(this.p, this.itemsPerPage, this.searchTerm());
   }
 
@@ -63,11 +70,42 @@ export class OrderListComponent {
     const value = (event.target as HTMLInputElement).value;
     this.p = 1;
     this.searchTerm.set(value);
+    this.saveState();
+    void this.loadOrders(this.p, this.itemsPerPage, this.searchTerm());
   }
 
   onResetSearch() {
     this.p = 1;
     this.searchTerm.set('');
+    this.saveState();
+    void this.loadOrders(this.p, this.itemsPerPage, this.searchTerm());
+  }
+
+  private saveState(): void {
+    const state = {
+      currentPage: this.p,
+      inputText: this.searchTerm()
+    };
+
+    localStorage.setItem(CLIENT_ORDER_LIST_STATE_KEY, JSON.stringify(state));
+  }
+
+  private loadState(): void {
+    const savedState = localStorage.getItem(CLIENT_ORDER_LIST_STATE_KEY);
+    if (!savedState) {
+      return;
+    }
+
+    try {
+      const state = JSON.parse(savedState) as OrderListState;
+      this.p = typeof state.currentPage === 'number' && Number.isInteger(state.currentPage) && state.currentPage > 0
+        ? state.currentPage
+        : 1;
+      this.searchTerm.set(typeof state.inputText === 'string' ? state.inputText : '');
+    } catch (error) {
+      console.error('Error al restaurar el estado de Mis Pedidos:', error);
+      localStorage.removeItem(CLIENT_ORDER_LIST_STATE_KEY);
+    }
   }
 
   getProductosResumen(order: Pedido) {

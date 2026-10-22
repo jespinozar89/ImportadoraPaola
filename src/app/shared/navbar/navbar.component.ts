@@ -12,6 +12,12 @@ import { UtilsService } from '@/shared/service/utils.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HotToastService } from '@ngxpert/hot-toast';
 import { ProductService } from '@/core/services/product.service';
+import {
+  CLIENT_ORDER_LIST_STATE_KEY,
+  NAVBAR_SELECTED_MENU_ITEM_KEY,
+  PRODUCT_STATE_INVENTORY_KEY,
+  PRODUCT_STATE_ORDERS_KEY
+} from '@/core/constants/storage-keys';
 
 declare const bootstrap: any;
 
@@ -24,11 +30,9 @@ declare const bootstrap: any;
 })
 export class NavbarComponent implements OnInit {
 
-  private readonly SELECTED_MENU_KEY = 'navbar_selected_menu_item';
-
   favoritesCount = 0;
   cartCount = 0;
-  selected = localStorage.getItem(this.SELECTED_MENU_KEY) || 'Todo';
+  selected = localStorage.getItem(NAVBAR_SELECTED_MENU_ITEM_KEY) || 'Todo';
 
   currentUser = signal<UserLogged | null>(null);
   isLoggedIn = signal<boolean>(false);
@@ -78,11 +82,19 @@ export class NavbarComponent implements OnInit {
       )
       .subscribe((event: NavigationEnd) => {
 
-        const urlComplete = event.url;
-        const parts = urlComplete.split("/");
+        const urlComplete = event.urlAfterRedirects;
+        const urlPath = urlComplete.split(/[?#]/, 1)[0];
+        const parts = urlPath.split("/");
         const lastValue = parts[parts.length - 1] || 'Todo';
+        const isClientOrderRoute = urlPath === '/orderList' || urlPath.startsWith('/orderDetailUser/');
 
-        if (!urlComplete.startsWith('/producto/') && !urlComplete.startsWith('/orderDetail/')) {
+        if (!isClientOrderRoute) {
+          localStorage.removeItem(CLIENT_ORDER_LIST_STATE_KEY);
+        }
+
+        if (!urlPath.startsWith('/producto/') &&
+            !urlPath.startsWith('/orderDetail/') &&
+            !urlPath.startsWith('/orderDetailUser/')) {
           this.selectItem(lastValue);
         }
 
@@ -109,18 +121,18 @@ export class NavbarComponent implements OnInit {
   selectItem(value: string) {
     this.selected = value;
 
-    if (localStorage.getItem(this.SELECTED_MENU_KEY) !== value) {
+    if (localStorage.getItem(NAVBAR_SELECTED_MENU_ITEM_KEY) !== value) {
       this.productService.resetPage();
-      localStorage.setItem(this.SELECTED_MENU_KEY, value);
+      localStorage.setItem(NAVBAR_SELECTED_MENU_ITEM_KEY, value);
     }
 
 
     if (value && !value.includes('inventory')) {
-      localStorage.removeItem("productStateInventory");
+      localStorage.removeItem(PRODUCT_STATE_INVENTORY_KEY);
     }
 
     if (value && !value.includes('orders') && !value.includes('DetalleOrden')) {
-      localStorage.removeItem("productStateOrders");
+      localStorage.removeItem(PRODUCT_STATE_ORDERS_KEY);
     }
   }
 

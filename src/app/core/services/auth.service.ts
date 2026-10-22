@@ -5,6 +5,16 @@ import { CreateUserDTO, LoginPayload, AuthResponse, UserLogged, UpdateUserDTO } 
 import { environment } from '@/environments/environment';
 import { Router } from '@angular/router';
 import { UtilsService } from '../../shared/service/utils.service';
+import {
+  AUTH_TOKEN_KEY,
+  CLIENT_ORDER_LIST_STATE_KEY,
+  GUEST_USER_INFO_KEY,
+  LAST_PAGE_KEY,
+  LOCAL_FAVORITES_KEY,
+  NAVBAR_SELECTED_MENU_ITEM_KEY,
+  PRODUCT_STATE_INVENTORY_KEY,
+  PRODUCT_STATE_ORDERS_KEY
+} from '@/core/constants/storage-keys';
 
 declare var bootstrap: any;
 
@@ -14,8 +24,6 @@ declare var bootstrap: any;
 export class AuthService {
 
   private apiUrl = `${environment.apiUrl}/auth`;
-  private readonly USER_KEY = 'jwt_token';
-
   private currentUserSubject: BehaviorSubject<UserLogged | null>;
   public currentUser: Observable<UserLogged | null>;
 
@@ -26,7 +34,7 @@ export class AuthService {
     private utilsService: UtilsService,
     private router: Router
   ) {
-    const initialToken = localStorage.getItem(this.USER_KEY);
+    const initialToken = localStorage.getItem(AUTH_TOKEN_KEY);
     const initialUser: UserLogged | null = initialToken ? ({ token: initialToken } as UserLogged) : null;
 
     this.currentUserSubject = new BehaviorSubject<UserLogged | null>(initialUser);
@@ -61,7 +69,7 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, data).pipe(
       tap(response => {
         this.storeAuthData(response);
-        localStorage.removeItem('guest_user_info');
+        localStorage.removeItem(GUEST_USER_INFO_KEY);
       })
     );
   }
@@ -80,7 +88,7 @@ export class AuthService {
 
 
   public async checkSession() {
-    const token = localStorage.getItem(this.USER_KEY);
+    const token = localStorage.getItem(AUTH_TOKEN_KEY);
 
     if (!token) return;
 
@@ -101,20 +109,21 @@ export class AuthService {
   }
 
   public logout(): void {
-    localStorage.removeItem(this.USER_KEY);
+    localStorage.removeItem(AUTH_TOKEN_KEY);
     this.currentUserSubject.next(null);
 
     this.router.navigate(['/']);
 
-    localStorage.removeItem('lastPage');
-    localStorage.removeItem('navbar_selected_menu_item');
-    localStorage.removeItem('local_favorites');
-    localStorage.removeItem('productStateInventory');
-    localStorage.removeItem('productStateOrders');
+    localStorage.removeItem(LAST_PAGE_KEY);
+    localStorage.removeItem(NAVBAR_SELECTED_MENU_ITEM_KEY);
+    localStorage.removeItem(LOCAL_FAVORITES_KEY);
+    localStorage.removeItem(PRODUCT_STATE_INVENTORY_KEY);
+    localStorage.removeItem(PRODUCT_STATE_ORDERS_KEY);
+    localStorage.removeItem(CLIENT_ORDER_LIST_STATE_KEY);
   }
 
   public getAuthToken(): string | null {
-    return this.currentUserSubject.value?.token || localStorage.getItem(this.USER_KEY);
+    return this.currentUserSubject.value?.token || localStorage.getItem(AUTH_TOKEN_KEY);
   }
 
   public getRolAuthToken() {
@@ -164,7 +173,7 @@ export class AuthService {
   // ----------------------------------------------------------------------
 
   private storeAuthData(response: AuthResponse): void {
-    localStorage.setItem(this.USER_KEY, response.token);
+    localStorage.setItem(AUTH_TOKEN_KEY, response.token);
 
     const user: UserLogged = {
       ...response.usuario,

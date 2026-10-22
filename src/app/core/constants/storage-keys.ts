@@ -1,0 +1,9 @@
+export const AUTH_TOKEN_KEY = 'jwt_token';
+export const CLIENT_ORDER_LIST_STATE_KEY = 'clientOrderListState';
+export const GUEST_USER_INFO_KEY = 'guest_user_info';
+export const LAST_PAGE_KEY = 'lastPage';
+export const LOCAL_CART_KEY = 'local_cart';
+export const LOCAL_FAVORITES_KEY = 'local_favorites';
+export const NAVBAR_SELECTED_MENU_ITEM_KEY = 'navbar_selected_menu_item';
+export const PRODUCT_STATE_INVENTORY_KEY = 'productStateInventory';
+export const PRODUCT_STATE_ORDERS_KEY = 'productStateOrders';

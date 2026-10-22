@@ -22,9 +22,9 @@ import { LocationService } from '../../../core/services/location.service';
 import { AddressService } from '../../../core/services/address.service';
 import { Region } from '@/shared/models/ubicacion.interface';
 import { DireccionUsuario } from '@/shared/models/direccion.model';
+import { GUEST_USER_INFO_KEY } from '@/core/constants/storage-keys';
 
 declare var bootstrap: any;
-const GUEST_DATA_KEY = 'guest_user_info';
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 @Component({
@@ -840,11 +840,11 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
       savedAt: Date.now()
     };
 
-    localStorage.setItem(GUEST_DATA_KEY, JSON.stringify(dataToSave));
+    localStorage.setItem(GUEST_USER_INFO_KEY, JSON.stringify(dataToSave));
   }
 
   private loadGuestDataFromStorage(): void {
-    const saved = localStorage.getItem(GUEST_DATA_KEY);
+    const saved = localStorage.getItem(GUEST_USER_INFO_KEY);
     if (!saved) return;
 
     try {
@@ -905,7 +905,7 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
   }
 
   private clearGuestStorage(): void {
-    localStorage.removeItem(GUEST_DATA_KEY);
+    localStorage.removeItem(GUEST_USER_INFO_KEY);
     this.guestData = null;
 
     this.guestForm = {

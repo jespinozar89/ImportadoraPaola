@@ -5,14 +5,13 @@ import { AuthService } from '@/core/services/auth.service';
 import { environment } from '@/environments/environment';
 import { AddFavoritoDTO, Favorito } from '@/shared/models/favorite.interface';
 import { Producto } from '@/shared/models/producto.interface';
+import { LOCAL_FAVORITES_KEY } from '@/core/constants/storage-keys';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FavoriteService {
   private apiUrl = `${environment.apiUrl}/favoritos`;
-  private readonly LOCAL_FAV_KEY = 'local_favorites';
-
   private favoritesCount = new BehaviorSubject<number>(0);
   public favoritesCount$ = this.favoritesCount.asObservable();
 
@@ -83,7 +82,7 @@ export class FavoriteService {
   // ----------------------------------------------------------------------
 
   private loadLocalFavorites(): void {
-    const localFavs = localStorage.getItem(this.LOCAL_FAV_KEY);
+    const localFavs = localStorage.getItem(LOCAL_FAVORITES_KEY);
     try {
       if (localFavs) {
         const idsArray: number[] = JSON.parse(localFavs);
@@ -101,7 +100,7 @@ export class FavoriteService {
 
   private saveLocalFavorites(): void {
     const idsArray = Array.from(this.favoriteIds);
-    localStorage.setItem(this.LOCAL_FAV_KEY, JSON.stringify(idsArray));
+    localStorage.setItem(LOCAL_FAVORITES_KEY, JSON.stringify(idsArray));
     this.favoritesCount.next(this.favoriteIds.size);
   }
 
@@ -114,7 +113,7 @@ export class FavoriteService {
   }
 
   private _getLocalFavoritesArray(): number[] {
-    const localFavs = localStorage.getItem(this.LOCAL_FAV_KEY);
+    const localFavs = localStorage.getItem(LOCAL_FAVORITES_KEY);
     try {
       return localFavs ? JSON.parse(localFavs) : [];
     } catch (e) {
@@ -138,7 +137,7 @@ export class FavoriteService {
 
       await Promise.all(syncPromises);
 
-      localStorage.removeItem(this.LOCAL_FAV_KEY);
+      localStorage.removeItem(LOCAL_FAVORITES_KEY);
     }
 
     await this.loadApiFavorites();
