@@ -209,3 +209,39 @@
     padding: 1.5rem;
   }
 }
+
+@mixin shipment-timeline {
+  .shipment-timeline {
+    list-style: none;
+    padding-left: 1.5rem;
+    position: relative;
+  }
+
+  .shipment-timeline::before {
+    content: '';
+    position: absolute;
+    left: 0.35rem;
+    top: 0.25rem;
+    bottom: 0.25rem;
+    width: 2px;
+    background: tokens.$border;
+  }
+
+  .shipment-event {
+    position: relative;
+    padding: 0.75rem 0;
+  }
+
+  .shipment-event::before {
+    content: '';
+    position: absolute;
+    left: -1.45rem;
+    top: 1rem;
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    background: tokens.$primary;
+    border: 2px solid tokens.$surface;
+    box-shadow: 0 0 0 1px tokens.$primary;
+  }
+}

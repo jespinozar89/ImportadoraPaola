@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 import { UtilsService } from '@/shared/service/utils.service';
 import { DireccionUsuario } from '@/shared/models/direccion.model';
 import { Region } from '@/shared/models/ubicacion.interface';
+import { getHttpErrorMessage } from '@/shared/utils/http-error-message';
 
 @Component({
   selector: 'app-perfil-form',
@@ -198,7 +199,7 @@ export class PerfilFormComponent implements OnInit {
           this.loadAddresses();
           this.closeModalById('addressModal');
         },
-        error: (err) => this.toast.error(err.message || 'Error al actualizar dirección')
+        error: (err) => this.toast.error(getHttpErrorMessage(err, 'Error al actualizar dirección'))
       });
     } else {
       this.addressService.createAddress(formValues).subscribe({
@@ -207,7 +208,7 @@ export class PerfilFormComponent implements OnInit {
           this.loadAddresses();
           this.closeModalById('addressModal');
         },
-        error: (err) => this.toast.error(err.message || 'Error al agregar dirección')
+        error: (err) => this.toast.error(getHttpErrorMessage(err, 'Error al agregar dirección'))
       });
     }
   }
@@ -219,7 +220,7 @@ export class PerfilFormComponent implements OnInit {
           this.toast.success('Dirección eliminada');
           this.loadAddresses();
         },
-        error: (err) => this.toast.error(err.message || 'Error al eliminar dirección')
+        error: (err) => this.toast.error(getHttpErrorMessage(err, 'Error al eliminar dirección'))
       });
     }
   }
@@ -230,7 +231,7 @@ export class PerfilFormComponent implements OnInit {
         this.toast.success('Dirección predeterminada actualizada');
         this.loadAddresses();
       },
-      error: (err) => this.toast.error(err.message || 'Error al establecer predeterminada')
+      error: (err) => this.toast.error(getHttpErrorMessage(err, 'Error al establecer predeterminada'))
     });
   }
 
@@ -259,8 +260,8 @@ export class PerfilFormComponent implements OnInit {
       } else {
         this.toast.error('Error al actualizar los datos');
       }
-    } catch (error: any) {
-      this.toast.error(error.message || "Error al actualizar los datos");
+    } catch (error: unknown) {
+      this.toast.error(getHttpErrorMessage(error, 'Error al actualizar los datos'));
     }
   }
 

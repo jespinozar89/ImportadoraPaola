@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '@/core/services/auth.service';
 import { CreateUserDTO } from '@/shared/models/auth.interface';
 import { HotToastService } from '@ngxpert/hot-toast';
+import { getHttpErrorMessage } from '@/shared/utils/http-error-message';
 
 @Component({
   selector: 'app-sign-up',
@@ -86,13 +87,14 @@ export class SignUpModalComponent {
       error: (err) => {
         this.isLoading.set(false);
         console.error('Error registro:', err);
-        if(
-          err.error?.message.toLowerCase().includes("panic") ||
-          err.error?.message.toLowerCase().includes("prisma")
-        ){
+        const message = getHttpErrorMessage(
+          err,
+          'Ocurrió un error inesperado. Por favor intenta nuevamente más tarde.'
+        );
+        if (message.toLowerCase().includes('panic') || message.toLowerCase().includes('prisma')) {
           this.toast.error('Ocurrió un error inesperado. Por favor intenta nuevamente más tarde.');
-        }else{
-          this.toast.error(err.error?.message);
+        } else {
+          this.toast.error(message);
         }
       }
     });

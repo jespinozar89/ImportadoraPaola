@@ -8,10 +8,15 @@ import { HotToastService } from '@ngxpert/hot-toast';
 import { UtilsService } from '@/shared/service/utils.service';
 import { environment } from '@/environments/environment';
 import { KlapService } from '@/core/services/klap.service';
+import { ShippingService } from '@/core/services/shipping.service';
+import { ActualizarNumeroFleteRequest, CrearEnvioRequest, Envio } from '@/shared/models/shipping.model';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ShipmentTrackingCardComponent } from '@/shared/components/shipment-tracking-card/shipment-tracking-card.component';
+import { getHttpErrorMessage } from '@/shared/utils/http-error-message';
 
 @Component({
   selector: 'app-order-detail',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ShipmentTrackingCardComponent],
   templateUrl: './order-detail.component.html',
   styleUrls: ['./order-detail.component.scss']
 })
@@ -24,6 +29,10 @@ export class OrderDetailComponent implements OnInit {
   setupFee: number = 0;
   fileBase64: string | null = null;
   fileName: string | null = null;
+  shipment: Envio | null = null;
+  isLoadingShipment = false;
+  isSavingShipment = false;
+  shipmentLoadError = false;
 
 
   statusConfig: any = {
@@ -38,6 +47,7 @@ export class OrderDetailComponent implements OnInit {
   constructor(
     private orderService: OrderService,
     private klapService: KlapService,
+    private shippingService: ShippingService,
     private toast: HotToastService,
     private route: ActivatedRoute,
     public utilsService: UtilsService,
@@ -51,6 +61,9 @@ export class OrderDetailComponent implements OnInit {
       await this.loaderOrder(Number(idString));
       this.selectedStatus = this.order?.estado!;
       this.previousState = this.order?.estado!;
+      if (this.order?.tipo_entrega === 'despacho') {
+        await this.loadShipment();
+      }
     } catch (error) {
       console.error('Error al cargar el pedido:', error);
     }
@@ -58,6 +71,117 @@ export class OrderDetailComponent implements OnInit {
 
   async loaderOrder(id: number) {
     this.order = await this.orderService.findById(id);
+  }
+
+  async refreshShipment(): Promise<void> {
+    await this.loadShipment();
+    if (this.shipment && !this.shipmentLoadError) {
+      await this.refreshOrder();
+    }
+  }
+
+  async loadShipment(): Promise<void> {
+    const pedidoId = this.order?.pedido_id;
+    if (!pedidoId || this.order?.tipo_entrega !== 'despacho') {
+      this.shipment = null;
+      return;
+    }
+
+    this.isLoadingShipment = true;
+    this.shipmentLoadError = false;
+    try {
+      this.shipment = await this.shippingService.obtenerPorPedido(pedidoId);
+    } catch (error) {
+      if (error instanceof HttpErrorResponse && error.status === 404) {
+        this.shipment = null;
+      } else {
+        this.shipmentLoadError = true;
+        console.error('Error al cargar el seguimiento del envío:', error);
+        this.toast.error('No se pudo cargar el seguimiento del envío.');
+      }
+    } finally {
+      this.isLoadingShipment = false;
+    }
+  }
+
+  private async refreshOrder(): Promise<void> {
+    const pedidoId = this.order?.pedido_id;
+    if (!pedidoId) return;
+
+    try {
+      this.order = await this.orderService.findById(pedidoId);
+      this.selectedStatus = this.order.estado;
+      this.previousState = this.order.estado;
+    } catch (error) {
+      console.error('Error al actualizar el pedido después de consultar el envío:', error);
+      this.toast.error(getHttpErrorMessage(
+        error,
+        'No se pudo actualizar el estado del pedido. El seguimiento del envío sí se cargó.'
+      ));
+    }
+  }
+
+  async registerShipment(numeroFlete: string): Promise<void> {
+    const pedidoId = this.order?.pedido_id;
+    const trackingNumber = numeroFlete.trim();
+    if (!pedidoId || this.order?.tipo_entrega !== 'despacho' || !trackingNumber || this.isSavingShipment) {
+      return;
+    }
+
+    this.isSavingShipment = true;
+    const request: CrearEnvioRequest = {
+      pedido_id: pedidoId,
+      courier: 'STARKEN',
+      numero_flete: trackingNumber,
+      estado: 'CREADO'
+    };
+
+    try {
+      this.shipment = await this.shippingService.crearEnvio(request);
+      this.toast.success('Número de flete asociado con éxito.');
+      await this.refreshOrder();
+    } catch (error) {
+      console.error('Error al registrar el envío:', error);
+      this.toast.error(getHttpErrorMessage(
+        error,
+        'No se pudo registrar el envío. Por favor, intente nuevamente.'
+      ));
+    } finally {
+      this.isSavingShipment = false;
+    }
+  }
+
+  async updateShipmentFreightNumber(numeroFlete: string): Promise<void> {
+    const currentFreightNumber = this.shipment?.numero_flete;
+    const trackingNumber = numeroFlete.trim();
+    if (
+      !currentFreightNumber ||
+      !trackingNumber ||
+      trackingNumber === currentFreightNumber ||
+      this.isSavingShipment
+    ) {
+      return;
+    }
+
+    this.isSavingShipment = true;
+    const request: ActualizarNumeroFleteRequest = { numero_flete: trackingNumber };
+
+    try {
+      const updatedShipment = await this.shippingService.actualizarEstadoPorNumeroFlete(
+        currentFreightNumber,
+        request
+      );
+      this.shipment = { ...this.shipment!, ...updatedShipment };
+      this.toast.success('Número de flete actualizado con éxito.');
+    } catch (error) {
+      console.error('Error al corregir el número de flete:', error);
+      this.toast.error(getHttpErrorMessage(
+        error,
+        'No se pudo actualizar el número de flete. Por favor, intente nuevamente.'
+      ));
+    } finally {
+      this.isSavingShipment = false;
+    }
   }
 
   triggerFileInput() {

@@ -2,16 +2,21 @@ import { OrderService } from '@/core/services/order.service';
 import { Pedido } from '@/shared/models/order.interface';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth.service';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { UtilsService } from '@/shared/service/utils.service';
 import { environment } from '@/environments/environment';
 import { HotToastService } from '@ngxpert/hot-toast';
 import { KlapService } from '@/core/services/klap.service';
+import { ShippingService } from '@/core/services/shipping.service';
+import { Envio } from '@/shared/models/shipping.model';
+import { ShipmentTrackingCardComponent } from '@/shared/components/shipment-tracking-card/shipment-tracking-card.component';
+import { getHttpErrorMessage } from '@/shared/utils/http-error-message';
 
 @Component({
   selector: 'app-order-detail-user',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ShipmentTrackingCardComponent],
   templateUrl: './order-detail-user.component.html',
   styleUrl: './order-detail-user.component.scss'
 })
@@ -21,6 +26,9 @@ export class OrderDetailUserComponent implements OnInit {
   bankInfo = {};
   setupFee: number = 0;
   processingCancelOrder: boolean = false;
+  shipment: Envio | null = null;
+  isLoadingShipment = false;
+  shipmentLoadError = false;
 
   statusConfig: any = {
     entregado: { icon: 'bi-check-circle-fill', label: 'Entregado', class: 'entregado' },
@@ -36,6 +44,7 @@ export class OrderDetailUserComponent implements OnInit {
     private orderService: OrderService,
     private authService: AuthService,
     private klapService: KlapService,
+    private shippingService: ShippingService,
     private toast: HotToastService,
     public utilsService: UtilsService
   ) { }
@@ -45,6 +54,9 @@ export class OrderDetailUserComponent implements OnInit {
       this.setupFee = Number(environment.orderSetupFee) || 0;
       const idString = this.route.snapshot.paramMap.get('id') || '0';
       await this.loaderOrder(Number(idString));
+      if (this.order.tipo_entrega === 'despacho') {
+        await this.loadShipment();
+      }
     }
     catch (error) {
       console.log(error);
@@ -53,6 +65,51 @@ export class OrderDetailUserComponent implements OnInit {
 
   async loaderOrder(id: number) {
     this.order = await this.orderService.findOrderByUserIdAndPedidoId(id);
+  }
+
+  async refreshShipment(): Promise<void> {
+    await this.loadShipment();
+    if (this.shipment && !this.shipmentLoadError) {
+      await this.refreshOrder();
+    }
+  }
+
+  async loadShipment(): Promise<void> {
+    if (!this.order.pedido_id || this.order.tipo_entrega !== 'despacho') {
+      this.shipment = null;
+      return;
+    }
+
+    this.isLoadingShipment = true;
+    this.shipmentLoadError = false;
+    try {
+      this.shipment = await this.shippingService.obtenerPorPedido(this.order.pedido_id);
+    } catch (error) {
+      if (error instanceof HttpErrorResponse && error.status === 404) {
+        this.shipment = null;
+      } else {
+        this.shipmentLoadError = true;
+        console.error('Error al cargar el seguimiento del envío:', error);
+        this.toast.error('No se pudo cargar el seguimiento del envío.');
+      }
+    } finally {
+      this.isLoadingShipment = false;
+    }
+  }
+
+  private async refreshOrder(): Promise<void> {
+    const pedidoId = this.order.pedido_id;
+    if (!pedidoId) return;
+
+    try {
+      this.order = await this.orderService.findOrderByUserIdAndPedidoId(pedidoId);
+    } catch (error) {
+      console.error('Error al actualizar el pedido después de consultar el envío:', error);
+      this.toast.error(getHttpErrorMessage(
+        error,
+        'No se pudo actualizar el estado del pedido. El seguimiento del envío sí se cargó.'
+      ));
+    }
   }
 
   get fullName() {

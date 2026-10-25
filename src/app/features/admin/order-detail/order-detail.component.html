@@ -158,6 +158,20 @@
         </div>
       </div>
 
+      <app-shipment-tracking-card
+        *ngIf="order?.tipo_entrega === 'despacho'"
+        class="mb-4"
+        [shipment]="shipment"
+        [isLoading]="isLoadingShipment"
+        [loadError]="shipmentLoadError"
+        [allowAssociation]="true"
+        [savingShipment]="isSavingShipment"
+        [showRecipientRut]="true"
+        (refresh)="refreshShipment()"
+        (associateShipment)="registerShipment($event)"
+        (updateFreightNumber)="updateShipmentFreightNumber($event)">
+      </app-shipment-tracking-card>
+
       <!-- Resumen del Pedido -->
       <div class="card">
         <div class="card-header-custom">

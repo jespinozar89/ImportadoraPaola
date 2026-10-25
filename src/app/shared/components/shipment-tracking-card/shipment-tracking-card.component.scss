@@ -1,0 +1,16 @@
+@use '../../styles/patterns' as patterns;
+
+:host {
+  display: block;
+}
+
+.shipment-card {
+  width: 100%;
+}
+
+.border-bottom-light {
+  border-bottom: 1px solid #f1f1f1 !important;
+}
+
+@include patterns.spin;
+@include patterns.shipment-timeline;

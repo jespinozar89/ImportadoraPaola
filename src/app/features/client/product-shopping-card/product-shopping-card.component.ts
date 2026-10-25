@@ -23,6 +23,7 @@ import { AddressService } from '../../../core/services/address.service';
 import { Region } from '@/shared/models/ubicacion.interface';
 import { DireccionUsuario } from '@/shared/models/direccion.model';
 import { GUEST_USER_INFO_KEY } from '@/core/constants/storage-keys';
+import { getHttpErrorMessage } from '@/shared/utils/http-error-message';
 
 declare var bootstrap: any;
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -359,7 +360,7 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
           this.loadUserAddresses();
           this.utilsService.closeModalById('addressModal');
         },
-        error: (err) => this.toast.error(err.message || 'Error al guardar la dirección')
+        error: (err) => this.toast.error(getHttpErrorMessage(err, 'Error al guardar la dirección'))
       });
     } else {
       const calleCompleta = `${formValues.calle} #${formValues.numero} ${formValues.departamento ? 'Dpto: ' + formValues.departamento : ''}, ${formValues.comuna}, ${regionNombre}`;

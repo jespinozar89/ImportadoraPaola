@@ -40,7 +40,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           router.navigate(['/']);
           toast.info('Sesión expirada. Inicia sesión nuevamente.');
         }
-        return throwError(() => error.error);
+        return throwError(() => error);
       })
     );
   }

@@ -5,6 +5,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router } from '@angular/router';
 import { HotToastService } from '@ngxpert/hot-toast';
 import { firstValueFrom } from 'rxjs';
+import { getHttpErrorMessage } from '@/shared/utils/http-error-message';
 
 @Component({
   selector: 'app-reset-password',
@@ -72,8 +73,8 @@ export class ResetPasswordComponent {
     try {
       await firstValueFrom(this.authService.resetPassword(this.token, this.resetForm.value.password));
       this.toast.success('Contraseña actualizada con éxito. Ya puedes iniciar sesión.');
-    } catch (error: any) {
-      this.toast.error(error?.error?.message || 'Token expirado o inválido');
+    } catch (error: unknown) {
+      this.toast.error(getHttpErrorMessage(error, 'Token expirado o inválido'));
     }
     finally {
       this.router.navigate(['/']);

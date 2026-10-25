@@ -1,0 +1,160 @@
+<section class="card shadow-sm border-0 rounded-3 shipment-card" aria-labelledby="shipmentTitle">
+  <div class="card-header bg-white border-0 pt-3 pb-2 border-bottom-light d-flex align-items-center">
+    <h6 id="shipmentTitle" class="text-muted fw-bold mb-0">
+      <i class="bi bi-truck me-2"></i>Seguimiento del Envío
+    </h6>
+    <button
+      *ngIf="shipment"
+      type="button"
+      class="btn btn-sm btn-outline-primary ms-auto"
+      (click)="refresh.emit()"
+      [disabled]="isLoading"
+      aria-label="Actualizar seguimiento">
+      <i class="bi bi-arrow-clockwise" [class.spin]="isLoading"></i>
+    </button>
+  </div>
+
+  <div class="card-body px-4 py-3">
+    <div *ngIf="isLoading" class="text-muted text-center py-3">
+      <i class="bi bi-arrow-repeat spin me-2"></i>Cargando seguimiento...
+    </div>
+
+    <div *ngIf="loadError && !isLoading" class="alert alert-warning mb-0" role="alert">
+      No fue posible cargar el seguimiento.
+      <button type="button" class="btn btn-link p-0 ms-1" (click)="refresh.emit()">Reintentar</button>
+    </div>
+
+    <form
+      *ngIf="allowAssociation && !shipment && !isLoading && !loadError"
+      (ngSubmit)="onSubmit()"
+      #shipmentForm="ngForm">
+      <p class="text-muted">Este pedido aún no tiene un número de flete asociado.</p>
+      <label for="trackingNumber" class="form-label">Número de flete de Starken</label>
+      <div class="input-group">
+        <input
+          id="trackingNumber"
+          name="trackingNumber"
+          class="form-control"
+          [(ngModel)]="trackingNumber"
+          required
+          maxlength="50"
+          autocomplete="off"
+          [disabled]="savingShipment">
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="shipmentForm.invalid || savingShipment">
+          <i class="bi" [ngClass]="savingShipment ? 'bi-arrow-repeat spin' : 'bi-link-45deg'"></i>
+          {{ savingShipment ? 'Guardando...' : 'Asociar flete' }}
+        </button>
+      </div>
+      <small class="text-muted">Empresa: Starken</small>
+    </form>
+
+    <p *ngIf="!allowAssociation && !shipment && !isLoading && !loadError" class="text-muted mb-0">
+      El número de seguimiento aún no está disponible.
+    </p>
+
+    <div *ngIf="shipment && !isLoading">
+      <div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
+        <div>
+          <div class="text-muted small">Empresa</div>
+          <strong>{{ shipment.empresa || shipment.courier }}</strong>
+        </div>
+        <div>
+          <div class="text-muted small">Número de flete</div>
+          <ng-container *ngIf="allowAssociation && editingFreightNumber; else freightNumberDisplay">
+            <form (ngSubmit)="onFreightNumberSubmit()" #freightNumberForm="ngForm" class="mt-1">
+              <div class="input-group input-group-sm">
+                <input
+                  id="editFreightNumber"
+                  name="editFreightNumber"
+                  class="form-control"
+                  [(ngModel)]="replacementFreightNumber"
+                  required
+                  maxlength="50"
+                  autocomplete="off"
+                  aria-label="Número de flete corregido"
+                  [disabled]="savingShipment">
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  [disabled]="freightNumberForm.invalid || !replacementFreightNumber.trim() || savingShipment || replacementFreightNumber.trim() === shipment.numero_flete">
+                  <i class="bi" [ngClass]="savingShipment ? 'bi-arrow-repeat spin' : 'bi-check-lg'"></i>
+                  {{ savingShipment ? 'Guardando...' : 'Guardar' }}
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary"
+                  (click)="cancelEditingFreightNumber()"
+                  [disabled]="savingShipment">
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </ng-container>
+          <ng-template #freightNumberDisplay>
+            <strong>{{ shipment.numero_flete_nuevo || shipment.numero_flete }}</strong>
+            <button
+              *ngIf="allowAssociation"
+              type="button"
+              class="btn btn-sm btn-link p-0 ms-2 align-baseline"
+              (click)="startEditingFreightNumber()"
+              [disabled]="savingShipment"
+              aria-label="Editar número de flete">
+              <i class="bi bi-pencil"></i>
+              Editar
+            </button>
+          </ng-template>
+        </div>
+      </div>
+      <div class="mb-2">
+        <span class="text-muted me-2">Estado actual:</span>
+        <span class="badge bg-primary">{{ shipment.estado }}</span>
+      </div>
+      <div *ngIf="shipment.fecha_despacho" class="small text-muted mb-2">
+        Despachado: {{ shipment.fecha_despacho | date:"dd/MM/yyyy HH:mm":"":"es-CL" }}
+      </div>
+      <div *ngIf="shipment.observacion" class="alert alert-light border py-2">
+        {{ shipment.observacion }}
+      </div>
+
+      <div class="mt-3">
+        <button
+          type="button"
+          class="btn btn-link p-0 text-decoration-none fw-semibold"
+          (click)="historyExpanded = !historyExpanded"
+          [attr.aria-expanded]="historyExpanded"
+          aria-controls="shipmentDetailsPanel">
+          Historial de seguimiento
+          <i class="bi ms-1" [ngClass]="historyExpanded ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+        </button>
+        <div *ngIf="historyExpanded" id="shipmentDetailsPanel" class="mt-2">
+          <ol *ngIf="shipmentHistory.length; else noShipmentEvents" class="shipment-timeline mb-0">
+            <li *ngFor="let event of shipmentHistory" class="shipment-event border-bottom">
+              <div class="d-flex justify-content-between flex-wrap gap-1">
+                <strong>{{ event.estado_macro }}</strong>
+                <time class="text-muted small">{{ event.fecha_evento | date:"dd/MM/yyyy HH:mm":"":"es-CL" }}</time>
+              </div>
+              <div class="text-muted">{{ event.descripcion_estado }}</div>
+            </li>
+          </ol>
+          <ng-template #noShipmentEvents>
+            <p class="text-muted mb-0">Aún no hay eventos de seguimiento.</p>
+          </ng-template>
+
+          <div
+            *ngIf="shipment.fecha_entrega || shipment.nombre_recibe || (showRecipientRut && shipment.rut_recibe)"
+            class="mt-3 border-top pt-3">
+            <h6>Datos de entrega</h6>
+            <div *ngIf="shipment.fecha_entrega">
+              Fecha: {{ shipment.fecha_entrega | date:"dd/MM/yyyy HH:mm":"":"es-CL" }}
+            </div>
+            <div *ngIf="shipment.nombre_recibe">Recibido por: {{ shipment.nombre_recibe }}</div>
+            <div *ngIf="showRecipientRut && shipment.rut_recibe">RUT: {{ shipment.rut_recibe }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
