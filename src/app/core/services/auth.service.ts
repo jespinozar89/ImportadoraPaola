@@ -1,12 +1,19 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap, firstValueFrom, map } from 'rxjs';
-import { CreateUserDTO, LoginPayload, AuthResponse, UserLogged, UpdateUserDTO } from '@/shared/models/auth.interface';
+import {
+  ApiMessageResponse,
+  AuthenticatedProfile,
+  CreateUserDTO,
+  LoginPayload,
+  LoginResponse,
+  UserLogged,
+  UpdateUserDTO
+} from '@/shared/models/auth.interface';
 import { environment } from '@/environments/environment';
 import { Router } from '@angular/router';
 import { UtilsService } from '../../shared/service/utils.service';
 import {
-  AUTH_TOKEN_KEY,
   CLIENT_ORDER_LIST_STATE_KEY,
   GUEST_USER_INFO_KEY,
   LAST_PAGE_KEY,
@@ -34,14 +41,12 @@ export class AuthService {
     private utilsService: UtilsService,
     private router: Router
   ) {
-    const initialToken = localStorage.getItem(AUTH_TOKEN_KEY);
-    const initialUser: UserLogged | null = initialToken ? ({ token: initialToken } as UserLogged) : null;
 
-    this.currentUserSubject = new BehaviorSubject<UserLogged | null>(initialUser);
+    this.currentUserSubject = new BehaviorSubject<UserLogged | null>(null);
     this.currentUser = this.currentUserSubject.asObservable();
 
     this.isAuthenticated$ = this.currentUserSubject.pipe(
-      map(user => !!user && !!user.token)
+      map(user => !!user)
     );
   }
 
@@ -54,19 +59,19 @@ export class AuthService {
   }
 
   public isAuthenticated(): boolean {
-    return !!this.getAuthToken();
+    return !!this.currentUserSubject.value;
   }
 
-  public register(data: CreateUserDTO): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, data);
+  public register(data: CreateUserDTO): Observable<unknown> {
+    return this.http.post(`${this.apiUrl}/register`, data);
   }
 
-  private async me() {
-    return firstValueFrom(this.http.get<any>(`${this.apiUrl}/me`));
+  private async me(): Promise<AuthenticatedProfile> {
+    return firstValueFrom(this.http.get<AuthenticatedProfile>(`${this.apiUrl}/me`));
   }
 
-  public login(data: LoginPayload): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, data).pipe(
+  public login(data: LoginPayload): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, data).pipe(
       tap(response => {
         this.storeAuthData(response);
         localStorage.removeItem(GUEST_USER_INFO_KEY);
@@ -74,42 +79,42 @@ export class AuthService {
     );
   }
 
-  public updatePerfil(data: UpdateUserDTO): Observable<AuthResponse> {
-    return this.http.put<AuthResponse>(`${this.apiUrl}/updatePerfil`, data);
+  public updatePerfil(data: UpdateUserDTO): Observable<unknown> {
+    return this.http.put(`${this.apiUrl}/updatePerfil`, data);
   }
 
-  public generateResetToken(email: string): Observable<AuthResponse> {
-    return this.http.put<AuthResponse>(`${this.apiUrl}/generateResetToken`, { email })
+  public generateResetToken(email: string): Observable<ApiMessageResponse> {
+    return this.http.put<ApiMessageResponse>(`${this.apiUrl}/generateResetToken`, { email })
   }
 
-  public resetPassword(token: string, password: string): Observable<AuthResponse> {
-    return this.http.put<AuthResponse>(`${this.apiUrl}/resetPassword`, { token, password });
+  public resetPassword(token: string, password: string): Observable<ApiMessageResponse> {
+    return this.http.put<ApiMessageResponse>(`${this.apiUrl}/resetPassword`, { token, password });
   }
 
 
   public async checkSession() {
-    const token = localStorage.getItem(AUTH_TOKEN_KEY);
-
-    if (!token) return;
-
     try {
-
-      const userData = await this.me();
-
+      const profile = await this.me();
       this.currentUserSubject.next({
-        ...userData,
-        token: token
+        id: profile.usuario_id,
+        email: profile.email,
+        telefono: profile.telefono,
+        nombres: profile.nombres,
+        apellidos: profile.apellidos,
+        rol: profile.rol
       });
-
-    }
-    catch (e) {
-      this.logout();
-      console.log("error", e);
+    } catch (error: unknown) {
+      this.currentUserSubject.next(null);
+      if (!(error instanceof Error && 'status' in error && error.status === 401)) {
+        console.error('Error al verificar la sesión:', error);
+      }
     }
   }
 
   public logout(): void {
-    localStorage.removeItem(AUTH_TOKEN_KEY);
+    this.http.post(`${this.apiUrl}/logout`, {}).subscribe({
+      error: error => console.error('No se pudo cerrar la sesión en el servidor:', error)
+    });
     this.currentUserSubject.next(null);
 
     this.router.navigate(['/']);
@@ -120,10 +125,6 @@ export class AuthService {
     localStorage.removeItem(PRODUCT_STATE_INVENTORY_KEY);
     localStorage.removeItem(PRODUCT_STATE_ORDERS_KEY);
     localStorage.removeItem(CLIENT_ORDER_LIST_STATE_KEY);
-  }
-
-  public getAuthToken(): string | null {
-    return this.currentUserSubject.value?.token || localStorage.getItem(AUTH_TOKEN_KEY);
   }
 
   public getRolAuthToken() {
@@ -172,15 +173,8 @@ export class AuthService {
   // GESTIÓN DE TOKEN Y ALMACENAMIENTO (PRIVADO)
   // ----------------------------------------------------------------------
 
-  private storeAuthData(response: AuthResponse): void {
-    localStorage.setItem(AUTH_TOKEN_KEY, response.token);
-
-    const user: UserLogged = {
-      ...response.usuario,
-      token: response.token,
-    };
-
-    this.currentUserSubject.next(user);
+  private storeAuthData(response: LoginResponse): void {
+    this.currentUserSubject.next(response.usuario);
   }
 
 }

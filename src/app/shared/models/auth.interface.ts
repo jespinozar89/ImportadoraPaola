@@ -29,16 +29,21 @@ export interface LoginPayload {
   password: string;
 }
 
-export interface AuthResponse {
-  token: string;
-  usuario: {
-    id: number;
-    email: string;
-    telefono: string;
-    nombres: string;
-    apellidos: string;
-    rol?: string;
-  };
+export interface LoginResponse {
+  usuario: UserLogged;
+}
+
+export interface AuthenticatedProfile {
+  usuario_id: number;
+  email: string;
+  telefono: string;
+  nombres: string;
+  apellidos: string;
+  rol?: string;
+}
+
+export interface ApiMessageResponse {
+  message: string;
 }
 
 export interface UserLogged {
@@ -48,5 +53,4 @@ export interface UserLogged {
   apellidos: string;
   telefono: string;
   rol?: string;
-  token?: string;
 }

@@ -1,4 +1,3 @@
-export const AUTH_TOKEN_KEY = 'jwt_token';
 export const CLIENT_ORDER_LIST_STATE_KEY = 'clientOrderListState';
 export const GUEST_USER_INFO_KEY = 'guest_user_info';
 export const LAST_PAGE_KEY = 'lastPage';
