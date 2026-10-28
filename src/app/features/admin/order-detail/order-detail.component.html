@@ -232,8 +232,8 @@
               <select id="statusSelect" class="form-select" [(ngModel)]="selectedStatus">
                 <option value="Pendiente">Pendiente</option>
                 <option value="EnPreparacion">Preparando</option>
-                <option value="Despachado">Despachado</option>
-                <option value="Listo">Listo para retiro</option>
+                <option *ngIf="order?.tipo_entrega === 'despacho'" value="Despachado">Despachado</option>
+                <option *ngIf="order?.tipo_entrega === 'retiro'" value="Listo">Listo para retiro</option>
                 <option value="Entregado">Entregado</option>
                 <option value="Cancelado">Cancelado</option>
               </select>
