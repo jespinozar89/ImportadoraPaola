@@ -101,6 +101,8 @@ export class AuthService {
         telefono: profile.telefono,
         nombres: profile.nombres,
         apellidos: profile.apellidos,
+        rut: profile.rut,
+        dv: profile.dv,
         rol: profile.rol
       });
     } catch (error: unknown) {
@@ -140,7 +142,9 @@ export class AuthService {
       nombres: user?.nombres,
       apellidos: user?.apellidos,
       email: user?.email,
-      telefono: user?.telefono
+      telefono: user?.telefono,
+      rut: user?.rut,
+      dv: user?.dv
     }
 
     return userProfile ?? null;

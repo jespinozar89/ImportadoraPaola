@@ -8,6 +8,7 @@ export interface Pedido {
   usuario_id?: number | null;
   nombre_contacto: string;
   email_contacto: string;
+  rut_contacto: string;
   telefono_contacto: string;
   direccion_envio: string;
   tipo_entrega: TipoEntrega;
@@ -33,6 +34,7 @@ export interface DetallePedido {
 export interface CrearPedido {
   nombre_contacto: string;
   email_contacto: string;
+  rut_contacto: string;
   telefono_contacto: string;
   direccion_envio: string;
   tipo_entrega: TipoEntrega;

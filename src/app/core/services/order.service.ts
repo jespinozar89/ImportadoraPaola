@@ -14,7 +14,7 @@ export class OrderService {
 
   constructor(private http: HttpClient) { }
 
-  async create(orderData: Partial<CrearPedido>): Promise<Pedido> {
+  async create(orderData: CrearPedido): Promise<Pedido> {
     const call$ = this.http.post<Pedido>(this.apiUrl, orderData);
     return await firstValueFrom(call$);
   }

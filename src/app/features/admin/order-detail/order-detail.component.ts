@@ -13,6 +13,7 @@ import { ActualizarNumeroFleteRequest, CrearEnvioRequest, Envio } from '@/shared
 import { HttpErrorResponse } from '@angular/common/http';
 import { ShipmentTrackingCardComponent } from '@/shared/components/shipment-tracking-card/shipment-tracking-card.component';
 import { getHttpErrorMessage } from '@/shared/utils/http-error-message';
+import { formatChileanRut, isValidChileanRut } from '@/shared/utils/chilean-rut';
 
 @Component({
   selector: 'app-order-detail',
@@ -461,6 +462,12 @@ export class OrderDetailComponent implements OnInit {
   getClientPhone(): string {
     const rawPhone = this.order?.telefono_contacto || this.order?.usuario?.telefono || '';
     return rawPhone ? this.formatPhone(rawPhone) : 'Sin teléfono de contacto';
+  }
+
+  getClientRut(): string {
+    return this.order?.rut_contacto && isValidChileanRut(this.order.rut_contacto)
+      ? formatChileanRut(this.order.rut_contacto)
+      : 'No informado';
   }
 
   getAvatarInitials(): string {

@@ -11,6 +11,7 @@ import { UtilsService } from '@/shared/service/utils.service';
 import { DireccionUsuario } from '@/shared/models/direccion.model';
 import { Region } from '@/shared/models/ubicacion.interface';
 import { getHttpErrorMessage } from '@/shared/utils/http-error-message';
+import { formatChileanRut, isValidChileanRut, normalizeChileanRut } from '@/shared/utils/chilean-rut';
 
 @Component({
   selector: 'app-perfil-form',
@@ -54,6 +55,7 @@ export class PerfilFormComponent implements OnInit {
       apellido: ['', Validators.required],
       correo: [{ value: '', disabled: true }, [Validators.required, Validators.email]],
       telefono: ['', Validators.required],
+      rut: ['', Validators.required],
       passwordNew: [''],
       passwordConfirm: ['']
     });
@@ -79,8 +81,23 @@ export class PerfilFormComponent implements OnInit {
       nombre: this.authService.getCurrentUserProfile()?.nombres!,
       apellido: this.authService.getCurrentUserProfile()?.apellidos!,
       correo: this.authService.getCurrentUserProfile()?.email!,
-      telefono: this.authService.getCurrentUserProfile()?.telefono!
+      telefono: this.authService.getCurrentUserProfile()?.telefono!,
+      rut: this.currentUserRut()
     });
+  }
+
+  private currentUserRut(): string {
+    const profile = this.authService.getCurrentUserProfile();
+    return profile?.rut != null && profile.dv
+      ? formatChileanRut(`${profile.rut}-${profile.dv}`)
+      : '';
+  }
+
+  formatProfileRut(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const formattedRut = formatChileanRut(input.value);
+    input.value = formattedRut;
+    this.perfilForm.get('rut')?.setValue(formattedRut, { emitEvent: false });
   }
 
   // --- MÉTODOS DE UBICACIONES ---
@@ -247,6 +264,7 @@ export class PerfilFormComponent implements OnInit {
         apellidos: datos.apellido,
         telefono: datos.telefono,
         email: this.authService.getCurrentUserProfile()?.email!,
+        rut: normalizeChileanRut(datos.rut),
         password: password,
         passwordNew: datos.passwordNew,
       };
@@ -273,6 +291,11 @@ export class PerfilFormComponent implements OnInit {
 
     if (!this.perfilForm.value.telefono) {
       this.toast.warning('Debe ingresar un teléfono');
+      return;
+    }
+
+    if (!isValidChileanRut(this.perfilForm.value.rut)) {
+      this.toast.warning('Debe ingresar un RUT chileno válido');
       return;
     }
 

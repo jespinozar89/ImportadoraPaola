@@ -13,7 +13,7 @@ import { UtilsService } from '@/shared/service/utils.service';
 import { environment } from '@/environments/environment';
 import { BankInfo } from '@/shared/models/bank-info.interface';
 import { KlapModalComponent } from "@/shared/components/klap-modal/klap-modal.component";
-import { Order, OrderResponse } from '@/shared/models/klap.interface';
+import { Order, OrderResponse, User } from '@/shared/models/klap.interface';
 import { AuthService } from '../../../core/services/auth.service';
 import { ProductService } from '@/core/services/product.service';
 import { GuestUserData } from '@/shared/models/auth.interface';
@@ -24,9 +24,11 @@ import { Region } from '@/shared/models/ubicacion.interface';
 import { DireccionUsuario } from '@/shared/models/direccion.model';
 import { GUEST_USER_INFO_KEY } from '@/core/constants/storage-keys';
 import { getHttpErrorMessage } from '@/shared/utils/http-error-message';
+import { formatChileanRut, isValidChileanRut, normalizeChileanRut } from '@/shared/utils/chilean-rut';
 
 declare var bootstrap: any;
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+type CheckoutUser = Omit<User, 'rut'> & { rut: string };
 
 @Component({
   selector: 'app-product-shopping-card',
@@ -71,6 +73,7 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
     apellidos: '',
     email: '',
     telefono: '',
+    rut: '',
     direccion: ''
   };
 
@@ -386,9 +389,18 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
     this.utilsService.openModalById('guestDataModal');
   }
 
+  formatGuestRut(value: string): void {
+    this.guestForm.rut = formatChileanRut(value);
+  }
+
   confirmGuestData(): void {
     if (!this.guestForm.nombres || !this.guestForm.apellidos || !this.guestForm.email || !this.guestForm.telefono) {
       this.toast.warning('Por favor completa todos los campos de contacto.');
+      return;
+    }
+
+    if (!isValidChileanRut(this.guestForm.rut)) {
+      this.toast.warning('Por favor ingresa un RUT chileno válido.');
       return;
     }
 
@@ -484,6 +496,22 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
         return;
       }
 
+      const currentUser = this.authService.getCurrentUserProfile();
+      const rutRegistrado = currentUser?.rut != null && currentUser.dv
+        ? `${currentUser.rut}-${currentUser.dv}`
+        : '';
+      if (this.isAuthenticated && !isValidChileanRut(rutRegistrado)) {
+        this.processingOrder = false;
+        this.toast.error('Tu RUT no está registrado o no es válido. Actualízalo en el menú Perfil para continuar.');
+        return;
+      }
+
+      if (!this.isAuthenticated && (!this.guestData || !isValidChileanRut(this.guestData.rut))) {
+        this.processingOrder = false;
+        this.openGuestDataModal();
+        return;
+      }
+
       await this.validateStockInCart();
       const itemsConStock = this.cartItems.filter(item => this.hasStock(item.producto_id));
 
@@ -500,8 +528,7 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
         return;
       }
 
-      const currentUser = this.authService.getCurrentUserProfile();
-      let userPayload: any;
+      let userPayload: CheckoutUser;
 
       let direccionTexto = 'Retiro en tienda.';
       let comunaFinal = 'Valparaíso';
@@ -548,7 +575,7 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
       if (currentUser && currentUser.email) {
         userPayload = {
           email: currentUser.email,
-          rut: null,
+          rut: normalizeChileanRut(rutRegistrado),
           first_name: currentUser.nombres?.trim() || 'Cliente',
           last_name: currentUser.apellidos?.trim() || 'Registrado',
           phone: currentUser.telefono?.replace(/\s+/g, '') || '',
@@ -561,7 +588,7 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
       } else if (this.guestData) {
         userPayload = {
           email: this.guestData.email,
-          rut: null,
+          rut: normalizeChileanRut(this.guestData.rut),
           first_name: this.guestData.nombres?.trim() || 'Cliente',
           last_name: this.guestData.apellidos?.trim() || 'Invitado',
           phone: this.guestData.telefono?.replace(/\s+/g, '') || '',
@@ -608,43 +635,42 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
         total: totalCalculado
       };
 
-      await this.createOrder(this.orderData.referenceId, userPayload);
+      const pedidoId = await this.createOrder(this.orderData.referenceId, userPayload);
+      if (!pedidoId) {
+        throw new Error('No se pudo registrar el pedido.');
+      }
       await this.openKlapModal();
 
     } catch (error) {
-      this.toast.error('Error al procesar el pedido');
+      this.toast.error(getHttpErrorMessage(error, 'Error al procesar el pedido'));
       this.processingOrder = false;
       this.closeKlapModal();
     }
   }
 
-  async createOrder(klapOrderId: string, userPayload: any): Promise<number> {
-    try {
-      let orderData: CrearPedido = {
-        nombre_contacto: `${userPayload.first_name} ${userPayload.last_name}`.trim(),
-        email_contacto: userPayload.email,
-        telefono_contacto: userPayload.phone,
-        direccion_envio: userPayload.address_line,
-        tipo_entrega: this.tipoEntrega,
-        subtotal: this.subtotal,
-        costo_envio: this.tipoEntrega === 'despacho' ? this.costoEnvio : 0,
-        total: this.total,
-        detalles: this.cartItems.map(item => ({
-          producto_id: item.producto_id,
-          nombre: item.nombre,
-          cantidad: item.cantidad,
-          precio_unitario: item.precio,
-          precio_unitario_oferta: item.precio_oferta ? item.precio_oferta : null
-        })),
-        klap_order_id: klapOrderId || null
-      };
+  async createOrder(klapOrderId: string, userPayload: CheckoutUser): Promise<number> {
+    const orderData: CrearPedido = {
+      nombre_contacto: `${userPayload.first_name} ${userPayload.last_name}`.trim(),
+      email_contacto: userPayload.email,
+      rut_contacto: userPayload.rut,
+      telefono_contacto: userPayload.phone,
+      direccion_envio: userPayload.address_line || '',
+      tipo_entrega: this.tipoEntrega,
+      subtotal: this.subtotal,
+      costo_envio: this.tipoEntrega === 'despacho' ? this.costoEnvio : 0,
+      total: this.total,
+      detalles: this.cartItems.map(item => ({
+        producto_id: item.producto_id,
+        nombre: item.nombre,
+        cantidad: item.cantidad,
+        precio_unitario: item.precio,
+        precio_unitario_oferta: item.precio_oferta ? item.precio_oferta : null
+      })),
+      klap_order_id: klapOrderId || null
+    };
 
-      const response = await this.orderService.create(orderData);
-      return response.pedido_id || 0;
-    } catch (error) {
-      console.error('Error al crear el pedido:', error);
-      return 0;
-    }
+    const response = await this.orderService.create(orderData);
+    return response.pedido_id || 0;
   }
 
   // --- MÉTODOS AUXILIARES Y CARRITO ---
@@ -914,6 +940,7 @@ export class ProductShoppingCardComponent implements OnInit, AfterViewInit {
       apellidos: '',
       email: '',
       telefono: '',
+      rut: '',
       direccion: ''
     };
 

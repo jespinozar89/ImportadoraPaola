@@ -3,6 +3,7 @@ export interface GuestUserData {
   apellidos: string;
   email: string;
   telefono: string;
+  rut: string;
   direccion?: string;
 }
 
@@ -20,6 +21,7 @@ export interface UpdateUserDTO {
   apellidos: string;
   email: string;
   telefono: string;
+  rut: string;
   password: string;
   passwordNew: string;
 }
@@ -39,6 +41,8 @@ export interface AuthenticatedProfile {
   telefono: string;
   nombres: string;
   apellidos: string;
+  rut?: number | null;
+  dv?: string | null;
   rol?: string;
 }
 
@@ -52,5 +56,7 @@ export interface UserLogged {
   nombres: string;
   apellidos: string;
   telefono: string;
+  rut?: number | null;
+  dv?: string | null;
   rol?: string;
 }

@@ -32,28 +32,34 @@
           <input type="tel" class="form-control" formControlName="telefono" />
         </div>
         <div class="col-md-6">
-          <label class="form-label">Nueva contraseña</label>
-          <div class="input-group">
-            <input [type]="showPassword ? 'text' : 'password'" class="form-control" placeholder="Nueva contraseña"
-              formControlName="passwordNew"
-              [attr.aria-invalid]="perfilForm.get('passwordNew')?.invalid && perfilForm.get('passwordNew')?.touched" />
-            <button type="button" class="btn btn-outline-secondary" (click)="togglePasswordVisibility()" tabindex="-1"
-              aria-label="Mostrar/ocultar nueva contraseña">
-              <i class="bi" [ngClass]="showPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
-            </button>
-          </div>
+          <label class="form-label">RUT</label>
+          <input type="text" class="form-control" formControlName="rut" (input)="formatProfileRut($event)"
+            placeholder="12.345.678-5" maxlength="12" autocomplete="off" />
         </div>
-
-        <div class="col-md-6">
-          <label class="form-label">Confirmar contraseña</label>
-          <div class="input-group">
-            <input [type]="showPassword ? 'text' : 'password'" class="form-control"
-              placeholder="Confirmar contraseña" formControlName="passwordConfirm"
-              [attr.aria-invalid]="perfilForm.get('passwordConfirm')?.invalid && perfilForm.get('passwordConfirm')?.touched" />
-            <button type="button" class="btn btn-outline-secondary" (click)="togglePasswordVisibility()" tabindex="-1"
-              aria-label="Mostrar/ocultar confirmación de contraseña">
-              <i class="bi" [ngClass]="showPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
-            </button>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Nueva contraseña</label>
+            <div class="input-group">
+              <input [type]="showPassword ? 'text' : 'password'" class="form-control" placeholder="Nueva contraseña"
+                formControlName="passwordNew"
+                [attr.aria-invalid]="perfilForm.get('passwordNew')?.invalid && perfilForm.get('passwordNew')?.touched" />
+              <button type="button" class="btn btn-outline-secondary" (click)="togglePasswordVisibility()" tabindex="-1"
+                aria-label="Mostrar/ocultar nueva contraseña">
+                <i class="bi" [ngClass]="showPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
+              </button>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Confirmar contraseña</label>
+            <div class="input-group">
+              <input [type]="showPassword ? 'text' : 'password'" class="form-control" placeholder="Confirmar contraseña"
+                formControlName="passwordConfirm"
+                [attr.aria-invalid]="perfilForm.get('passwordConfirm')?.invalid && perfilForm.get('passwordConfirm')?.touched" />
+              <button type="button" class="btn btn-outline-secondary" (click)="togglePasswordVisibility()" tabindex="-1"
+                aria-label="Mostrar/ocultar confirmación de contraseña">
+                <i class="bi" [ngClass]="showPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -113,7 +119,8 @@
               <button type="button" class="btn btn-sm btn-outline-danger" (click)="deleteAddress(dir.direccion_id!)">
                 <i class="bi bi-trash me-1"></i>Eliminar
               </button>
-              <button *ngIf="!dir.es_predeterminada" type="button" class="btn btn-sm btn-link text-decoration-none ms-auto p-0"
+              <button *ngIf="!dir.es_predeterminada" type="button"
+                class="btn btn-sm btn-link text-decoration-none ms-auto p-0"
                 (click)="setDefaultAddress(dir.direccion_id!)">
                 Hacer favorita
               </button>
@@ -223,7 +230,8 @@
           </div>
 
           <div class="form-check">
-            <input class="form-check-input" type="checkbox" formControlName="es_predeterminada" id="checkPredeterminadaModal">
+            <input class="form-check-input" type="checkbox" formControlName="es_predeterminada"
+              id="checkPredeterminadaModal">
             <label class="form-check-label" for="checkPredeterminadaModal">
               Marcar como dirección predeterminada
             </label>
