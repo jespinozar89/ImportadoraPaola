@@ -26,6 +26,7 @@ export class PerfilFormComponent implements OnInit {
   addressForm!: FormGroup;
 
   showPassword = false;
+  canEditRut = false;
 
   direcciones: DireccionUsuario[] = [];
   cargandoDirecciones = false;
@@ -55,7 +56,7 @@ export class PerfilFormComponent implements OnInit {
       apellido: ['', Validators.required],
       correo: [{ value: '', disabled: true }, [Validators.required, Validators.email]],
       telefono: ['', Validators.required],
-      rut: ['', Validators.required],
+      rut: [{ value: '', disabled: true }, Validators.required],
       passwordNew: [''],
       passwordConfirm: ['']
     });
@@ -75,15 +76,31 @@ export class PerfilFormComponent implements OnInit {
   }
 
   async loadData() {
-    await this.authService.checkSession();
+    try {
+      await this.authService.checkSession();
+      const profile = this.authService.getCurrentUserProfile();
+      if (!profile?.email) {
+        throw new Error('No se pudo verificar la información del perfil.');
+      }
 
-    this.perfilForm.patchValue({
-      nombre: this.authService.getCurrentUserProfile()?.nombres!,
-      apellido: this.authService.getCurrentUserProfile()?.apellidos!,
-      correo: this.authService.getCurrentUserProfile()?.email!,
-      telefono: this.authService.getCurrentUserProfile()?.telefono!,
-      rut: this.currentUserRut()
-    });
+      const currentRut = this.currentUserRut();
+      this.canEditRut = !isValidChileanRut(currentRut);
+      this.perfilForm.patchValue({
+        nombre: profile.nombres,
+        apellido: profile.apellidos,
+        correo: profile.email,
+        telefono: profile.telefono,
+        rut: currentRut
+      });
+
+      if (this.canEditRut) {
+        this.perfilForm.get('rut')?.enable();
+      }
+    } catch (error: unknown) {
+      this.canEditRut = false;
+      this.perfilForm.get('rut')?.disable();
+      this.toast.error(getHttpErrorMessage(error, 'No se pudo verificar tu perfil. El RUT permanecerá bloqueado.'));
+    }
   }
 
   private currentUserRut(): string {
@@ -264,7 +281,9 @@ export class PerfilFormComponent implements OnInit {
         apellidos: datos.apellido,
         telefono: datos.telefono,
         email: this.authService.getCurrentUserProfile()?.email!,
-        rut: normalizeChileanRut(datos.rut),
+        rut: this.canEditRut
+          ? normalizeChileanRut(datos.rut)
+          : normalizeChileanRut(this.currentUserRut()),
         password: password,
         passwordNew: datos.passwordNew,
       };
@@ -294,7 +313,7 @@ export class PerfilFormComponent implements OnInit {
       return;
     }
 
-    if (!isValidChileanRut(this.perfilForm.value.rut)) {
+    if (this.canEditRut && !isValidChileanRut(this.perfilForm.value.rut)) {
       this.toast.warning('Debe ingresar un RUT chileno válido');
       return;
     }

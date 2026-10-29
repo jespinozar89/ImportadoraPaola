@@ -16,7 +16,6 @@ export function formatChileanRut(value: string | null | undefined): string {
 }
 
 export function isValidChileanRut(value: string | null | undefined): boolean {
-  console.log('isValidChileanRut called with value:', value);
   const normalized = (value ?? '').replace(/[.\s-]/g, '').toUpperCase();
   if (!/^\d{7,8}[0-9K]$/.test(normalized)) return false;
 

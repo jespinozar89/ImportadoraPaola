@@ -5,6 +5,7 @@ import { AuthService } from '@/core/services/auth.service';
 import { CreateUserDTO } from '@/shared/models/auth.interface';
 import { HotToastService } from '@ngxpert/hot-toast';
 import { getHttpErrorMessage } from '@/shared/utils/http-error-message';
+import { formatChileanRut, isValidChileanRut, normalizeChileanRut } from '@/shared/utils/chilean-rut';
 
 @Component({
   selector: 'app-sign-up',
@@ -19,6 +20,7 @@ export class SignUpModalComponent {
   apellidos = signal('');
   email = signal('');
   telefono = signal('');
+  rut = signal('');
   password = signal('');
   confirmPassword = signal('');
   showPassword = signal(false);
@@ -29,6 +31,7 @@ export class SignUpModalComponent {
   apellidosValid = computed(() => this.apellidos().trim().length >= 2);
   emailValid = computed(() => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email()));
   telefonoValid = computed(() => /^[0-9]{9}$/.test(this.telefono()));
+  rutValid = computed(() => isValidChileanRut(this.rut()));
   passwordValid = computed(() => this.password().length >= 6);
   confirmPasswordValid = computed(() => this.password() === this.confirmPassword());
 
@@ -37,6 +40,7 @@ export class SignUpModalComponent {
     this.apellidosValid() &&
     this.emailValid() &&
     this.telefonoValid() &&
+    this.rutValid() &&
     this.passwordValid() &&
     this.confirmPasswordValid()
   );
@@ -48,10 +52,15 @@ export class SignUpModalComponent {
 
   onInputChange(
     event: Event,
-    field: 'nombres' | 'apellidos' | 'email' | 'telefono' | 'password' | 'confirmPassword'
+    field: 'nombres' | 'apellidos' | 'email' | 'telefono' | 'rut' | 'password' | 'confirmPassword'
   ) {
-    let value = (event.target as HTMLInputElement).value;
+    const input = event.target as HTMLInputElement;
+    let value = input.value;
     if (field === 'telefono') value = value.replace(/\D/g, '');
+    if (field === 'rut') {
+      value = formatChileanRut(value);
+      input.value = value;
+    }
     this[field].set(value);
   }
 
@@ -74,6 +83,7 @@ export class SignUpModalComponent {
       apellidos: this.apellidos(),
       email: this.email(),
       telefono: this.telefono(),
+      rut: normalizeChileanRut(this.rut()),
       password: this.password(),
     };
 
@@ -105,6 +115,7 @@ export class SignUpModalComponent {
     this.apellidos.set('');
     this.email.set('');
     this.telefono.set('');
+    this.rut.set('');
     this.password.set('');
     this.confirmPassword.set('');
   }

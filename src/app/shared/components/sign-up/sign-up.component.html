@@ -19,107 +19,83 @@
 
               <div class="row">
                 <div class="col-md-6 mb-3">
-                  <input
-                    type="text"
-                    class="form-control"
-                    placeholder="Nombres"
-                    name="nombres"
-                    [value]="nombres()"
-                    (input)="onInputChange($event, 'nombres')"
-                    required
-                    [attr.aria-invalid]="!nombresValid()"
-                  />
+                  <input type="text" class="form-control" placeholder="Nombres" name="nombres" [value]="nombres()"
+                    (input)="onInputChange($event, 'nombres')" required [attr.aria-invalid]="!nombresValid()" />
                   <div *ngIf="formTouched() && !nombresValid()" class="text-danger mt-1">Campo nombre obligatorio</div>
                 </div>
 
                 <div class="col-md-6 mb-3">
-                  <input
-                    type="text"
-                    class="form-control"
-                    placeholder="Apellidos"
-                    name="apellidos"
-                    [value]="apellidos()"
-                    (input)="onInputChange($event, 'apellidos')"
-                    required
-                    [attr.aria-invalid]="!apellidosValid()"
-                  />
-                  <div *ngIf="formTouched() && !apellidosValid()" class="text-danger mt-1">Campo apellido obligatorio</div>
+                  <input type="text" class="form-control" placeholder="Apellidos" name="apellidos" [value]="apellidos()"
+                    (input)="onInputChange($event, 'apellidos')" required [attr.aria-invalid]="!apellidosValid()" />
+                  <div *ngIf="formTouched() && !apellidosValid()" class="text-danger mt-1">Campo apellido obligatorio
+                  </div>
                 </div>
               </div>
 
               <div class="mb-3">
-                <input
-                  type="email"
-                  class="form-control"
-                  placeholder="correo@ejemplo.com"
-                  name="email"
-                  [value]="email()"
-                  (input)="onInputChange($event, 'email')"
-                  required
-                  [attr.aria-invalid]="!emailValid()"
-                />
+                <input type="email" class="form-control" placeholder="correo@ejemplo.com" name="email" [value]="email()"
+                  (input)="onInputChange($event, 'email')" required [attr.aria-invalid]="!emailValid()" />
                 <div *ngIf="formTouched() && !emailValid()" class="text-danger mt-1">Email inválido</div>
               </div>
 
               <div class="mb-3">
-                <input
-                  type="text"
-                  inputmode="numeric"
-                  class="form-control"
-                  placeholder="Teléfono (9 dígitos)"
-                  name="telefono"
-                  [value]="telefono()"
-                  (input)="onInputChange($event, 'telefono')"
-                  required
-                  [attr.aria-invalid]="!telefonoValid()"
-                />
-                <div *ngIf="formTouched() && !telefonoValid()" class="text-danger mt-1">Teléfono inválido (solo números, 9 dígitos)</div>
+                <input type="text" inputmode="numeric" class="form-control" placeholder="Teléfono (9 dígitos)"
+                  name="telefono" [value]="telefono()" (input)="onInputChange($event, 'telefono')" required
+                  [attr.aria-invalid]="!telefonoValid()" />
+                <div *ngIf="formTouched() && !telefonoValid()" class="text-danger mt-1">Teléfono inválido (solo números,
+                  9 dígitos)</div>
+              </div>
+
+              <div class="mb-3">
+                <!-- <label for="signUpRut" class="form-label">RUT *</label> -->
+                <input id="signUpRut" type="text" inputmode="text" class="form-control" placeholder="RUT 12.345.678-5"
+                  name="rut" maxlength="12" autocomplete="off" [value]="rut()" (input)="onInputChange($event, 'rut')"
+                  required [attr.aria-invalid]="formTouched() && !rutValid()"
+                  aria-describedby="signUpRutHelp signUpRutError" />
+                <div id="signUpRutHelp" class="form-text">Ingresa tu RUT con dígito verificador.</div>
+                <div *ngIf="formTouched() && !rutValid()" id="signUpRutError" class="text-danger mt-1">
+                  Ingresa un RUT chileno válido.
+                </div>
+              </div>
+
+              <div
+                class="alert alert-light border border-start border-4 border-primary d-flex align-items-start gap-2 mb-3"
+                role="note">
+                <i class="bi bi-info-circle-fill text-primary mt-1" aria-hidden="true"></i>
+                <div class="small">
+                  <p class="mb-0">
+                    Utilizaremos estos datos para validar tu identidad y mantenerte informado sobre tus compras.
+                    Verifica que tu <strong>RUT</strong> y datos personales sean correctos.
+                  </p>
+                </div>
               </div>
 
               <div class="mb-3">
                 <div class="input-group">
-                  <input
-                    [type]="showPassword() ? 'text' : 'password'"
-                    class="form-control"
-                    placeholder="Contraseña"
-                    name="password"
-                    [value]="password()"
-                    (input)="onInputChange($event, 'password')"
-                    required
-                    [attr.aria-invalid]="!passwordValid()"
-                  />
-                  <button
-                    type="button"
-                    class="btn btn-outline-secondary"
-                    (click)="togglePasswordVisibility()"
-                    tabindex="-1"
-                    aria-label="Mostrar/ocultar contraseña">
+                  <input [type]="showPassword() ? 'text' : 'password'" class="form-control" placeholder="Contraseña"
+                    name="password" [value]="password()" (input)="onInputChange($event, 'password')" required
+                    [attr.aria-invalid]="!passwordValid()" />
+                  <button type="button" class="btn btn-outline-secondary" (click)="togglePasswordVisibility()"
+                    tabindex="-1" aria-label="Mostrar/ocultar contraseña">
                     <i class="bi" [ngClass]="showPassword() ? 'bi-eye-slash' : 'bi-eye'"></i>
                   </button>
                 </div>
-                <div *ngIf="formTouched() && !passwordValid()" class="text-danger mt-1">Contraseña mínimo 6 caracteres</div>
+                <div *ngIf="formTouched() && !passwordValid()" class="text-danger mt-1">Contraseña mínimo 6 caracteres
+                </div>
               </div>
 
               <div class="mb-3">
-                <input
-                  [type]="showPassword() ? 'text' : 'password'"
-                  class="form-control"
-                  placeholder="Confirmar contraseña"
-                  name="confirmPassword"
-                  [value]="confirmPassword()"
-                  (input)="onInputChange($event, 'confirmPassword')"
-                  required
-                  [attr.aria-invalid]="!confirmPasswordValid()"
-                />
-                <div *ngIf="formTouched() && !confirmPasswordValid()" class="text-danger mt-1">Las contraseñas no coinciden</div>
+                <input [type]="showPassword() ? 'text' : 'password'" class="form-control"
+                  placeholder="Confirmar contraseña" name="confirmPassword" [value]="confirmPassword()"
+                  (input)="onInputChange($event, 'confirmPassword')" required
+                  [attr.aria-invalid]="!confirmPasswordValid()" />
+                <div *ngIf="formTouched() && !confirmPasswordValid()" class="text-danger mt-1">Las contraseñas no
+                  coinciden</div>
 
               </div>
 
               <div class="d-grid gap-2">
-                <button
-                  type="submit"
-                  class="btn btn-primary"
-                  [disabled]="isLoading()">
+                <button type="submit" class="btn btn-primary" [disabled]="isLoading()">
                   <ng-container *ngIf="isLoading()">
                     <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                     Registrando...
